@@ -1,0 +1,126 @@
+asyncapi: '2.6.0'
+info:
+  title: App Store Server Notifications V2
+  version: '2.0'
+  description: >-
+    App Store Server Notifications V2 is Apple's webhook surface for in-app
+    purchase and subscription lifecycle events. Apple POSTs a JWS-signed payload
+    to the production and sandbox URLs registered in App Store Connect every
+    time a transaction or subscription state changes. The signed payload wraps
+    the responseBodyV2DecodedPayload, which contains the notificationType, an
+    optional subtype, the JWSTransaction, and (for subscription events) the
+    JWSRenewalInfo. Providers verify the JWS with Apple's certificate chain and
+    then react to the notification.
+  contact:
+    name: Apple Developer Documentation
+    url: https://developer.apple.com/documentation/appstoreservernotifications
+defaultContentType: application/json
+channels:
+  app-store-server-notifications/v2:
+    description: >-
+      Production webhook channel. Apple POSTs a signedPayload (JWS) to the URL
+      a provider configures in App Store Connect for each store-front event.
+    publish:
+      operationId: receiveAppStoreServerNotification
+      summary: Receive App Store Server Notification V2
+      message:
+        $ref: '#/components/messages/AppStoreServerNotificationV2'
+components:
+  messages:
+    AppStoreServerNotificationV2:
+      name: AppStoreServerNotificationV2
+      title: App Store Server Notification V2
+      summary: Signed App Store transaction or subscription lifecycle event.
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - signedPayload
+        properties:
+          signedPayload:
+            type: string
+            description: >-
+              Signed JWS containing the responseBodyV2DecodedPayload. Decode
+              and verify against Apple's certificate chain before trusting.
+      examples:
+        - name: SubscribedEvent
+          payload:
+            signedPayload: 'eyJhbGciOiJFUzI1NiIsIng1Yy...redacted...'
+  schemas:
+    ResponseBodyV2DecodedPayload:
+      type: object
+      properties:
+        notificationType:
+          type: string
+          enum:
+            - CONSUMPTION_REQUEST
+            - DID_CHANGE_RENEWAL_PREF
+            - DID_CHANGE_RENEWAL_STATUS
+            - DID_FAIL_TO_RENEW
+            - DID_RENEW
+            - EXPIRED
+            - EXTERNAL_PURCHASE_TOKEN
+            - GRACE_PERIOD_EXPIRED
+            - OFFER_REDEEMED
+            - ONE_TIME_CHARGE
+            - PRICE_INCREASE
+            - REFUND
+            - REFUND_DECLINED
+            - REFUND_REVERSED
+            - RENEWAL_EXTENDED
+            - RENEWAL_EXTENSION
+            - REVOKE
+            - SUBSCRIBED
+            - TEST
+        subtype:
+          type: string
+          enum:
+            - ACCEPTED
+            - AUTO_RENEW_DISABLED
+            - AUTO_RENEW_ENABLED
+            - BILLING_RECOVERY
+            - BILLING_RETRY
+            - DOWNGRADE
+            - FAILURE
+            - GRACE_PERIOD
+            - INITIAL_BUY
+            - PENDING
+            - PRICE_INCREASE
+            - PRODUCT_NOT_FOR_SALE
+            - RESUBSCRIBE
+            - SUMMARY
+            - UNREPORTED
+            - UPGRADE
+            - VOLUNTARY
+        notificationUUID:
+          type: string
+          format: uuid
+        version:
+          type: string
+          example: '2.0'
+        signedDate:
+          type: integer
+          format: int64
+          description: Notification creation time in milliseconds since epoch.
+        data:
+          type: object
+          properties:
+            appAppleId:
+              type: integer
+              format: int64
+            bundleId:
+              type: string
+            bundleVersion:
+              type: string
+            environment:
+              type: string
+              enum: [Sandbox, Production]
+            signedTransactionInfo:
+              type: string
+              description: JWS containing the JWSTransaction payload.
+            signedRenewalInfo:
+              type: string
+              description: JWS containing the JWSRenewalInfo payload.
+            status:
+              type: integer
+              description: Subscription status code.

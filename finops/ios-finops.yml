@@ -1,0 +1,80 @@
+name: iOS / Apple Developer FinOps
+specification: FinOps Framework alignment + FOCUS-style summary
+url: https://raw.githubusercontent.com/api-evangelist/ios/main/finops/ios-finops.yml
+description: >-
+  FinOps-style summary of Apple's iOS developer billing surface. Apple does
+  not bill iOS server APIs by API call. Instead, costs come from (a) Apple
+  Developer Program membership, (b) App Store commission on paid apps and
+  IAPs, and (c) overage on bundled per-feature quotas (WeatherKit, Xcode Cloud
+  compute hours, CloudKit storage above 1 PB).
+modified: '2026-05-22'
+
+billing_model:
+  - dimension: Membership
+    description: Flat annual fee per developer account.
+    items:
+      - sku: apple-developer-program
+        unit: USD per year
+        rate: 99
+        cadence: annual
+      - sku: apple-developer-enterprise-program
+        unit: USD per year
+        rate: 299
+        cadence: annual
+
+  - dimension: Revenue Share
+    description: >-
+      Apple takes a percentage of every paid app, IAP, and subscription routed
+      through StoreKit. Rate depends on Small Business Program enrollment and
+      whether a subscription has rolled over its first paid year.
+    rates:
+      - rate: '30%'
+        applies_to: Standard apps and first-year subscriptions
+      - rate: '15%'
+        applies_to: After 12 paid months on an auto-renewing subscription
+      - rate: '15%'
+        applies_to: Members of the App Store Small Business Program (<$1M proceeds / year)
+
+  - dimension: Bundled Capacity / Overage
+    description: Per-feature capacity bundled with Apple Developer Program membership.
+    items:
+      - service: Xcode Cloud
+        bundled: 25 compute hours per month
+        overage: Charged per additional compute-hour bundle purchased in App Store Connect.
+      - service: CloudKit
+        bundled: 1 PB storage included
+        overage: Above 1 PB is metered (publicly documented at developer.apple.com/icloud).
+      - service: WeatherKit REST API
+        bundled: 500,000 calls per month
+        overage: Above 500K requires a paid WeatherKit tier (multiple call-volume tiers).
+
+cost_signals:
+  - source: App Store Connect → Sales and Trends
+    description: Daily and monthly reports of units, proceeds, and refunds per app / SKU.
+  - source: App Store Connect → Payments and Financial Reports
+    description: Monthly financial reports per region with Apple's commission already deducted.
+  - source: App Store Connect API → /v1/financeReports
+    description: Programmatic download of the same financial reports as CSV.
+  - source: App Store Connect API → /v1/salesReports
+    description: Programmatic download of Sales and Trends reports.
+  - source: App Store Server Notifications V2
+    description: Real-time push of REFUND, PRICE_INCREASE, DID_RENEW events for revenue accounting.
+
+focus_alignment:
+  description: >-
+    Mapping to FinOps FOCUS-style columns where possible. Apple does not emit
+    FOCUS-compliant cost data; the table below shows the best available
+    equivalents from /v1/financeReports.
+  fields:
+    - focus_field: BilledCost
+      apple_equivalent: financeReports column "Extended Partner Share"
+    - focus_field: BillingPeriodStart / End
+      apple_equivalent: financeReports `period` column (fiscal month)
+    - focus_field: ServiceCategory
+      apple_equivalent: financeReports `Product Type Identifier`
+    - focus_field: ChargePeriodStart / End
+      apple_equivalent: salesReports row-level `Begin Date` / `End Date`
+    - focus_field: Region
+      apple_equivalent: financeReports `Region Code`
+    - focus_field: Currency
+      apple_equivalent: financeReports `Partner Share Currency`

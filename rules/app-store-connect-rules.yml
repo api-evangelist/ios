@@ -1,0 +1,77 @@
+extends: spectral:oas
+rules:
+  # Apple uses /v1/ versioning for the App Store Connect API.
+  apple-versioned-base-path:
+    description: >-
+      Every App Store Connect API path must start with /v1/, /v2/, or /v3/
+      (the App Store Connect API uses prefixed major-version path segments).
+    severity: error
+    given: $.paths.*~
+    then:
+      function: pattern
+      functionOptions:
+        match: '^/v[0-9]+/'
+
+  # JSON:API style resource collection naming — camelCase plurals.
+  apple-resource-camel-case:
+    description: >-
+      Top-level resource segments must be camelCase plural nouns
+      (e.g. accessibilityDeclarations, appStoreVersions, betaGroups).
+    severity: warn
+    given: $.paths.*~
+    then:
+      function: pattern
+      functionOptions:
+        match: '^/v[0-9]+/[a-z][a-zA-Z]+(/.*)?$'
+
+  # operationIds follow the resource_action pattern.
+  apple-operation-id-format:
+    description: >-
+      All operationIds must follow the {resource}_{action} pattern used by
+      Apple (e.g. apps_createInstance, betaGroups_getCollection).
+    severity: error
+    given: $.paths.*[get,post,put,patch,delete].operationId
+    then:
+      function: pattern
+      functionOptions:
+        match: '^[a-z][a-zA-Z]+(_[a-z][a-zA-Z]+){1,5}$'
+
+  # Every operation must declare at least one tag (resource family).
+  apple-operation-tagged:
+    description: Every operation must declare at least one tag.
+    severity: error
+    given: $.paths.*[get,post,put,patch,delete]
+    then:
+      field: tags
+      function: truthy
+
+  # Every operation must have a human summary (we derive these from operationId).
+  apple-operation-summary:
+    description: Every operation must have a human-readable summary.
+    severity: warn
+    given: $.paths.*[get,post,put,patch,delete]
+    then:
+      field: summary
+      function: truthy
+
+  # JWT-bearer security is the App Store Connect API authentication.
+  apple-security-defined:
+    description: >-
+      The App Store Connect API authenticates with JWT bearer tokens; security
+      schemes must be defined at the document level.
+    severity: warn
+    given: $.components.securitySchemes
+    then:
+      function: truthy
+
+  # JSON:API style typed responses — keep relationship endpoints distinct.
+  apple-relationship-path:
+    description: >-
+      Relationship endpoints (JSON:API) must live under
+      /relationships/{name} per Apple's convention.
+    severity: info
+    given: $.paths.*~
+    then:
+      function: pattern
+      functionOptions:
+        match: '^/v[0-9]+/[a-zA-Z]+/\{[^}]+\}(/relationships/[a-zA-Z]+)?(/[a-zA-Z]+)?$|^/v[0-9]+/[a-zA-Z]+(/\{[^}]+\})?$'

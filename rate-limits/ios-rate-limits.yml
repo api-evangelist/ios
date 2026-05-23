@@ -1,0 +1,99 @@
+name: iOS / Apple Developer Rate Limits
+specification: API Commons Rate Limits 0.1
+url: https://raw.githubusercontent.com/api-evangelist/ios/main/rate-limits/ios-rate-limits.yml
+description: >-
+  Apple's published rate-limit guidance for the App Store Connect API, App Store
+  Server API, APNs, DeviceCheck, and Sign in with Apple. Where Apple does not
+  publish a specific number, that is called out as "Not Publicly Documented".
+modified: '2026-05-22'
+
+limits:
+  - api: App Store Connect API
+    base_url: https://api.appstoreconnect.apple.com
+    documented_limits:
+      - dimension: Per Team requests per hour
+        value: 3600
+        note: >-
+          Apple's published guideline: "Hourly Per Team rate limits ensure
+          fair usage across all developers." Most resource families fall under
+          this 3,600 / hr / team default.
+      - dimension: Pagination page size
+        value: 200
+        note: Most collection endpoints cap `limit` at 200 per page.
+    response_signals:
+      - header: X-Rate-Limit
+        meaning: Indicates per-resource limit and current usage.
+      - status: 429
+        meaning: Too Many Requests; back off and retry with exponential delay.
+
+  - api: App Store Server API
+    base_url: https://api.storekit.itunes.apple.com
+    documented_limits:
+      - dimension: Per minute per Issuer
+        value: Not Publicly Documented
+        note: >-
+          Apple does not publish a specific QPS for the App Store Server API;
+          best practice is to back off on 429 and retry with jitter.
+    response_signals:
+      - status: 429
+        meaning: Rate-limited; retry after a delay.
+
+  - api: Apple Push Notification Service (APNs)
+    base_url: https://api.push.apple.com
+    documented_limits:
+      - dimension: Same notification to same device
+        value: Avoid sending the same push to the same device more than once every few seconds
+        note: >-
+          Apple guidance: throttling at the device level is enforced — bursting
+          identical notifications can result in dropped messages. There is no
+          per-provider QPS cap, but Apple may throttle providers that send
+          obvious spam.
+      - dimension: Notification payload size
+        value: 4096 bytes (default) / 5120 bytes (VoIP)
+      - dimension: HTTP/2 concurrent streams
+        value: Up to several thousand on a single connection
+    response_signals:
+      - status: 429
+        reason: TooManyRequests
+        meaning: The same device received too many similar pushes; back off.
+      - status: 410
+        reason: Unregistered
+        meaning: Device token is invalid; stop sending.
+
+  - api: DeviceCheck / App Attest
+    base_url: https://api.devicecheck.apple.com
+    documented_limits:
+      - dimension: Per call rate
+        value: Not Publicly Documented
+        note: >-
+          Apple does not publish a per-second QPS. Apple recommends caching
+          query_two_bits responses to avoid hammering the service.
+
+  - api: Sign in with Apple
+    base_url: https://appleid.apple.com
+    documented_limits:
+      - dimension: /auth/token requests per app
+        value: Not Publicly Documented
+        note: >-
+          Apple does not publish a per-app QPS for /auth/token or /auth/revoke;
+          implementations should respect 429 and back off.
+      - dimension: client_secret JWT lifetime
+        value: 15777000 seconds (≈ 6 months)
+        note: >-
+          The client_secret JWT MUST have an `exp` no further than 6 months
+          from `iat`.
+
+  - api: Apple Music API
+    base_url: https://api.music.apple.com
+    documented_limits:
+      - dimension: Developer Token lifetime
+        value: Up to 6 months
+        note: Developer Tokens (JWT) must be re-issued at least every 6 months.
+
+  - api: WeatherKit REST API
+    base_url: https://weatherkit.apple.com
+    documented_limits:
+      - dimension: Calls included in Apple Developer Program
+        value: 500000
+        period: per month
+        note: Additional calls require a paid WeatherKit tier.

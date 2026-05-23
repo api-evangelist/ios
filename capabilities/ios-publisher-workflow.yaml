@@ -1,0 +1,45 @@
+capability: ios.publisher-workflow
+description: >-
+  Workflow composition: end-to-end iOS publisher automation. Combines the
+  App Store Connect API (apps / builds / TestFlight / store metadata),
+  Xcode Cloud (CI), App Store Server API (subscription introspection), App
+  Store Server Notifications V2 (event-driven state), and APNs (engagement)
+  into a single Naftiko-callable surface that a back-office can use to run an
+  app from build to revenue without touching App Store Connect by hand.
+provider: apple
+composes:
+  - ios.app-store-connect
+  - ios.app-store-server
+  - ios.apns
+workflows:
+  - id: ship-new-build
+    summary: Upload a new build to TestFlight and promote it for external review.
+    steps:
+      - call: ios.app-store-connect.start-ci-build-run
+      - call: ios.app-store-connect.list-builds
+      - call: ios.app-store-connect.list-beta-groups
+  - id: revenue-introspection
+    summary: Look up a customer's full transaction and subscription state.
+    steps:
+      - call: ios.app-store-server.get-transaction-history
+      - call: ios.app-store-server.get-all-subscription-statuses
+      - call: ios.app-store-server.get-refund-history
+  - id: subscription-recovery
+    summary: React to DID_FAIL_TO_RENEW by extending the renewal date and notifying the user.
+    triggers:
+      - event: DID_FAIL_TO_RENEW
+        source: ios.app-store-server-notifications
+    steps:
+      - call: ios.app-store-server.extend-subscription-renewal-date
+      - call: ios.apns.send-notification
+  - id: review-response
+    summary: Pull recent customer reviews and respond programmatically.
+    steps:
+      - call: ios.app-store-connect.list-customer-reviews
+      - call: ios.app-store-connect.respond-to-customer-review
+  - id: reporting-sweep
+    summary: Pull yesterday's Sales, Financial, and Analytics reports.
+    steps:
+      - call: ios.app-store-connect.request-analytics-report
+      - call: ios.app-store-connect.list-sales-and-trends-reports
+      - call: ios.app-store-connect.list-finance-reports
