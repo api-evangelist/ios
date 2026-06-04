@@ -1,0 +1,122 @@
+arazzo: 1.0.1
+info:
+  title: iOS Submit a Build for TestFlight Beta Review
+  summary: Find a build, add localized "What to Test" notes, and submit it for external beta review.
+  description: >-
+    Prepares an uploaded build for external TestFlight distribution. The workflow
+    resolves a build by its build number, attaches a localized "What to Test"
+    note describing the changes, and submits the build for App Store beta app
+    review. A final read of the build's beta detail returns the resulting
+    external build state so callers can track review progress. Every step spells
+    out its request inline so the flow can be read and executed without opening
+    the underlying App Store Connect OpenAPI description. All calls require an App
+    Store Connect JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: submit-build-for-beta-review
+  summary: Add beta test notes to a build and submit it for external beta review.
+  description: >-
+    Resolves a build by version, creates a beta build localization with test
+    notes, submits the build for beta app review, and reads the beta detail.
+  inputs:
+    type: object
+    required:
+    - appId
+    - buildVersion
+    - locale
+    - whatsNew
+    properties:
+      appId:
+        type: string
+        description: The id of the app whose build is being submitted.
+      buildVersion:
+        type: string
+        description: The build number (CFBundleVersion) of the build to submit.
+      locale:
+        type: string
+        description: The locale for the test notes (e.g. en-US).
+      whatsNew:
+        type: string
+        description: The "What to Test" notes shown to external testers.
+  steps:
+  - stepId: findBuild
+    description: >-
+      Find the build of the app matching the supplied build number.
+    operationId: builds_getCollection
+    parameters:
+    - name: filter[app]
+      in: query
+      value: $inputs.appId
+    - name: filter[version]
+      in: query
+      value: $inputs.buildVersion
+    - name: limit
+      in: query
+      value: 1
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      buildId: $response.body#/data/0/id
+  - stepId: addTestNotes
+    description: >-
+      Create a localized beta build localization carrying the "What to Test"
+      notes for the resolved build.
+    operationId: betaBuildLocalizations_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: betaBuildLocalizations
+          attributes:
+            locale: $inputs.locale
+            whatsNew: $inputs.whatsNew
+          relationships:
+            build:
+              data:
+                type: builds
+                id: $steps.findBuild.outputs.buildId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      localizationId: $response.body#/data/id
+  - stepId: submitForReview
+    description: >-
+      Submit the build for App Store beta app review so it can be distributed to
+      external testers.
+    operationId: betaAppReviewSubmissions_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: betaAppReviewSubmissions
+          relationships:
+            build:
+              data:
+                type: builds
+                id: $steps.findBuild.outputs.buildId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      submissionId: $response.body#/data/id
+      betaReviewState: $response.body#/data/attributes/betaReviewState
+  - stepId: checkBetaState
+    description: >-
+      Read the build's beta detail to return the current external build state for
+      review tracking.
+    operationId: builds_buildBetaDetail_getToOneRelated
+    parameters:
+    - name: id
+      in: path
+      value: $steps.findBuild.outputs.buildId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      externalBuildState: $response.body#/data/attributes/externalBuildState
+  outputs:
+    buildId: $steps.findBuild.outputs.buildId
+    submissionId: $steps.submitForReview.outputs.submissionId
+    externalBuildState: $steps.checkBetaState.outputs.externalBuildState

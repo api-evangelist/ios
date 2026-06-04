@@ -1,0 +1,96 @@
+arazzo: 1.0.1
+info:
+  title: iOS Enable a Capability on a Bundle ID
+  summary: Create a bundle identifier and enable a capability such as Push Notifications or iCloud on it.
+  description: >-
+    Provisions an app's bundle identifier and turns on a capability in one pass.
+    The workflow creates the bundle id, enables the requested capability (for
+    example PUSH_NOTIFICATIONS, ICLOUD, or IN_APP_PURCHASE) on it, and reads the
+    bundle id back to confirm the configuration. Every step spells out its
+    request inline so the flow can be read and executed without opening the
+    underlying App Store Connect OpenAPI description. All calls require an App
+    Store Connect JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: enable-bundle-id-capability
+  summary: Create a bundle id, enable a capability on it, and read it back.
+  description: >-
+    Creates a bundle identifier, enables the requested capability type on it, and
+    reads the bundle id to confirm.
+  inputs:
+    type: object
+    required:
+    - bundleIdName
+    - bundleIdentifier
+    - platform
+    - capabilityType
+    properties:
+      bundleIdName:
+        type: string
+        description: A friendly name for the bundle identifier.
+      bundleIdentifier:
+        type: string
+        description: The reverse-DNS bundle identifier (e.g. com.example.app).
+      platform:
+        type: string
+        description: Bundle id platform (IOS, MAC_OS, or UNIVERSAL).
+      capabilityType:
+        type: string
+        description: The capability to enable (e.g. PUSH_NOTIFICATIONS, ICLOUD, IN_APP_PURCHASE).
+  steps:
+  - stepId: createBundleId
+    description: >-
+      Create the bundle identifier the capability will be enabled on.
+    operationId: bundleIds_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: bundleIds
+          attributes:
+            name: $inputs.bundleIdName
+            identifier: $inputs.bundleIdentifier
+            platform: $inputs.platform
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      bundleId: $response.body#/data/id
+  - stepId: enableCapability
+    description: >-
+      Enable the requested capability on the new bundle id.
+    operationId: bundleIdCapabilities_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: bundleIdCapabilities
+          attributes:
+            capabilityType: $inputs.capabilityType
+          relationships:
+            bundleId:
+              data:
+                type: bundleIds
+                id: $steps.createBundleId.outputs.bundleId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      capabilityId: $response.body#/data/id
+  - stepId: getBundleId
+    description: >-
+      Read the bundle id back to confirm it exists with the expected identifier.
+    operationId: bundleIds_getInstance
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createBundleId.outputs.bundleId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      identifier: $response.body#/data/attributes/identifier
+  outputs:
+    bundleId: $steps.createBundleId.outputs.bundleId
+    capabilityId: $steps.enableCapability.outputs.capabilityId

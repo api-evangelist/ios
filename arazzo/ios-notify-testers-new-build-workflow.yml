@@ -1,0 +1,92 @@
+arazzo: 1.0.1
+info:
+  title: iOS Notify TestFlight Testers of a New Build
+  summary: Find a build, push a TestFlight notification to its testers, and confirm the build's beta state.
+  description: >-
+    Lets a team push a fresh build to its existing TestFlight testers on demand.
+    The workflow resolves a build by its build number, triggers a beta
+    notification so testers are prompted to install the update, and reads the
+    build's beta detail to confirm whether auto-notification is enabled and what
+    the current internal build state is. Every step spells out its request inline
+    so the flow can be read and executed without opening the underlying App Store
+    Connect OpenAPI description. All calls require an App Store Connect JWT
+    bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: notify-testers-new-build
+  summary: Resolve a build, send a beta notification, and read its beta state.
+  description: >-
+    Finds a build by version, sends a TestFlight beta notification to its
+    testers, and reads the build beta detail to confirm state.
+  inputs:
+    type: object
+    required:
+    - appId
+    - buildVersion
+    properties:
+      appId:
+        type: string
+        description: The id of the app whose build testers should be notified about.
+      buildVersion:
+        type: string
+        description: The build number (CFBundleVersion) of the build to notify on.
+  steps:
+  - stepId: findBuild
+    description: >-
+      Find the build of the app matching the supplied build number.
+    operationId: builds_getCollection
+    parameters:
+    - name: filter[app]
+      in: query
+      value: $inputs.appId
+    - name: filter[version]
+      in: query
+      value: $inputs.buildVersion
+    - name: limit
+      in: query
+      value: 1
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      buildId: $response.body#/data/0/id
+  - stepId: sendNotification
+    description: >-
+      Trigger a TestFlight beta notification prompting the build's testers to
+      install the update.
+    operationId: buildBetaNotifications_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: buildBetaNotifications
+          relationships:
+            build:
+              data:
+                type: builds
+                id: $steps.findBuild.outputs.buildId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      notificationId: $response.body#/data/id
+  - stepId: confirmState
+    description: >-
+      Read the build's beta detail to confirm the internal build state and
+      whether auto-notification is enabled.
+    operationId: builds_buildBetaDetail_getToOneRelated
+    parameters:
+    - name: id
+      in: path
+      value: $steps.findBuild.outputs.buildId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      internalBuildState: $response.body#/data/attributes/internalBuildState
+      autoNotifyEnabled: $response.body#/data/attributes/autoNotifyEnabled
+  outputs:
+    buildId: $steps.findBuild.outputs.buildId
+    notificationId: $steps.sendNotification.outputs.notificationId
+    internalBuildState: $steps.confirmState.outputs.internalBuildState

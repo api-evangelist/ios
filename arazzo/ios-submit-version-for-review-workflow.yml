@@ -1,0 +1,108 @@
+arazzo: 1.0.1
+info:
+  title: iOS Submit an App Store Version for Review
+  summary: Open a review submission, add the App Store version as an item, and submit it to App Review.
+  description: >-
+    Drives the modern App Store Connect review-submission flow. The workflow
+    creates a review submission for an app and platform, adds the target App
+    Store version to that submission as a review item, and then submits the
+    submission to App Review by patching its submitted flag. The final state is
+    returned so callers can confirm the submission moved into a waiting-for-review
+    state. Every step spells out its request inline so the flow can be read and
+    executed without opening the underlying App Store Connect OpenAPI
+    description. All calls require an App Store Connect JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: submit-version-for-review
+  summary: Create a review submission, add a version item, and submit for review.
+  description: >-
+    Creates a review submission for an app, adds the App Store version as a
+    review item, and submits the submission to App Review.
+  inputs:
+    type: object
+    required:
+    - appId
+    - platform
+    - appStoreVersionId
+    properties:
+      appId:
+        type: string
+        description: The id of the app being submitted for review.
+      platform:
+        type: string
+        description: The platform of the submission (e.g. IOS, MAC_OS, TV_OS).
+      appStoreVersionId:
+        type: string
+        description: The id of the App Store version to include in the submission.
+  steps:
+  - stepId: createSubmission
+    description: >-
+      Open a review submission for the app and platform.
+    operationId: reviewSubmissions_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: reviewSubmissions
+          attributes:
+            platform: $inputs.platform
+          relationships:
+            app:
+              data:
+                type: apps
+                id: $inputs.appId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      submissionId: $response.body#/data/id
+  - stepId: addVersionItem
+    description: >-
+      Add the App Store version to the submission as a review item.
+    operationId: reviewSubmissionItems_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: reviewSubmissionItems
+          relationships:
+            reviewSubmission:
+              data:
+                type: reviewSubmissions
+                id: $steps.createSubmission.outputs.submissionId
+            appStoreVersion:
+              data:
+                type: appStoreVersions
+                id: $inputs.appStoreVersionId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      itemId: $response.body#/data/id
+  - stepId: submitForReview
+    description: >-
+      Submit the review submission to App Review by setting its submitted flag,
+      and return the resulting state.
+    operationId: reviewSubmissions_updateInstance
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createSubmission.outputs.submissionId
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: reviewSubmissions
+          id: $steps.createSubmission.outputs.submissionId
+          attributes:
+            submitted: true
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      state: $response.body#/data/attributes/state
+  outputs:
+    submissionId: $steps.createSubmission.outputs.submissionId
+    itemId: $steps.addVersionItem.outputs.itemId
+    state: $steps.submitForReview.outputs.state

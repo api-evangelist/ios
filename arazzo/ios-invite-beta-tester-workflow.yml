@@ -1,0 +1,111 @@
+arazzo: 1.0.1
+info:
+  title: iOS Invite a TestFlight Beta Tester
+  summary: Create a beta tester, add them to a beta group, and send an App Store Connect invitation.
+  description: >-
+    Onboards a single external tester into TestFlight. The workflow creates the
+    beta tester record from an email address, links the tester to an existing
+    beta group, and then sends them an App Store Connect invitation to install
+    the app. Every step spells out its request inline so the flow can be read and
+    executed without opening the underlying App Store Connect OpenAPI
+    description. All calls require an App Store Connect JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: invite-beta-tester
+  summary: Create a beta tester, add them to a group, and send an invitation.
+  description: >-
+    Creates a beta tester from an email, links them to a beta group, and issues
+    an App Store Connect invitation for the app.
+  inputs:
+    type: object
+    required:
+    - appId
+    - betaGroupId
+    - email
+    properties:
+      appId:
+        type: string
+        description: The id of the app the tester is being invited to.
+      betaGroupId:
+        type: string
+        description: The id of the beta group to add the tester to.
+      email:
+        type: string
+        description: The tester's email address.
+      firstName:
+        type: string
+        description: The tester's first name (optional).
+      lastName:
+        type: string
+        description: The tester's last name (optional).
+  steps:
+  - stepId: createTester
+    description: >-
+      Create the beta tester record, attaching them to the target beta group at
+      creation time.
+    operationId: betaTesters_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: betaTesters
+          attributes:
+            email: $inputs.email
+            firstName: $inputs.firstName
+            lastName: $inputs.lastName
+          relationships:
+            betaGroups:
+              data:
+              - type: betaGroups
+                id: $inputs.betaGroupId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      testerId: $response.body#/data/id
+  - stepId: addToGroup
+    description: >-
+      Explicitly assign the tester to the beta group via the group's testers
+      relationship to ensure membership is in place. A 204 indicates success.
+    operationId: betaGroups_betaTesters_createToManyRelationship
+    parameters:
+    - name: id
+      in: path
+      value: $inputs.betaGroupId
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+        - type: betaTesters
+          id: $steps.createTester.outputs.testerId
+    successCriteria:
+    - condition: $statusCode == 204
+  - stepId: sendInvitation
+    description: >-
+      Send the tester an App Store Connect invitation email for the app so they
+      can accept and install via TestFlight.
+    operationId: betaTesterInvitations_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: betaTesterInvitations
+          relationships:
+            betaTester:
+              data:
+                type: betaTesters
+                id: $steps.createTester.outputs.testerId
+            app:
+              data:
+                type: apps
+                id: $inputs.appId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      invitationId: $response.body#/data/id
+  outputs:
+    testerId: $steps.createTester.outputs.testerId
+    invitationId: $steps.sendInvitation.outputs.invitationId

@@ -1,0 +1,72 @@
+arazzo: 1.0.1
+info:
+  title: iOS Create a Signing Certificate
+  summary: Submit a certificate signing request, then read the issued certificate back for download.
+  description: >-
+    The first half of any code-signing setup. The workflow submits a base64
+    encoded certificate signing request (CSR) of the requested certificate type
+    to App Store Connect, then reads the newly issued certificate to retrieve its
+    serial number, expiration date, and the encoded certificate content needed to
+    sign builds locally. Every step spells out its request inline so the flow can
+    be read and executed without opening the underlying App Store Connect OpenAPI
+    description. All calls require an App Store Connect JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: create-signing-certificate
+  summary: Create a signing certificate from a CSR and read it back.
+  description: >-
+    Submits a CSR of the given certificate type and then reads the issued
+    certificate to return its content and metadata.
+  inputs:
+    type: object
+    required:
+    - csrContent
+    - certificateType
+    properties:
+      csrContent:
+        type: string
+        description: The base64-encoded certificate signing request (CSR) content.
+      certificateType:
+        type: string
+        description: The certificate type to issue (e.g. DEVELOPMENT, DISTRIBUTION, IOS_DISTRIBUTION).
+  steps:
+  - stepId: createCertificate
+    description: >-
+      Submit the CSR to issue a new signing certificate of the requested type.
+    operationId: certificates_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: certificates
+          attributes:
+            csrContent: $inputs.csrContent
+            certificateType: $inputs.certificateType
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      certificateId: $response.body#/data/id
+      serialNumber: $response.body#/data/attributes/serialNumber
+  - stepId: getCertificate
+    description: >-
+      Read the issued certificate to return its encoded content and expiration
+      so it can be installed into a keychain or CI signing store.
+    operationId: certificates_getInstance
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createCertificate.outputs.certificateId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      certificateContent: $response.body#/data/attributes/certificateContent
+      expirationDate: $response.body#/data/attributes/expirationDate
+      displayName: $response.body#/data/attributes/displayName
+  outputs:
+    certificateId: $steps.createCertificate.outputs.certificateId
+    certificateContent: $steps.getCertificate.outputs.certificateContent
+    expirationDate: $steps.getCertificate.outputs.expirationDate

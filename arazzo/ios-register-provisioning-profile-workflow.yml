@@ -1,0 +1,147 @@
+arazzo: 1.0.1
+info:
+  title: iOS Register a Provisioning Profile
+  summary: Register a test device, create a bundle identifier, and generate a provisioning profile that ties them together.
+  description: >-
+    The end-to-end provisioning flow developers run before installing a build on
+    physical hardware. The workflow registers a device by its UDID, creates (or
+    declares) a bundle identifier for the app, and then creates a provisioning
+    profile of the requested type that references the bundle id, the device, and
+    a signing certificate. A final read confirms the profile is active and
+    returns its base64 content for download. Every step spells out its request
+    inline so the flow can be read and executed without opening the underlying
+    App Store Connect OpenAPI description. All calls require an App Store Connect
+    JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: register-provisioning-profile
+  summary: Register a device and bundle id, then create and read a provisioning profile.
+  description: >-
+    Registers a device UDID, creates a bundle identifier, and generates a
+    provisioning profile referencing the device, bundle id, and certificate.
+  inputs:
+    type: object
+    required:
+    - deviceName
+    - udid
+    - platform
+    - bundleIdName
+    - bundleIdentifier
+    - profileName
+    - profileType
+    - certificateId
+    properties:
+      deviceName:
+        type: string
+        description: A friendly name for the test device (e.g. "QA iPhone 15").
+      udid:
+        type: string
+        description: The 40-character device UDID to register.
+      platform:
+        type: string
+        description: Bundle id platform for the device and bundle id (IOS, MAC_OS, or UNIVERSAL).
+      bundleIdName:
+        type: string
+        description: A friendly name for the bundle identifier.
+      bundleIdentifier:
+        type: string
+        description: The reverse-DNS bundle identifier (e.g. com.example.app).
+      profileName:
+        type: string
+        description: A friendly name for the provisioning profile.
+      profileType:
+        type: string
+        description: The profile type (e.g. IOS_APP_DEVELOPMENT, IOS_APP_ADHOC, IOS_APP_STORE).
+      certificateId:
+        type: string
+        description: The id of an existing signing certificate to embed in the profile.
+  steps:
+  - stepId: registerDevice
+    description: >-
+      Register the physical test device by its UDID so it can be included in
+      development and ad-hoc provisioning profiles.
+    operationId: devices_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: devices
+          attributes:
+            name: $inputs.deviceName
+            udid: $inputs.udid
+            platform: $inputs.platform
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      deviceId: $response.body#/data/id
+  - stepId: createBundleId
+    description: >-
+      Create the bundle identifier the profile will be scoped to.
+    operationId: bundleIds_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: bundleIds
+          attributes:
+            name: $inputs.bundleIdName
+            identifier: $inputs.bundleIdentifier
+            platform: $inputs.platform
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      bundleId: $response.body#/data/id
+  - stepId: createProfile
+    description: >-
+      Create the provisioning profile, linking the new bundle id, the registered
+      device, and the supplied signing certificate.
+    operationId: profiles_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: profiles
+          attributes:
+            name: $inputs.profileName
+            profileType: $inputs.profileType
+          relationships:
+            bundleId:
+              data:
+                type: bundleIds
+                id: $steps.createBundleId.outputs.bundleId
+            certificates:
+              data:
+              - type: certificates
+                id: $inputs.certificateId
+            devices:
+              data:
+              - type: devices
+                id: $steps.registerDevice.outputs.deviceId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      profileId: $response.body#/data/id
+      profileState: $response.body#/data/attributes/profileState
+  - stepId: getProfile
+    description: >-
+      Read the profile back to confirm it is active and return its encoded
+      content for download.
+    operationId: profiles_getInstance
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createProfile.outputs.profileId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      profileContent: $response.body#/data/attributes/profileContent
+      profileState: $response.body#/data/attributes/profileState
+  outputs:
+    deviceId: $steps.registerDevice.outputs.deviceId
+    bundleId: $steps.createBundleId.outputs.bundleId
+    profileId: $steps.createProfile.outputs.profileId
+    profileContent: $steps.getProfile.outputs.profileContent

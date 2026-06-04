@@ -1,0 +1,101 @@
+arazzo: 1.0.1
+info:
+  title: iOS Respond to a Customer Review
+  summary: Find the most recent low-rated review for an app and post a developer response to it.
+  description: >-
+    Helps a developer relations workflow triage and reply to App Store reviews.
+    The workflow lists an app's customer reviews filtered by a star rating and
+    sorted newest-first, and then branches: when at least one matching review is
+    found it posts a developer response to the top review, and when none match it
+    ends without writing anything. Every step spells out its request inline so the
+    flow can be read and executed without opening the underlying App Store
+    Connect OpenAPI description. All calls require an App Store Connect JWT bearer
+    token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: respond-to-customer-review
+  summary: Find a recent rated review and post a developer response, branching when none exist.
+  description: >-
+    Lists customer reviews for an app filtered by rating, and posts a developer
+    response to the newest matching review when one is found.
+  inputs:
+    type: object
+    required:
+    - appId
+    - rating
+    - responseBody
+    properties:
+      appId:
+        type: string
+        description: The id of the app whose reviews are being triaged.
+      rating:
+        type: string
+        description: The star rating to filter reviews by (1 through 5).
+      responseBody:
+        type: string
+        description: The developer response text to post on the matched review.
+  steps:
+  - stepId: findReviews
+    description: >-
+      List the app's customer reviews filtered by rating and sorted newest first,
+      returning at most one match.
+    operationId: apps_customerReviews_getToManyRelated
+    parameters:
+    - name: id
+      in: path
+      value: $inputs.appId
+    - name: filter[rating]
+      in: query
+      value: $inputs.rating
+    - name: sort
+      in: query
+      value: -createdDate
+    - name: limit
+      in: query
+      value: 1
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      reviewId: $response.body#/data/0/id
+    onSuccess:
+    - name: reviewFound
+      type: goto
+      stepId: postResponse
+      criteria:
+      - context: $response.body
+        condition: $.data.length > 0
+        type: jsonpath
+    - name: noReviews
+      type: end
+      criteria:
+      - context: $response.body
+        condition: $.data.length == 0
+        type: jsonpath
+  - stepId: postResponse
+    description: >-
+      Post the developer response to the matched review.
+    operationId: customerReviewResponses_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: customerReviewResponses
+          attributes:
+            responseBody: $inputs.responseBody
+          relationships:
+            review:
+              data:
+                type: customerReviews
+                id: $steps.findReviews.outputs.reviewId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      responseId: $response.body#/data/id
+      responseState: $response.body#/data/attributes/state
+  outputs:
+    reviewId: $steps.findReviews.outputs.reviewId
+    responseId: $steps.postResponse.outputs.responseId

@@ -1,0 +1,121 @@
+arazzo: 1.0.1
+info:
+  title: iOS Create and Submit an In-App Purchase
+  summary: Create an in-app purchase, add its localized display name, and submit it for review.
+  description: >-
+    Stands up a new in-app purchase end to end. The workflow creates the in-app
+    purchase (v2) for an app with a product id and purchase type, adds a localized
+    name and description shown on the product page, and submits the in-app
+    purchase for App Review. Every step spells out its request inline so the flow
+    can be read and executed without opening the underlying App Store Connect
+    OpenAPI description. All calls require an App Store Connect JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: create-in-app-purchase
+  summary: Create an in-app purchase, localize it, and submit it for review.
+  description: >-
+    Creates an in-app purchase for an app, adds a localized name/description, and
+    submits the in-app purchase for review.
+  inputs:
+    type: object
+    required:
+    - appId
+    - name
+    - productId
+    - inAppPurchaseType
+    - locale
+    - localizedName
+    properties:
+      appId:
+        type: string
+        description: The id of the app the in-app purchase belongs to.
+      name:
+        type: string
+        description: The internal reference name of the in-app purchase.
+      productId:
+        type: string
+        description: The product identifier (e.g. com.example.app.coins100).
+      inAppPurchaseType:
+        type: string
+        description: The purchase type (CONSUMABLE, NON_CONSUMABLE, or NON_RENEWING_SUBSCRIPTION).
+      locale:
+        type: string
+        description: The locale for the localization (e.g. en-US).
+      localizedName:
+        type: string
+        description: The customer-facing display name for the locale.
+      localizedDescription:
+        type: string
+        description: The customer-facing description for the locale (optional).
+  steps:
+  - stepId: createPurchase
+    description: >-
+      Create the in-app purchase for the app with its product id and type.
+    operationId: inAppPurchasesV2_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: inAppPurchases
+          attributes:
+            name: $inputs.name
+            productId: $inputs.productId
+            inAppPurchaseType: $inputs.inAppPurchaseType
+          relationships:
+            app:
+              data:
+                type: apps
+                id: $inputs.appId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      purchaseId: $response.body#/data/id
+  - stepId: addLocalization
+    description: >-
+      Add the localized name and description shown to customers for the in-app
+      purchase.
+    operationId: inAppPurchaseLocalizations_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: inAppPurchaseLocalizations
+          attributes:
+            locale: $inputs.locale
+            name: $inputs.localizedName
+            description: $inputs.localizedDescription
+          relationships:
+            inAppPurchaseV2:
+              data:
+                type: inAppPurchases
+                id: $steps.createPurchase.outputs.purchaseId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      localizationId: $response.body#/data/id
+  - stepId: submitForReview
+    description: >-
+      Submit the in-app purchase for App Review once metadata is in place.
+    operationId: inAppPurchaseSubmissions_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: inAppPurchaseSubmissions
+          relationships:
+            inAppPurchaseV2:
+              data:
+                type: inAppPurchases
+                id: $steps.createPurchase.outputs.purchaseId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      submissionId: $response.body#/data/id
+  outputs:
+    purchaseId: $steps.createPurchase.outputs.purchaseId
+    localizationId: $steps.addLocalization.outputs.localizationId
+    submissionId: $steps.submitForReview.outputs.submissionId

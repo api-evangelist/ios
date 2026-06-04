@@ -1,0 +1,128 @@
+arazzo: 1.0.1
+info:
+  title: iOS Create an Auto-Renewable Subscription
+  summary: Create a subscription group, add a subscription to it, and localize the subscription.
+  description: >-
+    Builds out an auto-renewable subscription from scratch. The workflow creates a
+    subscription group for an app, adds a subscription with a product id and
+    renewal period into that group, and then attaches a localized name and
+    description for the subscription. Every step spells out its request inline so
+    the flow can be read and executed without opening the underlying App Store
+    Connect OpenAPI description. All calls require an App Store Connect JWT bearer
+    token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: create-subscription
+  summary: Create a subscription group, add a subscription, and localize it.
+  description: >-
+    Creates a subscription group for an app, adds a subscription to the group,
+    and adds a localized name/description for the subscription.
+  inputs:
+    type: object
+    required:
+    - appId
+    - groupReferenceName
+    - subscriptionName
+    - productId
+    - subscriptionPeriod
+    - locale
+    - localizedName
+    properties:
+      appId:
+        type: string
+        description: The id of the app the subscription belongs to.
+      groupReferenceName:
+        type: string
+        description: The internal reference name for the subscription group.
+      subscriptionName:
+        type: string
+        description: The internal reference name for the subscription.
+      productId:
+        type: string
+        description: The product identifier (e.g. com.example.app.pro.monthly).
+      subscriptionPeriod:
+        type: string
+        description: The renewal period (e.g. ONE_MONTH, ONE_YEAR).
+      locale:
+        type: string
+        description: The locale for the localization (e.g. en-US).
+      localizedName:
+        type: string
+        description: The customer-facing display name for the locale.
+      localizedDescription:
+        type: string
+        description: The customer-facing description for the locale (optional).
+  steps:
+  - stepId: createGroup
+    description: >-
+      Create the subscription group that the subscription will belong to.
+    operationId: subscriptionGroups_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: subscriptionGroups
+          attributes:
+            referenceName: $inputs.groupReferenceName
+          relationships:
+            app:
+              data:
+                type: apps
+                id: $inputs.appId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      groupId: $response.body#/data/id
+  - stepId: createSubscription
+    description: >-
+      Add the subscription to the new group with its product id and renewal
+      period.
+    operationId: subscriptions_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: subscriptions
+          attributes:
+            name: $inputs.subscriptionName
+            productId: $inputs.productId
+            subscriptionPeriod: $inputs.subscriptionPeriod
+          relationships:
+            group:
+              data:
+                type: subscriptionGroups
+                id: $steps.createGroup.outputs.groupId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      subscriptionId: $response.body#/data/id
+  - stepId: addLocalization
+    description: >-
+      Add the localized name and description customers see for the subscription.
+    operationId: subscriptionLocalizations_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: subscriptionLocalizations
+          attributes:
+            locale: $inputs.locale
+            name: $inputs.localizedName
+            description: $inputs.localizedDescription
+          relationships:
+            subscription:
+              data:
+                type: subscriptions
+                id: $steps.createSubscription.outputs.subscriptionId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      localizationId: $response.body#/data/id
+  outputs:
+    groupId: $steps.createGroup.outputs.groupId
+    subscriptionId: $steps.createSubscription.outputs.subscriptionId
+    localizationId: $steps.addLocalization.outputs.localizationId

@@ -1,0 +1,102 @@
+arazzo: 1.0.1
+info:
+  title: iOS Create a TestFlight Beta Group and Assign a Build
+  summary: Create a TestFlight beta group for an app, find a build by version, and make that build available to the group.
+  description: >-
+    A common TestFlight setup pattern. The workflow creates a beta group scoped
+    to an app, looks up a specific build of that app by its build number, and
+    then links the build to the group so the group's testers can install it.
+    Every step spells out its request inline so the flow can be read and executed
+    without opening the underlying App Store Connect OpenAPI description. All
+    calls require an App Store Connect JWT bearer token.
+  version: 1.0.0
+sourceDescriptions:
+- name: appStoreConnectApi
+  url: ../openapi/app-store-connect-openapi.json
+  type: openapi
+workflows:
+- workflowId: create-beta-group-assign-build
+  summary: Create a beta group, find a build by number, and assign the build to the group.
+  description: >-
+    Creates a beta group for an app, resolves a build by its version, and links
+    that build to the group via the builds relationship.
+  inputs:
+    type: object
+    required:
+    - appId
+    - groupName
+    - buildVersion
+    properties:
+      appId:
+        type: string
+        description: The id of the app the beta group belongs to.
+      groupName:
+        type: string
+        description: The display name for the new beta group.
+      buildVersion:
+        type: string
+        description: The build number (CFBundleVersion) of the build to assign.
+      publicLinkEnabled:
+        type: boolean
+        description: Whether to enable a public TestFlight invite link for the group.
+  steps:
+  - stepId: createGroup
+    description: >-
+      Create the beta group scoped to the target app.
+    operationId: betaGroups_createInstance
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+          type: betaGroups
+          attributes:
+            name: $inputs.groupName
+            publicLinkEnabled: $inputs.publicLinkEnabled
+          relationships:
+            app:
+              data:
+                type: apps
+                id: $inputs.appId
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      groupId: $response.body#/data/id
+  - stepId: findBuild
+    description: >-
+      Find the build of the app that matches the supplied build number,
+      returning at most one result.
+    operationId: builds_getCollection
+    parameters:
+    - name: filter[app]
+      in: query
+      value: $inputs.appId
+    - name: filter[version]
+      in: query
+      value: $inputs.buildVersion
+    - name: limit
+      in: query
+      value: 1
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      buildId: $response.body#/data/0/id
+  - stepId: assignBuild
+    description: >-
+      Link the resolved build to the beta group so the group's testers can
+      install it. A 204 indicates the relationship was created.
+    operationId: betaGroups_builds_createToManyRelationship
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createGroup.outputs.groupId
+    requestBody:
+      contentType: application/json
+      payload:
+        data:
+        - type: builds
+          id: $steps.findBuild.outputs.buildId
+    successCriteria:
+    - condition: $statusCode == 204
+  outputs:
+    groupId: $steps.createGroup.outputs.groupId
+    buildId: $steps.findBuild.outputs.buildId
