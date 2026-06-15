@@ -1,106 +1,265 @@
 # iOS (ios)
 
-API and integration profile for **iOS** — Apple's mobile operating system and developer platform — maintained as part of the [API Evangelist Network](https://apievangelist.com).
+iOS is Apple's mobile operating system and the developer platform behind iPhone apps. While the bulk of the iOS SDK is delivered as Swift / Objective-C client frameworks (UIKit, SwiftUI, MapKit, HealthKit, HomeKit, SiriKit, StoreKit, AppIntents, PassKit, WidgetKit, ActivityKit), Apple also exposes a substantial set of server-side HTTPS APIs that iOS developers, publishers, and back-end systems consume directly. This repository indexes that server-side surface — App Store Connect API, App Store Server API, App Store Server Notifications, Apple Push Notification service (APNs), DeviceCheck / App Attest, Sign in with Apple, Apple Music API, the Wallet / PassKit Web Service contract, and related developer infrastructure — and points to the matching OpenAPI artifacts where Apple publishes them.
 
-This repository indexes the **server-side HTTPS surface** Apple exposes to iOS developers. The bulk of the iOS SDK is delivered as Swift / Objective-C client frameworks (UIKit, SwiftUI, MapKit, HealthKit, HomeKit, SiriKit, StoreKit, AppIntents, PassKit, WidgetKit, ActivityKit) and is out of scope here — those are not HTTP APIs you call from a back-office system. What *is* in scope is everything an iOS publisher or back-end engineer actually hits over the wire: App Store Connect, App Store Server, the App Store Server Notifications webhook, APNs, DeviceCheck / App Attest, Sign in with Apple, the Apple Music API, and the Wallet / PassKit web-service contract.
+**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/ios/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/ios/refs/heads/main/apis.yml)
 
-> "This standards-based REST API lets you automate tasks across developer tools, such as App Store Connect, Xcode, and Certificates, Identifiers & Profiles, to give you greater flexibility and efficiency in your workflows."
->
-> — developer.apple.com/app-store-connect/api
+## Scope
 
-## APIs Documented
+- **Type:** Index
+- **Position:** Consumer
+- **Access:** 3rd-Party
 
-| API | Base URL | Auth | Style |
-|---|---|---|---|
-| **App Store Connect API** (v4.3.1) | `https://api.appstoreconnect.apple.com` | JWT (ES256) | REST / JSON:API — **923 paths, 1,208 operations, 1,337 schemas, 192 tags** in Apple's published OpenAPI 3.0 |
-| **App Store Server API** | `https://api.storekit.itunes.apple.com` (sandbox: `…-sandbox…`) | JWT (ES256) | REST + JWS-signed payloads |
-| **App Store Server Notifications V2** | (webhook — provider hosts) | JWS-signed payload from Apple | Webhook (19 notification types, 16 subtypes) |
-| **Apple Push Notification Service (APNs)** | `https://api.push.apple.com` (sandbox: `https://api.sandbox.push.apple.com`) | JWT (ES256) or TLS client cert | HTTP/2 + JSON, POST `/3/device/{deviceToken}` |
-| **DeviceCheck and App Attest** | `https://api.devicecheck.apple.com` (dev: `https://api.development.devicecheck.apple.com`) | JWT (ES256) | REST |
-| **Sign in with Apple** | `https://appleid.apple.com` | client_secret JWT (ES256) | OAuth 2.0 / OIDC |
-| **Apple Music API** | `https://api.music.apple.com` | Developer Token (JWT) + User Token | REST |
-| **Wallet / PassKit Web Service** | (provider-hosted, Apple-specified contract) | Pass certificate + push token | REST contract |
+## Tags
 
-## Repository Layout
+- iOS
+- Apple
+- Mobile
+- App Store
+- Push Notifications
+- In-App Purchases
+- Subscriptions
+- Authentication
+- Wallet
+- Developer Platform
 
-```
-ios/
-├── apis.yml                            # Master index (apis.json/yml 0.19)
-├── README.md
-├── openapi/
-│   └── app-store-connect-openapi.json  # Apple's official OpenAPI 3.0 (mirrored from Apple, summaries derived from operationId)
-├── asyncapi/
-│   └── app-store-server-notifications-asyncapi.yml
-├── rules/
-│   └── app-store-connect-rules.yml     # Spectral ruleset enforcing Apple's JSON:API conventions
-├── capabilities/
-│   ├── ios-publisher-workflow.yaml     # Composed Naftiko workflow (ship → revenue → retention → reviews → reporting)
-│   └── shared/
-│       ├── app-store-connect.yaml
-│       ├── app-store-server.yaml
-│       ├── apns.yaml
-│       └── sign-in-with-apple.yaml
-├── json-schema/
-│   ├── app-store-connect-app-schema.json
-│   ├── app-store-connect-build-schema.json
-│   ├── app-store-server-transaction-schema.json
-│   ├── apns-notification-payload-schema.json
-│   └── sign-in-with-apple-id-token-schema.json
-├── json-structure/
-│   └── ios-server-apis-structure.json
-├── json-ld/
-│   └── ios-context.jsonld
-├── examples/
-│   ├── app-store-connect-list-apps-example.json
-│   ├── apns-send-notification-example.json
-│   ├── app-store-server-notification-subscribed-example.json
-│   └── sign-in-with-apple-token-example.json
-├── vocabulary/
-│   └── ios-vocabulary.yml
-├── plans/
-│   └── ios-plans-pricing.yml
-├── rate-limits/
-│   └── ios-rate-limits.yml
-└── finops/
-    └── ios-finops.yml
-```
+## Timestamps
 
-## Source OpenAPI
+- **Created:** 2026-05-11
+- **Modified:** 2026-05-23
 
-Apple publishes the App Store Connect API OpenAPI 3.0 spec as a ZIP download from the [App Store Connect API landing page](https://developer.apple.com/app-store-connect/api/). The file in `openapi/app-store-connect-openapi.json` is the **4.3.1** release (May 12, 2026) mirrored verbatim, with the following minimal transforms applied:
+## APIs
 
-- `info.description` populated (Apple ships an empty description).
-- Per-operation `summary` fields derived from `operationId` (Apple ships only `operationId` + `tags`).
-- Synthetic top-level `tags` array generated from operation tag references.
+### App Store Connect API
 
-The remaining 6.8 MB of paths, parameters, and component schemas are unchanged.
+"This standards-based REST API lets you automate tasks across developer tools, such as App Store Connect, Xcode, and Certificates, Identifiers & Profiles, to give you greater flexibility and efficiency in your workflows." The App Store Connect API is the primary REST surface Apple provides to iOS publishers — covering app metadata, builds, TestFlight, in-app purchases and subscriptions, pricing and availability, Game Center, Xcode Cloud, provisioning, analytics, and sales / financial / power-and- performance reports. Authentication uses JSON Web Tokens (JWT) signed with an API key created in App Store Connect. Apple publishes an official OpenAPI 3.0 specification as a downloadable ZIP from the App Store Connect API landing page.
 
-## Scale of Apple's Developer Surface
+- **Human URL:** [https://developer.apple.com/app-store-connect/api/](https://developer.apple.com/app-store-connect/api/)
+- **Base URL:** `https://api.appstoreconnect.apple.com`
 
-- Apple's GitHub org ([github.com/apple](https://github.com/apple)) hosts **414 public repos**, including official `app-store-server-library-{swift,java,python,node}`, `swift-nio`, `foundationdb`, `pkl`, `coremltools`, `ml-stable-diffusion`, and `container`.
-- The App Store Connect API alone exposes **191 distinct top-level resource families** — the largest concentrations being `apps` (84 ops), `gameCenterDetails` (35), `appStoreVersions` (26), `builds` (25), `subscriptions` (24), `inAppPurchases` (21), and `betaGroups` (14).
+#### Tags
 
-## Pricing Summary
+- App Store Connect
+- App Store
+- TestFlight
+- In-App Purchases
+- Subscriptions
+- Game Center
+- Xcode Cloud
+- Provisioning
+- Reporting
 
-| Plan | Cost | Notes |
-|---|---|---|
-| Apple Developer Program | **USD 99 / year** | Required for all server APIs documented here. Includes 25 Xcode Cloud compute hours/mo, 1 PB CloudKit, 500K WeatherKit calls/mo. |
-| Apple Developer Enterprise Program | USD 299 / year | Internal-only distribution; no App Store. |
-| App Store Small Business Program | Free enrollment | Reduces App Store commission from 30% to 15% for sellers under $1M/yr. |
-| App Store Commission | 30% / 15% | Standard 30%; 15% after first 12 paid subscription months or under Small Business Program. |
+#### Properties
 
-See `plans/ios-plans-pricing.yml` and `finops/ios-finops.yml` for the full breakdown.
+- [Documentation](https://developer.apple.com/documentation/appstoreconnectapi)
+- [API Reference](https://developer.apple.com/documentation/appstoreconnectapi)
+- [OpenAPI](https://raw.githubusercontent.com/api-evangelist/ios/main/openapi/app-store-connect-openapi.json) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [Getting Started](https://developer.apple.com/documentation/appstoreconnectapi/creating-api-keys-for-app-store-connect-api)
+- [Authentication](https://developer.apple.com/documentation/appstoreconnectapi/generating-tokens-for-api-requests)
+- [Release Notes](https://developer.apple.com/documentation/appstoreconnectapi/app-store-connect-api-release-notes)
+- [SDK](https://github.com/apple/app-store-server-library-swift)
+- [SDK](https://github.com/apple/app-store-server-library-java)
+- [SDK](https://github.com/apple/app-store-server-library-python)
+- [SDK](https://github.com/apple/app-store-server-library-node)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
 
-## Notable Absences
+### App Store Server API
 
-- **No public OpenAPI spec** for the App Store Server API, APNs, DeviceCheck, Sign in with Apple, the Apple Music API, or the Wallet / PassKit Web Service. Only the App Store Connect API ships with one.
-- **No published per-second QPS** for most of Apple's server APIs — guidance is "back off on 429."
-- **No usage-based billing** on the iOS server APIs themselves; all monetization is via the Apple Developer Program fee + App Store commission.
+The App Store Server API is the server-to-server REST API for managing App Store transactions — looking up transaction history, fetching all subscription statuses for a customer, requesting test notifications, and issuing refunds. It pairs with StoreKit on the device and with App Store Server Notifications v2 for asynchronous state changes. Authentication is JWT (ES256) signed with a key created in App Store Connect; payloads and responses are JWS-signed JSON.
 
-## License & Attribution
+- **Human URL:** [https://developer.apple.com/documentation/appstoreserverapi](https://developer.apple.com/documentation/appstoreserverapi)
+- **Base URL:** `https://api.storekit.itunes.apple.com`
 
-The OpenAPI spec mirrored under `openapi/` is © Apple Inc., distributed by Apple under the terms on [developer.apple.com/terms](https://developer.apple.com/terms/). Everything else in this repository is licensed CC BY 4.0 by API Evangelist.
+#### Tags
 
----
+- In-App Purchases
+- Subscriptions
+- Receipts
+- Refunds
+- StoreKit
 
-Maintained by [Kin Lane](https://apievangelist.com) · part of the [API Evangelist Network](https://github.com/api-evangelist).
+#### Properties
+
+- [Documentation](https://developer.apple.com/documentation/appstoreserverapi)
+- [API Reference](https://developer.apple.com/documentation/appstoreserverapi)
+- [Sandbox](https://api.storekit-sandbox.itunes.apple.com)
+- [SDK](https://github.com/apple/app-store-server-library-swift)
+- [SDK](https://github.com/apple/app-store-server-library-java)
+- [SDK](https://github.com/apple/app-store-server-library-python)
+- [SDK](https://github.com/apple/app-store-server-library-node)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+
+### App Store Server Notifications
+
+App Store Server Notifications v2 is Apple's webhook surface for in-app purchase and subscription lifecycle events — SUBSCRIBED, DID_RENEW, EXPIRED, REFUND, GRACE_PERIOD_EXPIRED, REVOKE, CONSUMPTION_REQUEST and related notification types. Providers register a production URL and a sandbox URL in App Store Connect; payloads are signed JWS (JSON Web Signatures) wrapping the transaction and renewal-info objects.
+
+- **Human URL:** [https://developer.apple.com/documentation/appstoreservernotifications](https://developer.apple.com/documentation/appstoreservernotifications)
+
+#### Tags
+
+- Webhooks
+- Subscriptions
+- In-App Purchases
+- Events
+- JWS
+
+#### Properties
+
+- [Documentation](https://developer.apple.com/documentation/appstoreservernotifications)
+- [API Reference](https://developer.apple.com/documentation/appstoreservernotifications)
+- [AsyncAPI](https://raw.githubusercontent.com/api-evangelist/ios/main/asyncapi/app-store-server-notifications-asyncapi.yml) — [AsyncAPI Specification](https://www.asyncapi.com/docs/reference/specification/latest)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+
+### Apple Push Notification Service (APNs)
+
+The Apple Push Notification service (APNs) is the HTTP/2 + JSON push delivery surface for sending remote notifications, background updates, VoIP pushes, and Live Activity updates to iOS, iPadOS, watchOS, tvOS and macOS devices. Providers authenticate either with a token-based JWT (ES256) or with a per-app TLS client certificate, and POST a notification payload to /3/device/{deviceToken}. APNs is the transport behind every push notification on iOS.
+
+- **Human URL:** [https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns)
+- **Base URL:** `https://api.push.apple.com`
+
+#### Tags
+
+- Push Notifications
+- HTTP/2
+- Live Activities
+- VoIP
+- Background Updates
+
+#### Properties
+
+- [Documentation](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns)
+- [API Reference](https://developer.apple.com/documentation/usernotifications/setting-up-a-remote-notification-server)
+- [Sandbox](https://api.sandbox.push.apple.com)
+- [Authentication](https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+
+### DeviceCheck and App Attest
+
+DeviceCheck allows servers to set and query two bits of per-device state and to verify that a request is coming from a genuine Apple device. App Attest, exposed through the same service, lets a server cryptographically verify that requests are coming from an authentic, uncompromised instance of an app. The API is JWT-authenticated (ES256) and is used as an anti- fraud / anti-abuse signal alongside iOS apps.
+
+- **Human URL:** [https://developer.apple.com/documentation/devicecheck](https://developer.apple.com/documentation/devicecheck)
+- **Base URL:** `https://api.devicecheck.apple.com`
+
+#### Tags
+
+- Device Attestation
+- Anti-Fraud
+- App Attest
+- Security
+
+#### Properties
+
+- [Documentation](https://developer.apple.com/documentation/devicecheck)
+- [API Reference](https://developer.apple.com/documentation/devicecheck/accessing-and-modifying-per-device-data)
+- [Sandbox](https://api.development.devicecheck.apple.com)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+
+### Sign in with Apple REST API
+
+Sign in with Apple is Apple's OpenID Connect-style identity provider for iOS, web, and other Apple-platform apps. The REST surface, hosted at appleid.apple.com, exposes /auth/token (authorization-code and refresh- token exchange), /auth/revoke (token revocation), /auth/keys (JWKS public keys for ID-token validation), and a server-to-server notification channel for account-deletion and email-relay events. Required for any iOS app offering third-party social login.
+
+- **Human URL:** [https://developer.apple.com/sign-in-with-apple/](https://developer.apple.com/sign-in-with-apple/)
+- **Base URL:** `https://appleid.apple.com`
+
+#### Tags
+
+- Authentication
+- OpenID Connect
+- OAuth 2.0
+- Identity
+- Single Sign-On
+
+#### Properties
+
+- [Documentation](https://developer.apple.com/documentation/sign_in_with_apple)
+- [API Reference](https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api)
+- [Authentication](https://developer.apple.com/documentation/sign_in_with_apple/generate_and_validate_tokens)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+
+### Apple Music API
+
+The Apple Music API is Apple's REST surface for Apple Music catalog, library, ratings, playlists, recommendations, and search. Calls are authenticated with a developer token (JWT) and, when accessing a subscriber's personal data, an additional Music User Token obtained through MusicKit on the device. It powers Apple Music integrations in iOS apps and on the web.
+
+- **Human URL:** [https://developer.apple.com/documentation/applemusicapi](https://developer.apple.com/documentation/applemusicapi)
+- **Base URL:** `https://api.music.apple.com`
+
+#### Tags
+
+- Apple Music
+- Music
+- Catalog
+- Streaming
+- MusicKit
+
+#### Properties
+
+- [Documentation](https://developer.apple.com/documentation/applemusicapi)
+- [API Reference](https://developer.apple.com/documentation/applemusicapi)
+- [Authentication](https://developer.apple.com/documentation/applemusicapi/generating-developer-tokens)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+
+### Wallet / PassKit Web Service
+
+The PassKit Web Service is a server-side HTTP contract that Wallet pass providers must implement so that Apple Wallet can register devices, enumerate pass serial numbers, fetch the latest pass version, unregister devices, and accept log messages. While Apple does not host this API itself, it specifies the exact endpoints (/v1/devices/.../registrations/..., /v1/passes/{passTypeIdentifier}/{serialNumber}, /v1/log) every provider must expose. APNs is the companion channel for pass-update notifications.
+
+- **Human URL:** [https://developer.apple.com/documentation/walletpasses](https://developer.apple.com/documentation/walletpasses)
+
+#### Tags
+
+- Wallet
+- PassKit
+- Passes
+- Loyalty
+- Boarding Passes
+
+#### Properties
+
+- [Documentation](https://developer.apple.com/documentation/walletpasses)
+- [API Reference](https://developer.apple.com/documentation/walletpasses/adding-a-web-service-to-update-passes)
+- [Postman Collection](collections/app-store-connect.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
+- [Open Collection](collections/app-store-connect.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+
+## Common Properties
+
+- [Arazzo Workflows](arazzo/) — [Arazzo Specification](https://spec.openapis.org/arazzo/latest.html)
+- [Portal](https://developer.apple.com/)
+- [Developer Portal](https://developer.apple.com/ios/)
+- [Documentation](https://developer.apple.com/documentation/)
+- [API Reference](https://developer.apple.com/documentation/appstoreconnectapi)
+- [Sign Up](https://developer.apple.com/programs/enroll/)
+- [Pricing](https://developer.apple.com/programs/whats-included/)
+- [Plans](https://developer.apple.com/programs/)
+- [Status Page](https://developer.apple.com/system-status/)
+- [Blog](https://developer.apple.com/news/)
+- [R S S](https://developer.apple.com/news/rss/news.rss)
+- [Release Notes](https://developer.apple.com/news/releases/)
+- [Forum](https://developer.apple.com/forums/)
+- [Support](https://developer.apple.com/support/)
+- [GitHub Organization](https://github.com/apple)
+- [Events](https://developer.apple.com/wwdc/)
+- [YouTube](https://www.youtube.com/appledevelopers)
+- [Terms of Service](https://developer.apple.com/support/terms/)
+- [Privacy](https://developer.apple.com/support/privacy/)
+- [OpenAPI](https://raw.githubusercontent.com/api-evangelist/ios/main/openapi/app-store-connect-openapi.json) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [AsyncAPI](https://raw.githubusercontent.com/api-evangelist/ios/main/asyncapi/app-store-server-notifications-asyncapi.yml) — [AsyncAPI Specification](https://www.asyncapi.com/docs/reference/specification/latest)
+- [Spectral Rules](https://raw.githubusercontent.com/api-evangelist/ios/main/rules/app-store-connect-rules.yml) — [Spectral](https://docs.stoplight.io/docs/spectral)
+- [Capabilities](https://github.com/api-evangelist/ios/tree/main/capabilities)
+- [JSON Schema](https://github.com/api-evangelist/ios/tree/main/json-schema) — [JSON Schema](https://json-schema.org/specification)
+- [JSON-LD](https://raw.githubusercontent.com/api-evangelist/ios/main/json-ld/ios-context.jsonld) — [JSON-LD](https://www.w3.org/TR/json-ld11/)
+- [Vocabulary](https://raw.githubusercontent.com/api-evangelist/ios/main/vocabulary/ios-vocabulary.yml)
+- [Plans](https://raw.githubusercontent.com/api-evangelist/ios/main/plans/ios-plans-pricing.yml)
+- [Rate Limits](https://raw.githubusercontent.com/api-evangelist/ios/main/rate-limits/ios-rate-limits.yml)
+- [Fin Ops](https://raw.githubusercontent.com/api-evangelist/ios/main/finops/ios-finops.yml)
+
+## Maintainers
+
+**FN:** Kin Lane
+**Email:** kin@apievangelist.com
+**URL:** https://apievangelist.com
