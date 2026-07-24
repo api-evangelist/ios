@@ -1,0 +1,173 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations FinanceReports API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: FinanceReports
+paths:
+  /v1/financeReports:
+    get:
+      tags:
+      - FinanceReports
+      operationId: financeReports_getCollection
+      parameters:
+      - name: filter[vendorNumber]
+        in: query
+        description: filter by attribute 'vendorNumber'
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: true
+      - name: filter[reportType]
+        in: query
+        description: filter by attribute 'reportType'
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - FINANCIAL
+            - FINANCE_DETAIL
+        style: form
+        explode: false
+        required: true
+      - name: filter[regionCode]
+        in: query
+        description: filter by attribute 'regionCode'
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: true
+      - name: filter[reportDate]
+        in: query
+        description: filter by attribute 'reportDate'
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of FinanceReports
+          content:
+            application/a-gzip:
+              schema:
+                $ref: '#/components/schemas/gzip'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Finance Reports
+components:
+  schemas:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    gzip:
+      type: string
+      format: binary
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

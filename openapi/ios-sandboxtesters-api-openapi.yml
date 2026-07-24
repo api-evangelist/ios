@@ -1,0 +1,602 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations SandboxTesters API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: SandboxTesters
+paths:
+  /v2/sandboxTesters:
+    get:
+      tags:
+      - SandboxTesters
+      operationId: sandboxTestersV2_getCollection
+      parameters:
+      - name: fields[sandboxTesters]
+        in: query
+        description: the fields to include for returned resources of type sandboxTesters
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - firstName
+            - lastName
+            - acAccountName
+            - territory
+            - applePayCompatible
+            - interruptPurchases
+            - subscriptionRenewalRate
+        style: form
+        explode: false
+        required: false
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of SandboxTesters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxTestersV2Response'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Sandbox Testers V2
+  /v2/sandboxTesters/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    patch:
+      tags:
+      - SandboxTesters
+      operationId: sandboxTestersV2_updateInstance
+      requestBody:
+        description: SandboxTester representation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SandboxTesterV2UpdateRequest'
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single SandboxTester
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxTesterV2Response'
+        '409':
+          description: Request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Update Sandbox Testers V2
+components:
+  schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    SandboxTesterV2:
+      type: object
+      title: SandboxTesterV2
+      properties:
+        type:
+          type: string
+          enum:
+          - sandboxTesters
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            acAccountName:
+              type: string
+            territory:
+              $ref: '#/components/schemas/TerritoryCode'
+            applePayCompatible:
+              type: boolean
+            interruptPurchases:
+              type: boolean
+            subscriptionRenewalRate:
+              type: string
+              enum:
+              - MONTHLY_RENEWAL_EVERY_ONE_HOUR
+              - MONTHLY_RENEWAL_EVERY_THIRTY_MINUTES
+              - MONTHLY_RENEWAL_EVERY_FIFTEEN_MINUTES
+              - MONTHLY_RENEWAL_EVERY_FIVE_MINUTES
+              - MONTHLY_RENEWAL_EVERY_THREE_MINUTES
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    SandboxTesterV2Response:
+      type: object
+      title: SandboxTesterV2Response
+      properties:
+        data:
+          $ref: '#/components/schemas/SandboxTesterV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    TerritoryCode:
+      type: string
+      enum:
+      - ABW
+      - AFG
+      - AGO
+      - AIA
+      - ALB
+      - AND
+      - ANT
+      - ARE
+      - ARG
+      - ARM
+      - ASM
+      - ATG
+      - AUS
+      - AUT
+      - AZE
+      - BDI
+      - BEL
+      - BEN
+      - BES
+      - BFA
+      - BGD
+      - BGR
+      - BHR
+      - BHS
+      - BIH
+      - BLR
+      - BLZ
+      - BMU
+      - BOL
+      - BRA
+      - BRB
+      - BRN
+      - BTN
+      - BWA
+      - CAF
+      - CAN
+      - CHE
+      - CHL
+      - CHN
+      - CIV
+      - CMR
+      - COD
+      - COG
+      - COK
+      - COL
+      - COM
+      - CPV
+      - CRI
+      - CUB
+      - CUW
+      - CXR
+      - CYM
+      - CYP
+      - CZE
+      - DEU
+      - DJI
+      - DMA
+      - DNK
+      - DOM
+      - DZA
+      - ECU
+      - EGY
+      - ERI
+      - ESP
+      - EST
+      - ETH
+      - FIN
+      - FJI
+      - FLK
+      - FRA
+      - FRO
+      - FSM
+      - GAB
+      - GBR
+      - GEO
+      - GGY
+      - GHA
+      - GIB
+      - GIN
+      - GLP
+      - GMB
+      - GNB
+      - GNQ
+      - GRC
+      - GRD
+      - GRL
+      - GTM
+      - GUF
+      - GUM
+      - GUY
+      - HKG
+      - HND
+      - HRV
+      - HTI
+      - HUN
+      - IDN
+      - IMN
+      - IND
+      - IRL
+      - IRQ
+      - ISL
+      - ISR
+      - ITA
+      - JAM
+      - JEY
+      - JOR
+      - JPN
+      - KAZ
+      - KEN
+      - KGZ
+      - KHM
+      - KIR
+      - KNA
+      - KOR
+      - KWT
+      - LAO
+      - LBN
+      - LBR
+      - LBY
+      - LCA
+      - LIE
+      - LKA
+      - LSO
+      - LTU
+      - LUX
+      - LVA
+      - MAC
+      - MAR
+      - MCO
+      - MDA
+      - MDG
+      - MDV
+      - MEX
+      - MHL
+      - MKD
+      - MLI
+      - MLT
+      - MMR
+      - MNE
+      - MNG
+      - MNP
+      - MOZ
+      - MRT
+      - MSR
+      - MTQ
+      - MUS
+      - MWI
+      - MYS
+      - MYT
+      - NAM
+      - NCL
+      - NER
+      - NFK
+      - NGA
+      - NIC
+      - NIU
+      - NLD
+      - NOR
+      - NPL
+      - NRU
+      - NZL
+      - OMN
+      - PAK
+      - PAN
+      - PER
+      - PHL
+      - PLW
+      - PNG
+      - POL
+      - PRI
+      - PRT
+      - PRY
+      - PSE
+      - PYF
+      - QAT
+      - REU
+      - ROU
+      - RUS
+      - RWA
+      - SAU
+      - SEN
+      - SGP
+      - SHN
+      - SLB
+      - SLE
+      - SLV
+      - SMR
+      - SOM
+      - SPM
+      - SRB
+      - SSD
+      - STP
+      - SUR
+      - SVK
+      - SVN
+      - SWE
+      - SWZ
+      - SXM
+      - SYC
+      - TCA
+      - TCD
+      - TGO
+      - THA
+      - TJK
+      - TKM
+      - TLS
+      - TON
+      - TTO
+      - TUN
+      - TUR
+      - TUV
+      - TWN
+      - TZA
+      - UGA
+      - UKR
+      - UMI
+      - URY
+      - USA
+      - UZB
+      - VAT
+      - VCT
+      - VEN
+      - VGB
+      - VIR
+      - VNM
+      - VUT
+      - WLF
+      - WSM
+      - XKS
+      - YEM
+      - ZAF
+      - ZMB
+      - ZWE
+    SandboxTestersV2Response:
+      type: object
+      title: SandboxTestersV2Response
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SandboxTesterV2'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    SandboxTesterV2UpdateRequest:
+      type: object
+      title: SandboxTesterV2UpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - sandboxTesters
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                territory:
+                  nullable: true
+                  $ref: '#/components/schemas/TerritoryCode'
+                interruptPurchases:
+                  type: boolean
+                  nullable: true
+                subscriptionRenewalRate:
+                  type: string
+                  nullable: true
+                  enum:
+                  - MONTHLY_RENEWAL_EVERY_ONE_HOUR
+                  - MONTHLY_RENEWAL_EVERY_THIRTY_MINUTES
+                  - MONTHLY_RENEWAL_EVERY_FIFTEEN_MINUTES
+                  - MONTHLY_RENEWAL_EVERY_FIVE_MINUTES
+                  - MONTHLY_RENEWAL_EVERY_THREE_MINUTES
+          required:
+          - id
+          - type
+      required:
+      - data
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

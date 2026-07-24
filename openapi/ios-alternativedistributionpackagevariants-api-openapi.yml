@@ -1,0 +1,209 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations AlternativeDistributionPackageVariants API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: AlternativeDistributionPackageVariants
+paths:
+  /v1/alternativeDistributionPackageVariants/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - AlternativeDistributionPackageVariants
+      operationId: alternativeDistributionPackageVariants_getInstance
+      parameters:
+      - name: fields[alternativeDistributionPackageVariants]
+        in: query
+        description: the fields to include for returned resources of type alternativeDistributionPackageVariants
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - url
+            - urlExpirationDate
+            - alternativeDistributionKeyBlob
+            - fileChecksum
+        style: form
+        explode: false
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single AlternativeDistributionPackageVariant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlternativeDistributionPackageVariantResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Alternative Distribution Package Variants
+components:
+  schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AlternativeDistributionPackageVariant:
+      type: object
+      title: AlternativeDistributionPackageVariant
+      properties:
+        type:
+          type: string
+          enum:
+          - alternativeDistributionPackageVariants
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            urlExpirationDate:
+              type: string
+              format: date-time
+            alternativeDistributionKeyBlob:
+              type: string
+            fileChecksum:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AlternativeDistributionPackageVariantResponse:
+      type: object
+      title: AlternativeDistributionPackageVariantResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AlternativeDistributionPackageVariant'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

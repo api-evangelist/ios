@@ -1,0 +1,367 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations ScmPullRequests API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: ScmPullRequests
+paths:
+  /v1/scmPullRequests/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - ScmPullRequests
+      operationId: scmPullRequests_getInstance
+      parameters:
+      - name: fields[scmPullRequests]
+        in: query
+        description: the fields to include for returned resources of type scmPullRequests
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - title
+            - number
+            - webUrl
+            - sourceRepositoryOwner
+            - sourceRepositoryName
+            - sourceBranchName
+            - destinationRepositoryOwner
+            - destinationRepositoryName
+            - destinationBranchName
+            - isClosed
+            - isCrossRepository
+            - repository
+        style: form
+        explode: false
+        required: false
+      - name: fields[scmRepositories]
+        in: query
+        description: the fields to include for returned resources of type scmRepositories
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - lastAccessedDate
+            - httpCloneUrl
+            - sshCloneUrl
+            - ownerName
+            - repositoryName
+            - scmProvider
+            - defaultBranch
+            - gitReferences
+            - pullRequests
+        style: form
+        explode: false
+        required: false
+      - name: include
+        in: query
+        description: comma-separated list of relationships to include
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - repository
+        style: form
+        explode: false
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single ScmPullRequest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScmPullRequestResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Scm Pull Requests
+components:
+  schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ScmRepository:
+      type: object
+      title: ScmRepository
+      properties:
+        type:
+          type: string
+          enum:
+          - scmRepositories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            lastAccessedDate:
+              type: string
+              format: date-time
+            httpCloneUrl:
+              type: string
+              format: uri
+            sshCloneUrl:
+              type: string
+              format: uri
+            ownerName:
+              type: string
+            repositoryName:
+              type: string
+        relationships:
+          type: object
+          properties:
+            scmProvider:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmProviders
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            defaultBranch:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmGitReferences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gitReferences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            pullRequests:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ScmPullRequestResponse:
+      type: object
+      title: ScmPullRequestResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/ScmPullRequest'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmRepository'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ScmPullRequest:
+      type: object
+      title: ScmPullRequest
+      properties:
+        type:
+          type: string
+          enum:
+          - scmPullRequests
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            title:
+              type: string
+            number:
+              type: integer
+            webUrl:
+              type: string
+              format: uri
+            sourceRepositoryOwner:
+              type: string
+            sourceRepositoryName:
+              type: string
+            sourceBranchName:
+              type: string
+            destinationRepositoryOwner:
+              type: string
+            destinationRepositoryName:
+              type: string
+            destinationBranchName:
+              type: string
+            isClosed:
+              type: boolean
+            isCrossRepository:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            repository:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmRepositories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

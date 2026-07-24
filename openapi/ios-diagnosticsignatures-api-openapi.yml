@@ -1,0 +1,244 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations DiagnosticSignatures API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: DiagnosticSignatures
+paths:
+  /v1/diagnosticSignatures/{id}/logs:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - DiagnosticSignatures
+      operationId: diagnosticSignatures_logs_getToManyRelated
+      parameters:
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of DiagnosticLogs
+          content:
+            application/vnd.apple.diagnostic-logs+json:
+              schema:
+                $ref: '#/components/schemas/diagnosticLogs'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Related Diagnostic Signatures / Logs
+components:
+  schemas:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DiagnosticLogCallStackNode:
+      type: object
+      properties:
+        sampleCount:
+          type: integer
+        isBlameFrame:
+          type: boolean
+        symbolName:
+          type: string
+        insightsCategory:
+          type: string
+        offsetIntoSymbol:
+          type: string
+        binaryName:
+          type: string
+        fileName:
+          type: string
+        binaryUUID:
+          type: string
+        lineNumber:
+          type: string
+        address:
+          type: string
+        offsetIntoBinaryTextSegment:
+          type: string
+        rawFrame:
+          type: string
+        subFrames:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosticLogCallStackNode'
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    diagnosticLogs:
+      type: object
+      properties:
+        productData:
+          type: array
+          items:
+            type: object
+            properties:
+              signatureId:
+                type: string
+              diagnosticInsights:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    insightsURL:
+                      type: string
+                    insightsCategory:
+                      type: string
+                    insightsString:
+                      type: string
+              diagnosticLogs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    callStackTree:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          callStackPerThread:
+                            type: boolean
+                          callStacks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                callStackRootFrames:
+                                  type: array
+                                  items:
+                                    $ref: '#/components/schemas/DiagnosticLogCallStackNode'
+                    diagnosticMetaData:
+                      type: object
+                      properties:
+                        bundleId:
+                          type: string
+                        event:
+                          type: string
+                        osVersion:
+                          type: string
+                        appVersion:
+                          type: string
+                        writesCaused:
+                          type: string
+                        deviceType:
+                          type: string
+                        platformArchitecture:
+                          type: string
+                        eventDetail:
+                          type: string
+                        buildVersion:
+                          type: string
+        version:
+          type: string
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

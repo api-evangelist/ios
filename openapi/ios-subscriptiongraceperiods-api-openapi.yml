@@ -1,0 +1,313 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations SubscriptionGracePeriods API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: SubscriptionGracePeriods
+paths:
+  /v1/subscriptionGracePeriods/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - SubscriptionGracePeriods
+      operationId: subscriptionGracePeriods_getInstance
+      parameters:
+      - name: fields[subscriptionGracePeriods]
+        in: query
+        description: the fields to include for returned resources of type subscriptionGracePeriods
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - optIn
+            - sandboxOptIn
+            - duration
+            - renewalType
+        style: form
+        explode: false
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single SubscriptionGracePeriod
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionGracePeriodResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Subscription Grace Periods
+    patch:
+      tags:
+      - SubscriptionGracePeriods
+      operationId: subscriptionGracePeriods_updateInstance
+      requestBody:
+        description: SubscriptionGracePeriod representation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionGracePeriodUpdateRequest'
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single SubscriptionGracePeriod
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionGracePeriodResponse'
+        '409':
+          description: Request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Update Subscription Grace Periods
+components:
+  schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    SubscriptionGracePeriod:
+      type: object
+      title: SubscriptionGracePeriod
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionGracePeriods
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            optIn:
+              type: boolean
+            sandboxOptIn:
+              type: boolean
+            duration:
+              $ref: '#/components/schemas/SubscriptionGracePeriodDuration'
+            renewalType:
+              type: string
+              enum:
+              - ALL_RENEWALS
+              - PAID_TO_PAID_ONLY
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    SubscriptionGracePeriodUpdateRequest:
+      type: object
+      title: SubscriptionGracePeriodUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionGracePeriods
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                optIn:
+                  type: boolean
+                  nullable: true
+                sandboxOptIn:
+                  type: boolean
+                  nullable: true
+                duration:
+                  nullable: true
+                  $ref: '#/components/schemas/SubscriptionGracePeriodDuration'
+                renewalType:
+                  type: string
+                  nullable: true
+                  enum:
+                  - ALL_RENEWALS
+                  - PAID_TO_PAID_ONLY
+          required:
+          - id
+          - type
+      required:
+      - data
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    SubscriptionGracePeriodResponse:
+      type: object
+      title: SubscriptionGracePeriodResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionGracePeriod'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionGracePeriodDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - SIXTEEN_DAYS
+      - TWENTY_EIGHT_DAYS
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

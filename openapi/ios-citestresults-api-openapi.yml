@@ -1,0 +1,241 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations CiTestResults API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: CiTestResults
+paths:
+  /v1/ciTestResults/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - CiTestResults
+      operationId: ciTestResults_getInstance
+      parameters:
+      - name: fields[ciTestResults]
+        in: query
+        description: the fields to include for returned resources of type ciTestResults
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - className
+            - name
+            - status
+            - fileSource
+            - message
+            - destinationTestResults
+        style: form
+        explode: false
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single CiTestResult
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CiTestResultResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Ci Test Results
+components:
+  schemas:
+    CiTestStatus:
+      type: string
+      enum:
+      - SUCCESS
+      - FAILURE
+      - MIXED
+      - SKIPPED
+      - EXPECTED_FAILURE
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    CiTestResult:
+      type: object
+      title: CiTestResult
+      properties:
+        type:
+          type: string
+          enum:
+          - ciTestResults
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            className:
+              type: string
+            name:
+              type: string
+            status:
+              $ref: '#/components/schemas/CiTestStatus'
+            fileSource:
+              $ref: '#/components/schemas/FileLocation'
+            message:
+              type: string
+            destinationTestResults:
+              type: array
+              items:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                  deviceName:
+                    type: string
+                  osVersion:
+                    type: string
+                  status:
+                    $ref: '#/components/schemas/CiTestStatus'
+                  duration:
+                    type: number
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    CiTestResultResponse:
+      type: object
+      title: CiTestResultResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/CiTestResult'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    FileLocation:
+      type: object
+      properties:
+        path:
+          type: string
+        lineNumber:
+          type: integer
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

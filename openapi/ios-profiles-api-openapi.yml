@@ -1,0 +1,1610 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations Profiles API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: Profiles
+paths:
+  /v1/profiles:
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_getCollection
+      parameters:
+      - name: filter[name]
+        in: query
+        description: filter by attribute 'name'
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: false
+      - name: filter[profileType]
+        in: query
+        description: filter by attribute 'profileType'
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - IOS_APP_DEVELOPMENT
+            - IOS_APP_STORE
+            - IOS_APP_ADHOC
+            - IOS_APP_INHOUSE
+            - MAC_APP_DEVELOPMENT
+            - MAC_APP_STORE
+            - MAC_APP_DIRECT
+            - TVOS_APP_DEVELOPMENT
+            - TVOS_APP_STORE
+            - TVOS_APP_ADHOC
+            - TVOS_APP_INHOUSE
+            - MAC_CATALYST_APP_DEVELOPMENT
+            - MAC_CATALYST_APP_STORE
+            - MAC_CATALYST_APP_DIRECT
+        style: form
+        explode: false
+        required: false
+      - name: filter[profileState]
+        in: query
+        description: filter by attribute 'profileState'
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - ACTIVE
+            - INVALID
+        style: form
+        explode: false
+        required: false
+      - name: filter[id]
+        in: query
+        description: filter by id(s)
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: false
+      - name: sort
+        in: query
+        description: comma-separated list of sort expressions; resources will be sorted as specified
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - -name
+            - profileType
+            - -profileType
+            - profileState
+            - -profileState
+            - id
+            - -id
+        style: form
+        explode: false
+        required: false
+      - name: fields[profiles]
+        in: query
+        description: the fields to include for returned resources of type profiles
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - profileType
+            - profileState
+            - profileContent
+            - uuid
+            - createdDate
+            - expirationDate
+            - bundleId
+            - devices
+            - certificates
+        style: form
+        explode: false
+        required: false
+      - name: fields[bundleIds]
+        in: query
+        description: the fields to include for returned resources of type bundleIds
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - identifier
+            - seedId
+            - profiles
+            - bundleIdCapabilities
+            - app
+        style: form
+        explode: false
+        required: false
+      - name: fields[devices]
+        in: query
+        description: the fields to include for returned resources of type devices
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - udid
+            - deviceClass
+            - status
+            - model
+            - addedDate
+        style: form
+        explode: false
+        required: false
+      - name: fields[certificates]
+        in: query
+        description: the fields to include for returned resources of type certificates
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - certificateType
+            - displayName
+            - serialNumber
+            - platform
+            - expirationDate
+            - certificateContent
+            - activated
+            - passTypeId
+        style: form
+        explode: false
+        required: false
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      - name: include
+        in: query
+        description: comma-separated list of relationships to include
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - bundleId
+            - devices
+            - certificates
+        style: form
+        explode: false
+        required: false
+      - name: limit[certificates]
+        in: query
+        description: maximum number of related certificates returned (when they are included)
+        schema:
+          type: integer
+          maximum: 50
+        style: form
+        required: false
+      - name: limit[devices]
+        in: query
+        description: maximum number of related devices returned (when they are included)
+        schema:
+          type: integer
+          maximum: 50
+        style: form
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of Profiles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfilesResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Profiles
+    post:
+      tags:
+      - Profiles
+      operationId: profiles_createInstance
+      requestBody:
+        description: Profile representation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileCreateRequest'
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '201':
+          description: Single Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '409':
+          description: Request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Create Profiles
+  /v1/profiles/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_getInstance
+      parameters:
+      - name: fields[profiles]
+        in: query
+        description: the fields to include for returned resources of type profiles
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - profileType
+            - profileState
+            - profileContent
+            - uuid
+            - createdDate
+            - expirationDate
+            - bundleId
+            - devices
+            - certificates
+        style: form
+        explode: false
+        required: false
+      - name: fields[bundleIds]
+        in: query
+        description: the fields to include for returned resources of type bundleIds
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - identifier
+            - seedId
+            - profiles
+            - bundleIdCapabilities
+            - app
+        style: form
+        explode: false
+        required: false
+      - name: fields[devices]
+        in: query
+        description: the fields to include for returned resources of type devices
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - udid
+            - deviceClass
+            - status
+            - model
+            - addedDate
+        style: form
+        explode: false
+        required: false
+      - name: fields[certificates]
+        in: query
+        description: the fields to include for returned resources of type certificates
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - certificateType
+            - displayName
+            - serialNumber
+            - platform
+            - expirationDate
+            - certificateContent
+            - activated
+            - passTypeId
+        style: form
+        explode: false
+        required: false
+      - name: include
+        in: query
+        description: comma-separated list of relationships to include
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - bundleId
+            - devices
+            - certificates
+        style: form
+        explode: false
+        required: false
+      - name: limit[certificates]
+        in: query
+        description: maximum number of related certificates returned (when they are included)
+        schema:
+          type: integer
+          maximum: 50
+        style: form
+        required: false
+      - name: limit[devices]
+        in: query
+        description: maximum number of related devices returned (when they are included)
+        schema:
+          type: integer
+          maximum: 50
+        style: form
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Profiles
+    delete:
+      tags:
+      - Profiles
+      operationId: profiles_deleteInstance
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '204':
+          description: Success (no content)
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Delete Profiles
+  /v1/profiles/{id}/relationships/bundleId:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_bundleId_getToOneRelationship
+      parameters: []
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Related linkage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileBundleIdLinkageResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Related Profiles / Bundle ID
+  /v1/profiles/{id}/bundleId:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_bundleId_getToOneRelated
+      parameters:
+      - name: fields[bundleIds]
+        in: query
+        description: the fields to include for returned resources of type bundleIds
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - identifier
+            - seedId
+            - profiles
+            - bundleIdCapabilities
+            - app
+        style: form
+        explode: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single BundleId with get
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BundleIdWithoutIncludesResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Related Profiles / Bundle ID
+  /v1/profiles/{id}/relationships/certificates:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_certificates_getToManyRelationship
+      parameters:
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of related linkages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileCertificatesLinkagesResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Related Profiles / Certificates
+  /v1/profiles/{id}/certificates:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_certificates_getToManyRelated
+      parameters:
+      - name: fields[certificates]
+        in: query
+        description: the fields to include for returned resources of type certificates
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - certificateType
+            - displayName
+            - serialNumber
+            - platform
+            - expirationDate
+            - certificateContent
+            - activated
+            - passTypeId
+        style: form
+        explode: false
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of Certificates with get
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatesWithoutIncludesResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Related Profiles / Certificates
+  /v1/profiles/{id}/relationships/devices:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_devices_getToManyRelationship
+      parameters:
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of related linkages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileDevicesLinkagesResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Related Profiles / Devices
+  /v1/profiles/{id}/devices:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Profiles
+      operationId: profiles_devices_getToManyRelated
+      parameters:
+      - name: fields[devices]
+        in: query
+        description: the fields to include for returned resources of type devices
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - platform
+            - udid
+            - deviceClass
+            - status
+            - model
+            - addedDate
+        style: form
+        explode: false
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of Devices with get
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicesWithoutIncludesResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Related Profiles / Devices
+components:
+  schemas:
+    ProfilesResponse:
+      type: object
+      title: ProfilesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profile'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/BundleId'
+            - $ref: '#/components/schemas/Certificate'
+            - $ref: '#/components/schemas/Device'
+            discriminator:
+              propertyName: type
+              mapping:
+                certificates: '#/components/schemas/Certificate'
+                devices: '#/components/schemas/Device'
+                bundleIds: '#/components/schemas/BundleId'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    Device:
+      type: object
+      title: Device
+      properties:
+        type:
+          type: string
+          enum:
+          - devices
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            platform:
+              $ref: '#/components/schemas/BundleIdPlatform'
+            udid:
+              type: string
+            deviceClass:
+              type: string
+              enum:
+              - APPLE_VISION_PRO
+              - APPLE_WATCH
+              - IPAD
+              - IPHONE
+              - IPOD
+              - APPLE_TV
+              - MAC
+            status:
+              type: string
+              enum:
+              - ENABLED
+              - DISABLED
+            model:
+              type: string
+            addedDate:
+              type: string
+              format: date-time
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    Profile:
+      type: object
+      title: Profile
+      properties:
+        type:
+          type: string
+          enum:
+          - profiles
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            platform:
+              $ref: '#/components/schemas/BundleIdPlatform'
+            profileType:
+              type: string
+              enum:
+              - IOS_APP_DEVELOPMENT
+              - IOS_APP_STORE
+              - IOS_APP_ADHOC
+              - IOS_APP_INHOUSE
+              - MAC_APP_DEVELOPMENT
+              - MAC_APP_STORE
+              - MAC_APP_DIRECT
+              - TVOS_APP_DEVELOPMENT
+              - TVOS_APP_STORE
+              - TVOS_APP_ADHOC
+              - TVOS_APP_INHOUSE
+              - MAC_CATALYST_APP_DEVELOPMENT
+              - MAC_CATALYST_APP_STORE
+              - MAC_CATALYST_APP_DIRECT
+            profileState:
+              type: string
+              enum:
+              - ACTIVE
+              - INVALID
+            profileContent:
+              type: string
+            uuid:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            expirationDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            bundleId:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - bundleIds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            devices:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - devices
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            certificates:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - certificates
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ProfileResponse:
+      type: object
+      title: ProfileResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Profile'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/BundleId'
+            - $ref: '#/components/schemas/Certificate'
+            - $ref: '#/components/schemas/Device'
+            discriminator:
+              propertyName: type
+              mapping:
+                certificates: '#/components/schemas/Certificate'
+                devices: '#/components/schemas/Device'
+                bundleIds: '#/components/schemas/BundleId'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    Certificate:
+      type: object
+      title: Certificate
+      properties:
+        type:
+          type: string
+          enum:
+          - certificates
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            certificateType:
+              $ref: '#/components/schemas/CertificateType'
+            displayName:
+              type: string
+            serialNumber:
+              type: string
+            platform:
+              $ref: '#/components/schemas/BundleIdPlatform'
+            expirationDate:
+              type: string
+              format: date-time
+            certificateContent:
+              type: string
+            activated:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            passTypeId:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - passTypeIds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CertificatesWithoutIncludesResponse:
+      type: object
+      title: CertificatesWithoutIncludesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ProfileCreateRequest:
+      type: object
+      title: ProfileCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - profiles
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+                profileType:
+                  type: string
+                  enum:
+                  - IOS_APP_DEVELOPMENT
+                  - IOS_APP_STORE
+                  - IOS_APP_ADHOC
+                  - IOS_APP_INHOUSE
+                  - MAC_APP_DEVELOPMENT
+                  - MAC_APP_STORE
+                  - MAC_APP_DIRECT
+                  - TVOS_APP_DEVELOPMENT
+                  - TVOS_APP_STORE
+                  - TVOS_APP_ADHOC
+                  - TVOS_APP_INHOUSE
+                  - MAC_CATALYST_APP_DEVELOPMENT
+                  - MAC_CATALYST_APP_STORE
+                  - MAC_CATALYST_APP_DIRECT
+              required:
+              - profileType
+              - name
+            relationships:
+              type: object
+              properties:
+                bundleId:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - bundleIds
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+                devices:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - devices
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+                certificates:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - certificates
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+                  required:
+                  - data
+              required:
+              - certificates
+              - bundleId
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    BundleId:
+      type: object
+      title: BundleId
+      properties:
+        type:
+          type: string
+          enum:
+          - bundleIds
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            platform:
+              $ref: '#/components/schemas/BundleIdPlatform'
+            identifier:
+              type: string
+            seedId:
+              type: string
+        relationships:
+          type: object
+          properties:
+            profiles:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - profiles
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            bundleIdCapabilities:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - bundleIdCapabilities
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    CertificateType:
+      type: string
+      enum:
+      - APPLE_PAY
+      - APPLE_PAY_MERCHANT_IDENTITY
+      - APPLE_PAY_PSP_IDENTITY
+      - APPLE_PAY_RSA
+      - DEVELOPER_ID_KEXT
+      - DEVELOPER_ID_KEXT_G2
+      - DEVELOPER_ID_APPLICATION
+      - DEVELOPER_ID_APPLICATION_G2
+      - DEVELOPMENT
+      - DISTRIBUTION
+      - IDENTITY_ACCESS
+      - IOS_DEVELOPMENT
+      - IOS_DISTRIBUTION
+      - MAC_APP_DISTRIBUTION
+      - MAC_INSTALLER_DISTRIBUTION
+      - MAC_APP_DEVELOPMENT
+      - PASS_TYPE_ID
+      - PASS_TYPE_ID_WITH_NFC
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
+    ProfileDevicesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - devices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    DevicesWithoutIncludesResponse:
+      type: object
+      title: DevicesWithoutIncludesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ProfileBundleIdLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - bundleIds
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ProfileCertificatesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - certificates
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    BundleIdWithoutIncludesResponse:
+      type: object
+      title: BundleIdWithoutIncludesResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BundleId'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

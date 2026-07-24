@@ -1,0 +1,249 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations GameCenterPlayerAchievementSubmissions API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: GameCenterPlayerAchievementSubmissions
+paths:
+  /v1/gameCenterPlayerAchievementSubmissions:
+    post:
+      tags:
+      - GameCenterPlayerAchievementSubmissions
+      operationId: gameCenterPlayerAchievementSubmissions_createInstance
+      requestBody:
+        description: GameCenterPlayerAchievementSubmission representation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameCenterPlayerAchievementSubmissionCreateRequest'
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '201':
+          description: Single GameCenterPlayerAchievementSubmission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameCenterPlayerAchievementSubmissionResponse'
+        '409':
+          description: Request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Create Game Center Player Achievement Submissions
+components:
+  schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    GameCenterPlayerAchievementSubmissionCreateRequest:
+      type: object
+      title: GameCenterPlayerAchievementSubmissionCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterPlayerAchievementSubmissions
+            attributes:
+              type: object
+              properties:
+                bundleId:
+                  type: string
+                challengeIds:
+                  type: array
+                  items:
+                    type: string
+                  nullable: true
+                percentageAchieved:
+                  type: integer
+                scopedPlayerId:
+                  type: string
+                submittedDate:
+                  type: string
+                  format: date-time
+                  nullable: true
+                vendorIdentifier:
+                  type: string
+                preReleased:
+                  type: boolean
+                  nullable: true
+              required:
+              - vendorIdentifier
+              - percentageAchieved
+              - bundleId
+              - scopedPlayerId
+          required:
+          - attributes
+          - type
+      required:
+      - data
+    GameCenterPlayerAchievementSubmissionResponse:
+      type: object
+      title: GameCenterPlayerAchievementSubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterPlayerAchievementSubmission'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    GameCenterPlayerAchievementSubmission:
+      type: object
+      title: GameCenterPlayerAchievementSubmission
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterPlayerAchievementSubmissions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            bundleId:
+              type: string
+            challengeIds:
+              type: array
+              items:
+                type: string
+            percentageAchieved:
+              type: integer
+            scopedPlayerId:
+              type: string
+            submittedDate:
+              type: string
+              format: date-time
+            vendorIdentifier:
+              type: string
+            preReleased:
+              type: boolean
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,997 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations Certificates API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: Certificates
+paths:
+  /v1/certificates:
+    get:
+      tags:
+      - Certificates
+      operationId: certificates_getCollection
+      parameters:
+      - name: filter[displayName]
+        in: query
+        description: filter by attribute 'displayName'
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: false
+      - name: filter[certificateType]
+        in: query
+        description: filter by attribute 'certificateType'
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - APPLE_PAY
+            - APPLE_PAY_MERCHANT_IDENTITY
+            - APPLE_PAY_PSP_IDENTITY
+            - APPLE_PAY_RSA
+            - DEVELOPER_ID_KEXT
+            - DEVELOPER_ID_KEXT_G2
+            - DEVELOPER_ID_APPLICATION
+            - DEVELOPER_ID_APPLICATION_G2
+            - DEVELOPMENT
+            - DISTRIBUTION
+            - IDENTITY_ACCESS
+            - IOS_DEVELOPMENT
+            - IOS_DISTRIBUTION
+            - MAC_APP_DISTRIBUTION
+            - MAC_INSTALLER_DISTRIBUTION
+            - MAC_APP_DEVELOPMENT
+            - PASS_TYPE_ID
+            - PASS_TYPE_ID_WITH_NFC
+        style: form
+        explode: false
+        required: false
+      - name: filter[serialNumber]
+        in: query
+        description: filter by attribute 'serialNumber'
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: false
+      - name: filter[id]
+        in: query
+        description: filter by id(s)
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        required: false
+      - name: sort
+        in: query
+        description: comma-separated list of sort expressions; resources will be sorted as specified
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - displayName
+            - -displayName
+            - certificateType
+            - -certificateType
+            - serialNumber
+            - -serialNumber
+            - id
+            - -id
+        style: form
+        explode: false
+        required: false
+      - name: fields[certificates]
+        in: query
+        description: the fields to include for returned resources of type certificates
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - certificateType
+            - displayName
+            - serialNumber
+            - platform
+            - expirationDate
+            - certificateContent
+            - activated
+            - passTypeId
+        style: form
+        explode: false
+        required: false
+      - name: fields[passTypeIds]
+        in: query
+        description: the fields to include for returned resources of type passTypeIds
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - identifier
+            - certificates
+        style: form
+        explode: false
+        required: false
+      - name: limit
+        in: query
+        description: maximum resources per page
+        schema:
+          type: integer
+          maximum: 200
+        style: form
+      - name: include
+        in: query
+        description: comma-separated list of relationships to include
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - passTypeId
+        style: form
+        explode: false
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: List of Certificates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatesResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: List Certificates
+    post:
+      tags:
+      - Certificates
+      operationId: certificates_createInstance
+      requestBody:
+        description: Certificate representation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateCreateRequest'
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '201':
+          description: Single Certificate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '409':
+          description: Request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Create Certificates
+  /v1/certificates/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Certificates
+      operationId: certificates_getInstance
+      parameters:
+      - name: fields[certificates]
+        in: query
+        description: the fields to include for returned resources of type certificates
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - certificateType
+            - displayName
+            - serialNumber
+            - platform
+            - expirationDate
+            - certificateContent
+            - activated
+            - passTypeId
+        style: form
+        explode: false
+        required: false
+      - name: fields[passTypeIds]
+        in: query
+        description: the fields to include for returned resources of type passTypeIds
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - identifier
+            - certificates
+        style: form
+        explode: false
+        required: false
+      - name: include
+        in: query
+        description: comma-separated list of relationships to include
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - passTypeId
+        style: form
+        explode: false
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single Certificate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Certificates
+    patch:
+      tags:
+      - Certificates
+      operationId: certificates_updateInstance
+      requestBody:
+        description: Certificate representation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateUpdateRequest'
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single Certificate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '409':
+          description: Request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Update Certificates
+    delete:
+      tags:
+      - Certificates
+      operationId: certificates_deleteInstance
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '204':
+          description: Success (no content)
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Delete Certificates
+  /v1/certificates/{id}/relationships/passTypeId:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Certificates
+      operationId: certificates_passTypeId_getToOneRelationship
+      parameters: []
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Related linkage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatePassTypeIdLinkageResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Related Certificates / Pass Type ID
+  /v1/certificates/{id}/passTypeId:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - Certificates
+      operationId: certificates_passTypeId_getToOneRelated
+      parameters:
+      - name: fields[passTypeIds]
+        in: query
+        description: the fields to include for returned resources of type passTypeIds
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - identifier
+            - certificates
+        style: form
+        explode: false
+      - name: fields[certificates]
+        in: query
+        description: the fields to include for returned resources of type certificates
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - name
+            - certificateType
+            - displayName
+            - serialNumber
+            - platform
+            - expirationDate
+            - certificateContent
+            - activated
+            - passTypeId
+        style: form
+        explode: false
+      - name: include
+        in: query
+        description: comma-separated list of relationships to include
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - certificates
+        style: form
+        explode: false
+      - name: limit[certificates]
+        in: query
+        description: maximum number of related certificates returned (when they are included)
+        schema:
+          type: integer
+          maximum: 50
+        style: form
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single PassTypeId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassTypeIdResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Related Certificates / Pass Type ID
+components:
+  schemas:
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    PassTypeId:
+      type: object
+      title: PassTypeId
+      properties:
+        type:
+          type: string
+          enum:
+          - passTypeIds
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            identifier:
+              type: string
+        relationships:
+          type: object
+          properties:
+            certificates:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - certificates
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    PassTypeIdResponse:
+      type: object
+      title: PassTypeIdResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/PassTypeId'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CertificatePassTypeIdLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - passTypeIds
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    Certificate:
+      type: object
+      title: Certificate
+      properties:
+        type:
+          type: string
+          enum:
+          - certificates
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            certificateType:
+              $ref: '#/components/schemas/CertificateType'
+            displayName:
+              type: string
+            serialNumber:
+              type: string
+            platform:
+              $ref: '#/components/schemas/BundleIdPlatform'
+            expirationDate:
+              type: string
+              format: date-time
+            certificateContent:
+              type: string
+            activated:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            passTypeId:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - passTypeIds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    CertificateType:
+      type: string
+      enum:
+      - APPLE_PAY
+      - APPLE_PAY_MERCHANT_IDENTITY
+      - APPLE_PAY_PSP_IDENTITY
+      - APPLE_PAY_RSA
+      - DEVELOPER_ID_KEXT
+      - DEVELOPER_ID_KEXT_G2
+      - DEVELOPER_ID_APPLICATION
+      - DEVELOPER_ID_APPLICATION_G2
+      - DEVELOPMENT
+      - DISTRIBUTION
+      - IDENTITY_ACCESS
+      - IOS_DEVELOPMENT
+      - IOS_DISTRIBUTION
+      - MAC_APP_DISTRIBUTION
+      - MAC_INSTALLER_DISTRIBUTION
+      - MAC_APP_DEVELOPMENT
+      - PASS_TYPE_ID
+      - PASS_TYPE_ID_WITH_NFC
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
+    CertificateUpdateRequest:
+      type: object
+      title: CertificateUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - certificates
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                activated:
+                  type: boolean
+                  nullable: true
+          required:
+          - id
+          - type
+      required:
+      - data
+    CertificateCreateRequest:
+      type: object
+      title: CertificateCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - certificates
+            attributes:
+              type: object
+              properties:
+                csrContent:
+                  type: string
+                certificateType:
+                  $ref: '#/components/schemas/CertificateType'
+              required:
+              - csrContent
+              - certificateType
+            relationships:
+              type: object
+              properties:
+                merchantId:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - merchantIds
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                passTypeId:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - passTypeIds
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+          required:
+          - attributes
+          - type
+      required:
+      - data
+    CertificateResponse:
+      type: object
+      title: CertificateResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Certificate'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassTypeId'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CertificatesResponse:
+      type: object
+      title: CertificatesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassTypeId'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

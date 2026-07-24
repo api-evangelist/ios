@@ -1,0 +1,431 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations BackgroundAssetVersionInternalBetaReleases API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: BackgroundAssetVersionInternalBetaReleases
+paths:
+  /v1/backgroundAssetVersionInternalBetaReleases/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: the id of the requested resource
+      schema:
+        type: string
+      style: simple
+      required: true
+    get:
+      tags:
+      - BackgroundAssetVersionInternalBetaReleases
+      operationId: backgroundAssetVersionInternalBetaReleases_getInstance
+      parameters:
+      - name: fields[backgroundAssetVersionInternalBetaReleases]
+        in: query
+        description: the fields to include for returned resources of type backgroundAssetVersionInternalBetaReleases
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - state
+            - backgroundAssetVersion
+        style: form
+        explode: false
+        required: false
+      - name: fields[backgroundAssetVersions]
+        in: query
+        description: the fields to include for returned resources of type backgroundAssetVersions
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - createdDate
+            - platforms
+            - state
+            - stateDetails
+            - version
+            - backgroundAsset
+            - internalBetaRelease
+            - externalBetaRelease
+            - appStoreRelease
+            - assetFile
+            - manifestFile
+            - backgroundAssetUploadFiles
+        style: form
+        explode: false
+        required: false
+      - name: include
+        in: query
+        description: comma-separated list of relationships to include
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - backgroundAssetVersion
+        style: form
+        explode: false
+        required: false
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Single BackgroundAssetVersionInternalBetaRelease
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaReleaseResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Get Background Asset Version Internal Beta Releases
+components:
+  schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BackgroundAssetVersionInternalBetaReleaseResponse:
+      type: object
+      title: BackgroundAssetVersionInternalBetaReleaseResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackgroundAssetVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    StateDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    BackgroundAssetVersion:
+      type: object
+      title: BackgroundAssetVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            createdDate:
+              type: string
+              format: date-time
+            platforms:
+              type: array
+              items:
+                $ref: '#/components/schemas/Platform'
+            state:
+              $ref: '#/components/schemas/BackgroundAssetVersionState'
+            stateDetails:
+              type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                warnings:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                infos:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+            version:
+              type: string
+        relationships:
+          type: object
+          properties:
+            backgroundAsset:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssets
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            internalBetaRelease:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersionInternalBetaReleases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            externalBetaRelease:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersionExternalBetaReleases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreRelease:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersionAppStoreReleases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            assetFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            manifestFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            backgroundAssetUploadFiles:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    BackgroundAssetVersionInternalBetaRelease:
+      type: object
+      title: BackgroundAssetVersionInternalBetaRelease
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetVersionInternalBetaReleases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            state:
+              type: string
+              enum:
+              - READY_FOR_TESTING
+              - SUPERSEDED
+        relationships:
+          type: object
+          properties:
+            backgroundAssetVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BackgroundAssetVersionState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

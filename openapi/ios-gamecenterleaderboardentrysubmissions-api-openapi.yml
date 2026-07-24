@@ -1,0 +1,258 @@
+openapi: 3.0.1
+info:
+  title: App Store Connect AccessibilityDeclarations GameCenterLeaderboardEntrySubmissions API
+  version: 4.3.1
+  x-platforms:
+    app_store_connect_api: App Store Connect API
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+servers:
+- url: https://api.appstoreconnect.apple.com/
+security:
+- itc-bearer-token: []
+tags:
+- name: GameCenterLeaderboardEntrySubmissions
+paths:
+  /v1/gameCenterLeaderboardEntrySubmissions:
+    post:
+      tags:
+      - GameCenterLeaderboardEntrySubmissions
+      operationId: gameCenterLeaderboardEntrySubmissions_createInstance
+      requestBody:
+        description: GameCenterLeaderboardEntrySubmission representation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameCenterLeaderboardEntrySubmissionCreateRequest'
+        required: true
+      responses:
+        '400':
+          description: Parameter error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '201':
+          description: Single GameCenterLeaderboardEntrySubmission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameCenterLeaderboardEntrySubmissionResponse'
+        '409':
+          description: Request entity error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      summary: Create Game Center Leaderboard Entry Submissions
+components:
+  schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    GameCenterLeaderboardEntrySubmissionCreateRequest:
+      type: object
+      title: GameCenterLeaderboardEntrySubmissionCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterLeaderboardEntrySubmissions
+            attributes:
+              type: object
+              properties:
+                bundleId:
+                  type: string
+                challengeIds:
+                  type: array
+                  items:
+                    type: string
+                  nullable: true
+                context:
+                  type: string
+                  format: number
+                  nullable: true
+                scopedPlayerId:
+                  type: string
+                score:
+                  type: string
+                  format: number
+                submittedDate:
+                  type: string
+                  format: date-time
+                  nullable: true
+                vendorIdentifier:
+                  type: string
+                preReleased:
+                  type: boolean
+                  nullable: true
+              required:
+              - vendorIdentifier
+              - score
+              - bundleId
+              - scopedPlayerId
+          required:
+          - attributes
+          - type
+      required:
+      - data
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    GameCenterLeaderboardEntrySubmission:
+      type: object
+      title: GameCenterLeaderboardEntrySubmission
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterLeaderboardEntrySubmissions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            bundleId:
+              type: string
+            challengeIds:
+              type: array
+              items:
+                type: string
+            context:
+              type: string
+              format: number
+            scopedPlayerId:
+              type: string
+            score:
+              type: string
+              format: number
+            submittedDate:
+              type: string
+              format: date-time
+            vendorIdentifier:
+              type: string
+            preReleased:
+              type: boolean
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    GameCenterLeaderboardEntrySubmissionResponse:
+      type: object
+      title: GameCenterLeaderboardEntrySubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterLeaderboardEntrySubmission'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+  securitySchemes:
+    itc-bearer-token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
