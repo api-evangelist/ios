@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations CiProducts API
+  title: App Store Connect Ci Products API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -2188,181 +2188,6 @@ paths:
       summary: List Related Ci Products / Workflows
 components:
   schemas:
-    BrazilAgeRating:
-      type: string
-      enum:
-      - L
-      - TEN
-      - TWELVE
-      - FOURTEEN
-      - SIXTEEN
-      - EIGHTEEN
-    AppClip:
-      type: object
-      title: AppClip
-      properties:
-        type:
-          type: string
-          enum:
-          - appClips
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            bundleId:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDefaultExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appClipDefaultExperiences
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appClipAdvancedExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    CiProductsResponse:
-      type: object
-      title: CiProductsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiProduct'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/BundleId'
-            - $ref: '#/components/schemas/ScmRepository'
-            discriminator:
-              propertyName: type
-              mapping:
-                scmRepositories: '#/components/schemas/ScmRepository'
-                bundleIds: '#/components/schemas/BundleId'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    CiXcodeVersion:
-      type: object
-      title: CiXcodeVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - ciXcodeVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            version:
-              type: string
-            name:
-              type: string
-            testDestinations:
-              type: array
-              items:
-                type: object
-                properties:
-                  deviceTypeName:
-                    type: string
-                  deviceTypeIdentifier:
-                    type: string
-                  availableRuntimes:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        runtimeName:
-                          type: string
-                        runtimeIdentifier:
-                          type: string
-                  kind:
-                    $ref: '#/components/schemas/CiTestDestinationKind'
-        relationships:
-          type: object
-          properties:
-            macOsVersions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - ciMacOsVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     AppVersionState:
       type: string
       enum:
@@ -2381,29 +2206,67 @@ components:
       - REPLACED_WITH_NEW_VERSION
       - WAITING_FOR_EXPORT_COMPLIANCE
       - WAITING_FOR_REVIEW
-    CiWorkflowsResponse:
+    ScmGitReference:
       type: object
-      title: CiWorkflowsResponse
+      title: ScmGitReference
+      properties:
+        type:
+          type: string
+          enum:
+          - scmGitReferences
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            canonicalName:
+              type: string
+            isDeleted:
+              type: boolean
+            kind:
+              $ref: '#/components/schemas/CiGitRefKind'
+        relationships:
+          type: object
+          properties:
+            repository:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmRepositories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiProductBuildRunsLinkagesResponse:
+      type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CiWorkflow'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/CiMacOsVersion'
-            - $ref: '#/components/schemas/CiProduct'
-            - $ref: '#/components/schemas/CiXcodeVersion'
-            - $ref: '#/components/schemas/ScmRepository'
-            discriminator:
-              propertyName: type
-              mapping:
-                scmRepositories: '#/components/schemas/ScmRepository'
-                ciMacOsVersions: '#/components/schemas/CiMacOsVersion'
-                ciProducts: '#/components/schemas/CiProduct'
-                ciXcodeVersions: '#/components/schemas/CiXcodeVersion'
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - ciBuildRuns
+              id:
+                type: string
+            required:
+            - id
+            - type
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -2411,47 +2274,574 @@ components:
       required:
       - data
       - links
-    DocumentLinks:
+    CiProductResponse:
       type: object
+      title: CiProductResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/CiProduct'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/BundleId'
+            - $ref: '#/components/schemas/ScmRepository'
+            discriminator:
+              propertyName: type
+              mapping:
+                scmRepositories: '#/components/schemas/ScmRepository'
+                bundleIds: '#/components/schemas/BundleId'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - self
-    BuildIcon:
+      - data
+      - links
+    GameCenterEnabledVersion:
       type: object
-      title: BuildIcon
+      title: GameCenterEnabledVersion
       properties:
         type:
           type: string
           enum:
-          - buildIcons
+          - gameCenterEnabledVersions
         id:
           type: string
         attributes:
           type: object
           properties:
+            platform:
+              $ref: '#/components/schemas/Platform'
+            versionString:
+              type: string
             iconAsset:
               $ref: '#/components/schemas/ImageAsset'
-            iconType:
-              $ref: '#/components/schemas/IconAssetType'
-            masked:
-              type: boolean
-            name:
-              type: string
+        relationships:
+          type: object
+          properties:
+            compatibleVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterEnabledVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    CiManualPullRequestStartCondition:
+      deprecated: true
+    ReviewSubmission:
+      type: object
+      title: ReviewSubmission
+      properties:
+        type:
+          type: string
+          enum:
+          - reviewSubmissions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            platform:
+              $ref: '#/components/schemas/Platform'
+            submittedDate:
+              type: string
+              format: date-time
+            state:
+              type: string
+              enum:
+              - READY_FOR_REVIEW
+              - WAITING_FOR_REVIEW
+              - IN_REVIEW
+              - UNRESOLVED_ISSUES
+              - CANCELING
+              - COMPLETING
+              - COMPLETE
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            items:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - reviewSubmissionItems
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appStoreVersionForReview:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            submittedByActor:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - actors
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            lastUpdatedByActor:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - actors
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiActionType:
+      type: string
+      enum:
+      - BUILD
+      - ANALYZE
+      - TEST
+      - ARCHIVE
+    CiBranchPatterns:
+      type: object
+      properties:
+        isAllMatch:
+          type: boolean
+        patterns:
+          type: array
+          items:
+            type: object
+            properties:
+              pattern:
+                type: string
+              isPrefix:
+                type: boolean
+    CiProductPrimaryRepositoriesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - scmRepositories
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CiIssueCounts:
+      type: object
+      properties:
+        analyzerWarnings:
+          type: integer
+        errors:
+          type: integer
+        testFailures:
+          type: integer
+        warnings:
+          type: integer
+    CiBuildRun:
+      type: object
+      title: CiBuildRun
+      properties:
+        type:
+          type: string
+          enum:
+          - ciBuildRuns
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            number:
+              type: integer
+            createdDate:
+              type: string
+              format: date-time
+            startedDate:
+              type: string
+              format: date-time
+            finishedDate:
+              type: string
+              format: date-time
+            sourceCommit:
+              type: object
+              properties:
+                commitSha:
+                  type: string
+                message:
+                  type: string
+                author:
+                  $ref: '#/components/schemas/CiGitUser'
+                committer:
+                  $ref: '#/components/schemas/CiGitUser'
+                webUrl:
+                  type: string
+                  format: uri
+            destinationCommit:
+              type: object
+              properties:
+                commitSha:
+                  type: string
+                message:
+                  type: string
+                author:
+                  $ref: '#/components/schemas/CiGitUser'
+                committer:
+                  $ref: '#/components/schemas/CiGitUser'
+                webUrl:
+                  type: string
+                  format: uri
+            isPullRequestBuild:
+              type: boolean
+            issueCounts:
+              $ref: '#/components/schemas/CiIssueCounts'
+            executionProgress:
+              $ref: '#/components/schemas/CiExecutionProgress'
+            completionStatus:
+              $ref: '#/components/schemas/CiCompletionStatus'
+            startReason:
+              type: string
+              enum:
+              - GIT_REF_CHANGE
+              - MANUAL
+              - MANUAL_REBUILD
+              - PULL_REQUEST_OPEN
+              - PULL_REQUEST_UPDATE
+              - SCHEDULE
+            cancelReason:
+              type: string
+              enum:
+              - AUTOMATICALLY_BY_NEWER_BUILD
+              - MANUALLY_BY_USER
+        relationships:
+          type: object
+          properties:
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            workflow:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciWorkflows
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            product:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciProducts
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            sourceBranchOrTag:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmGitReferences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            destinationBranch:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmGitReferences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            actions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            pullRequest:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmPullRequests
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppResponse:
+      type: object
+      title: AppResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/App'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AndroidToIosAppMappingDetail'
+            - $ref: '#/components/schemas/AppClip'
+            - $ref: '#/components/schemas/AppCustomProductPage'
+            - $ref: '#/components/schemas/AppEncryptionDeclaration'
+            - $ref: '#/components/schemas/AppEvent'
+            - $ref: '#/components/schemas/AppInfo'
+            - $ref: '#/components/schemas/AppStoreVersionExperimentV2'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            - $ref: '#/components/schemas/BetaAppLocalization'
+            - $ref: '#/components/schemas/BetaAppReviewDetail'
+            - $ref: '#/components/schemas/BetaGroup'
+            - $ref: '#/components/schemas/BetaLicenseAgreement'
+            - $ref: '#/components/schemas/BuildIcon'
+            - $ref: '#/components/schemas/Build'
+            - $ref: '#/components/schemas/CiProduct'
+            - $ref: '#/components/schemas/EndUserLicenseAgreement'
+            - $ref: '#/components/schemas/GameCenterDetail'
+            - $ref: '#/components/schemas/GameCenterEnabledVersion'
+            - $ref: '#/components/schemas/InAppPurchase'
+            - $ref: '#/components/schemas/PrereleaseVersion'
+            - $ref: '#/components/schemas/PromotedPurchase'
+            - $ref: '#/components/schemas/ReviewSubmission'
+            - $ref: '#/components/schemas/SubscriptionGracePeriod'
+            - $ref: '#/components/schemas/SubscriptionGroup'
+            discriminator:
+              propertyName: type
+              mapping:
+                betaGroups: '#/components/schemas/BetaGroup'
+                appEvents: '#/components/schemas/AppEvent'
+                appEncryptionDeclarations: '#/components/schemas/AppEncryptionDeclaration'
+                reviewSubmissions: '#/components/schemas/ReviewSubmission'
+                subscriptionGracePeriods: '#/components/schemas/SubscriptionGracePeriod'
+                appInfos: '#/components/schemas/AppInfo'
+                preReleaseVersions: '#/components/schemas/PrereleaseVersion'
+                appStoreVersionExperiments: '#/components/schemas/AppStoreVersionExperimentV2'
+                appCustomProductPages: '#/components/schemas/AppCustomProductPage'
+                inAppPurchases: '#/components/schemas/InAppPurchase'
+                appClips: '#/components/schemas/AppClip'
+                betaAppReviewDetails: '#/components/schemas/BetaAppReviewDetail'
+                buildIcons: '#/components/schemas/BuildIcon'
+                ciProducts: '#/components/schemas/CiProduct'
+                gameCenterDetails: '#/components/schemas/GameCenterDetail'
+                promotedPurchases: '#/components/schemas/PromotedPurchase'
+                androidToIosAppMappingDetails: '#/components/schemas/AndroidToIosAppMappingDetail'
+                gameCenterEnabledVersions: '#/components/schemas/GameCenterEnabledVersion'
+                subscriptionGroups: '#/components/schemas/SubscriptionGroup'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                builds: '#/components/schemas/Build'
+                betaAppLocalizations: '#/components/schemas/BetaAppLocalization'
+                betaLicenseAgreements: '#/components/schemas/BetaLicenseAgreement'
+                endUserLicenseAgreements: '#/components/schemas/EndUserLicenseAgreement'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CiBranchStartCondition:
       type: object
       properties:
         source:
           $ref: '#/components/schemas/CiBranchPatterns'
-        destination:
-          $ref: '#/components/schemas/CiBranchPatterns'
+        filesAndFoldersRule:
+          $ref: '#/components/schemas/CiFilesAndFoldersRule'
+        autoCancel:
+          type: boolean
+    CiBuildRunsResponse:
+      type: object
+      title: CiBuildRunsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiBuildRun'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/Build'
+            - $ref: '#/components/schemas/CiProduct'
+            - $ref: '#/components/schemas/CiWorkflow'
+            - $ref: '#/components/schemas/ScmGitReference'
+            - $ref: '#/components/schemas/ScmPullRequest'
+            discriminator:
+              propertyName: type
+              mapping:
+                ciProducts: '#/components/schemas/CiProduct'
+                builds: '#/components/schemas/Build'
+                scmPullRequests: '#/components/schemas/ScmPullRequest'
+                ciWorkflows: '#/components/schemas/CiWorkflow'
+                scmGitReferences: '#/components/schemas/ScmGitReference'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CiGitUser:
+      type: object
+      properties:
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
     PromotedPurchase:
       type: object
       title: PromotedPurchase
@@ -2514,14 +2904,14 @@ components:
       required:
       - id
       - type
-    BundleId:
+    CiWorkflow:
       type: object
-      title: BundleId
+      title: CiWorkflow
       properties:
         type:
           type: string
           enum:
-          - bundleIds
+          - ciWorkflows
         id:
           type: string
         attributes:
@@ -2529,58 +2919,56 @@ components:
           properties:
             name:
               type: string
-            platform:
-              $ref: '#/components/schemas/BundleIdPlatform'
-            identifier:
+            description:
               type: string
-            seedId:
+            branchStartCondition:
+              $ref: '#/components/schemas/CiBranchStartCondition'
+            tagStartCondition:
+              $ref: '#/components/schemas/CiTagStartCondition'
+            pullRequestStartCondition:
+              $ref: '#/components/schemas/CiPullRequestStartCondition'
+            scheduledStartCondition:
+              $ref: '#/components/schemas/CiScheduledStartCondition'
+            manualBranchStartCondition:
+              $ref: '#/components/schemas/CiManualBranchStartCondition'
+            manualTagStartCondition:
+              $ref: '#/components/schemas/CiManualTagStartCondition'
+            manualPullRequestStartCondition:
+              $ref: '#/components/schemas/CiManualPullRequestStartCondition'
+            actions:
+              type: array
+              items:
+                $ref: '#/components/schemas/CiAction'
+            isEnabled:
+              type: boolean
+            isLockedForEditing:
+              type: boolean
+            clean:
+              type: boolean
+            containerFilePath:
               type: string
+            lastModifiedDate:
+              type: string
+              format: date-time
         relationships:
           type: object
           properties:
-            profiles:
+            product:
               type: object
               properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
                 data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - profiles
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            bundleIdCapabilities:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - bundleIdCapabilities
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            app:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciProducts
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            repository:
               type: object
               properties:
                 links:
@@ -2591,25 +2979,135 @@ components:
                     type:
                       type: string
                       enum:
-                      - apps
+                      - scmRepositories
                     id:
                       type: string
                   required:
                   - id
                   - type
+            xcodeVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciXcodeVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            macOsVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciMacOsVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            buildRuns:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    AppCustomProductPage:
+    CiManualTagStartCondition:
       type: object
-      title: AppCustomProductPage
+      properties:
+        source:
+          $ref: '#/components/schemas/CiTagPatterns'
+    BuildIcon:
+      type: object
+      title: BuildIcon
       properties:
         type:
           type: string
           enum:
-          - appCustomProductPages
+          - buildIcons
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            iconAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            iconType:
+              $ref: '#/components/schemas/IconAssetType'
+            masked:
+              type: boolean
+            name:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiManualPullRequestStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        destination:
+          $ref: '#/components/schemas/CiBranchPatterns'
+    KidsAgeBand:
+      type: string
+      enum:
+      - FIVE_AND_UNDER
+      - SIX_TO_EIGHT
+      - NINE_TO_ELEVEN
+    ScmProvider:
+      type: object
+      title: ScmProvider
+      properties:
+        type:
+          type: string
+          enum:
+          - scmProviders
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            scmProviderType:
+              $ref: '#/components/schemas/ScmProviderType'
+            url:
+              type: string
+              format: uri
+        relationships:
+          type: object
+          properties:
+            repositories:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BetaGroup:
+      type: object
+      title: BetaGroup
+      properties:
+        type:
+          type: string
+          enum:
+          - betaGroups
         id:
           type: string
         attributes:
@@ -2617,10 +3115,28 @@ components:
           properties:
             name:
               type: string
-            url:
+            createdDate:
               type: string
-              format: uri
-            visible:
+              format: date-time
+            isInternalGroup:
+              type: boolean
+            hasAccessToAllBuilds:
+              type: boolean
+            publicLinkEnabled:
+              type: boolean
+            publicLinkId:
+              type: string
+            publicLinkLimitEnabled:
+              type: boolean
+            publicLinkLimit:
+              type: integer
+            publicLink:
+              type: string
+            feedbackEnabled:
+              type: boolean
+            iosBuildsAvailableForAppleSiliconMac:
+              type: boolean
+            iosBuildsAvailableForAppleVision:
               type: boolean
         relationships:
           type: object
@@ -2628,6 +3144,8 @@ components:
             app:
               type: object
               properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
                 data:
                   type: object
                   properties:
@@ -2640,7 +3158,7 @@ components:
                   required:
                   - id
                   - type
-            appCustomProductPageVersions:
+            builds:
               type: object
               properties:
                 links:
@@ -2655,7 +3173,129 @@ components:
                       type:
                         type: string
                         enum:
-                        - appCustomProductPageVersions
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaTesters:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - betaTesters
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaRecruitmentCriteria:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - betaRecruitmentCriteria
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            betaRecruitmentCriterionCompatibleBuildCheck:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiGitRefKind:
+      type: string
+      enum:
+      - BRANCH
+      - TAG
+    InAppPurchase:
+      type: object
+      title: InAppPurchase
+      properties:
+        type:
+          type: string
+          enum:
+          - inAppPurchases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            productId:
+              type: string
+            inAppPurchaseType:
+              type: string
+              enum:
+              - AUTOMATICALLY_RENEWABLE_SUBSCRIPTION
+              - NON_CONSUMABLE
+              - CONSUMABLE
+              - NON_RENEWING_SUBSCRIPTION
+              - FREE_SUBSCRIPTION
+            state:
+              type: string
+              enum:
+              - CREATED
+              - DEVELOPER_SIGNED_OFF
+              - DEVELOPER_ACTION_NEEDED
+              - DELETION_IN_PROGRESS
+              - APPROVED
+              - DELETED
+              - REMOVED_FROM_SALE
+              - DEVELOPER_REMOVED_FROM_SALE
+              - WAITING_FOR_UPLOAD
+              - PROCESSING_CONTENT
+              - REPLACED
+              - REJECTED
+              - WAITING_FOR_SCREENSHOT
+              - PREPARE_FOR_SUBMISSION
+              - MISSING_METADATA
+              - READY_TO_SUBMIT
+              - WAITING_FOR_REVIEW
+              - IN_REVIEW
+              - PENDING_DEVELOPER_RELEASE
+        relationships:
+          type: object
+          properties:
+            apps:
+              type: object
+              properties:
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - apps
                       id:
                         type: string
                     required:
@@ -2666,23 +3306,7 @@ components:
       required:
       - id
       - type
-    BundleIdPlatform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - UNIVERSAL
-    CiPullRequestStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        destination:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        filesAndFoldersRule:
-          $ref: '#/components/schemas/CiFilesAndFoldersRule'
-        autoCancel:
-          type: boolean
+      deprecated: true
     CiTagPatterns:
       type: object
       properties:
@@ -2697,1245 +3321,6 @@ components:
                 type: string
               isPrefix:
                 type: boolean
-    ScmRepositoriesResponse:
-      type: object
-      title: ScmRepositoriesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScmRepository'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/ScmGitReference'
-            - $ref: '#/components/schemas/ScmProvider'
-            discriminator:
-              propertyName: type
-              mapping:
-                scmProviders: '#/components/schemas/ScmProvider'
-                scmGitReferences: '#/components/schemas/ScmGitReference'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppStoreAgeRating:
-      type: string
-      enum:
-      - L
-      - ALL
-      - ONE_PLUS
-      - TWO_PLUS
-      - THREE_PLUS
-      - FOUR_PLUS
-      - FIVE_PLUS
-      - SIX_PLUS
-      - SEVEN_PLUS
-      - EIGHT_PLUS
-      - NINE_PLUS
-      - TEN_PLUS
-      - ELEVEN_PLUS
-      - TWELVE_PLUS
-      - THIRTEEN_PLUS
-      - FOURTEEN_PLUS
-      - FIFTEEN_PLUS
-      - SIXTEEN_PLUS
-      - SEVENTEEN_PLUS
-      - EIGHTEEN_PLUS
-      - NINETEEN_PLUS
-      - TWENTY_PLUS
-      - TWENTY_ONE_PLUS
-      - UNRATED
-    CiProductAdditionalRepositoriesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - scmRepositories
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    CiBranchStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        filesAndFoldersRule:
-          $ref: '#/components/schemas/CiFilesAndFoldersRule'
-        autoCancel:
-          type: boolean
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    CiExecutionProgress:
-      type: string
-      enum:
-      - PENDING
-      - RUNNING
-      - COMPLETE
-    BetaLicenseAgreement:
-      type: object
-      title: BetaLicenseAgreement
-      properties:
-        type:
-          type: string
-          enum:
-          - betaLicenseAgreements
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            agreementText:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionGroup:
-      type: object
-      title: SubscriptionGroup
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionGroups
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-        relationships:
-          type: object
-          properties:
-            subscriptions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            subscriptionGroupLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptionGroupLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiTestDestinationKind:
-      type: string
-      enum:
-      - SIMULATOR
-      - MAC
-    AppEncryptionDeclarationState:
-      type: string
-      enum:
-      - CREATED
-      - IN_REVIEW
-      - APPROVED
-      - REJECTED
-      - INVALID
-      - EXPIRED
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AndroidToIosAppMappingDetail:
-      type: object
-      title: AndroidToIosAppMappingDetail
-      properties:
-        type:
-          type: string
-          enum:
-          - androidToIosAppMappingDetails
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            packageName:
-              type: string
-            appSigningKeyPublicCertificateSha256Fingerprints:
-              type: array
-              items:
-                type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiBuildRunsResponse:
-      type: object
-      title: CiBuildRunsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiBuildRun'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/Build'
-            - $ref: '#/components/schemas/CiProduct'
-            - $ref: '#/components/schemas/CiWorkflow'
-            - $ref: '#/components/schemas/ScmGitReference'
-            - $ref: '#/components/schemas/ScmPullRequest'
-            discriminator:
-              propertyName: type
-              mapping:
-                ciProducts: '#/components/schemas/CiProduct'
-                builds: '#/components/schemas/Build'
-                scmPullRequests: '#/components/schemas/ScmPullRequest'
-                ciWorkflows: '#/components/schemas/CiWorkflow'
-                scmGitReferences: '#/components/schemas/ScmGitReference'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    CiProductBuildRunsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - ciBuildRuns
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    CiStartConditionFileMatcher:
-      type: object
-      properties:
-        directory:
-          type: string
-        fileExtension:
-          type: string
-        fileName:
-          type: string
-    CiCompletionStatus:
-      type: string
-      enum:
-      - SUCCEEDED
-      - FAILED
-      - ERRORED
-      - CANCELED
-      - SKIPPED
-    BetaAppLocalization:
-      type: object
-      title: BetaAppLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - betaAppLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            feedbackEmail:
-              type: string
-            marketingUrl:
-              type: string
-            privacyPolicyUrl:
-              type: string
-            tvOsPrivacyPolicy:
-              type: string
-            description:
-              type: string
-            locale:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiProductPrimaryRepositoriesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - scmRepositories
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    GameCenterDetail:
-      type: object
-      title: GameCenterDetail
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterDetails
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            arcadeEnabled:
-              type: boolean
-            challengeEnabled:
-              type: boolean
-              deprecated: true
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterAppVersions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAppVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterGroup:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterGroups
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterLeaderboards:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboards
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            gameCenterLeaderboardsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboards
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterLeaderboardSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboardSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            gameCenterLeaderboardSetsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboardSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterAchievements:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievements
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            gameCenterAchievementsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievements
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterActivities:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterActivities
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterChallenges:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterChallenges
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            defaultLeaderboard:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboards
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-              deprecated: true
-            defaultLeaderboardV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboards
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            defaultGroupLeaderboard:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboards
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-              deprecated: true
-            defaultGroupLeaderboardV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboards
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            achievementReleases:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievementReleases
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            activityReleases:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterActivityVersionReleases
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            challengeReleases:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterChallengeVersionReleases
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            leaderboardReleases:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboardReleases
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            leaderboardSetReleases:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboardSetReleases
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            challengesMinimumPlatformVersions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiGitRefKind:
-      type: string
-      enum:
-      - BRANCH
-      - TAG
-    CiTagStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiTagPatterns'
-        filesAndFoldersRule:
-          $ref: '#/components/schemas/CiFilesAndFoldersRule'
-        autoCancel:
-          type: boolean
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    AppInfo:
-      type: object
-      title: AppInfo
-      properties:
-        type:
-          type: string
-          enum:
-          - appInfos
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            appStoreState:
-              deprecated: true
-              $ref: '#/components/schemas/AppStoreVersionState'
-            state:
-              type: string
-              enum:
-              - ACCEPTED
-              - DEVELOPER_REJECTED
-              - IN_REVIEW
-              - PENDING_RELEASE
-              - PREPARE_FOR_SUBMISSION
-              - READY_FOR_DISTRIBUTION
-              - READY_FOR_REVIEW
-              - REJECTED
-              - REPLACED_WITH_NEW_INFO
-              - WAITING_FOR_REVIEW
-            appStoreAgeRating:
-              deprecated: true
-              $ref: '#/components/schemas/AppStoreAgeRating'
-            australiaAgeRating:
-              type: string
-              deprecated: true
-              enum:
-              - FIFTEEN
-              - EIGHTEEN
-            brazilAgeRating:
-              deprecated: true
-              $ref: '#/components/schemas/BrazilAgeRating'
-            brazilAgeRatingV2:
-              type: string
-              deprecated: true
-              enum:
-              - SELF_RATED_L
-              - SELF_RATED_TEN
-              - SELF_RATED_TWELVE
-              - SELF_RATED_FOURTEEN
-              - SELF_RATED_SIXTEEN
-              - SELF_RATED_EIGHTEEN
-              - OFFICIAL_L
-              - OFFICIAL_TEN
-              - OFFICIAL_TWELVE
-              - OFFICIAL_FOURTEEN
-              - OFFICIAL_SIXTEEN
-              - OFFICIAL_EIGHTEEN
-            franceAgeRating:
-              type: string
-              deprecated: true
-              enum:
-              - EIGHTEEN
-            koreaAgeRating:
-              type: string
-              deprecated: true
-              enum:
-              - ALL
-              - TWELVE
-              - FIFTEEN
-              - NINETEEN
-              - NOT_APPLICABLE
-            kidsAgeBand:
-              deprecated: true
-              $ref: '#/components/schemas/KidsAgeBand'
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            ageRatingDeclaration:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ageRatingDeclarations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appInfoLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appInfoLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            primaryCategory:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCategories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            primarySubcategoryOne:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCategories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            primarySubcategoryTwo:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCategories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            secondaryCategory:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCategories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            secondarySubcategoryOne:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCategories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            secondarySubcategoryTwo:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCategories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            territoryAgeRatings:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ScmPullRequest:
-      type: object
-      title: ScmPullRequest
-      properties:
-        type:
-          type: string
-          enum:
-          - scmPullRequests
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            title:
-              type: string
-            number:
-              type: integer
-            webUrl:
-              type: string
-              format: uri
-            sourceRepositoryOwner:
-              type: string
-            sourceRepositoryName:
-              type: string
-            sourceBranchName:
-              type: string
-            destinationRepositoryOwner:
-              type: string
-            destinationRepositoryName:
-              type: string
-            destinationBranchName:
-              type: string
-            isClosed:
-              type: boolean
-            isCrossRepository:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            repository:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmRepositories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     CiAction:
       type: object
       properties:
@@ -3984,13 +3369,297 @@ components:
           - VISIONOS
         isRequiredToPass:
           type: boolean
-    Platform:
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    AppStoreVersion:
+      type: object
+      title: AppStoreVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            platform:
+              $ref: '#/components/schemas/Platform'
+            versionString:
+              type: string
+            appStoreState:
+              deprecated: true
+              $ref: '#/components/schemas/AppStoreVersionState'
+            appVersionState:
+              $ref: '#/components/schemas/AppVersionState'
+            copyright:
+              type: string
+            reviewType:
+              type: string
+              enum:
+              - APP_STORE
+              - NOTARIZATION
+            releaseType:
+              type: string
+              enum:
+              - MANUAL
+              - AFTER_APPROVAL
+              - SCHEDULED
+            earliestReleaseDate:
+              type: string
+              format: date-time
+            usesIdfa:
+              type: boolean
+              deprecated: true
+            downloadable:
+              type: boolean
+            createdDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            build:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - builds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionPhasedRelease:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionPhasedReleases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterAppVersion:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAppVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            routingAppCoverage:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - routingAppCoverages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreReviewDetail:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreReviewDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionSubmission:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionSubmissions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipDefaultExperience:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDefaultExperiences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperiments:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionExperiments
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appStoreVersionExperimentsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionExperiments
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            customerReviews:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            alternativeDistributionPackage:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - alternativeDistributionPackages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BrazilAgeRating:
       type: string
       enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
+      - L
+      - TEN
+      - TWELVE
+      - FOURTEEN
+      - SIXTEEN
+      - EIGHTEEN
     CiProduct:
       type: object
       title: CiProduct
@@ -4090,57 +3759,274 @@ components:
       required:
       - id
       - type
-    InAppPurchase:
+    BetaAppLocalization:
       type: object
-      title: InAppPurchase
+      title: BetaAppLocalization
       properties:
         type:
           type: string
           enum:
-          - inAppPurchases
+          - betaAppLocalizations
         id:
           type: string
         attributes:
           type: object
           properties:
-            referenceName:
+            feedbackEmail:
               type: string
-            productId:
+            marketingUrl:
               type: string
-            inAppPurchaseType:
+            privacyPolicyUrl:
               type: string
-              enum:
-              - AUTOMATICALLY_RENEWABLE_SUBSCRIPTION
-              - NON_CONSUMABLE
-              - CONSUMABLE
-              - NON_RENEWING_SUBSCRIPTION
-              - FREE_SUBSCRIPTION
-            state:
+            tvOsPrivacyPolicy:
               type: string
-              enum:
-              - CREATED
-              - DEVELOPER_SIGNED_OFF
-              - DEVELOPER_ACTION_NEEDED
-              - DELETION_IN_PROGRESS
-              - APPROVED
-              - DELETED
-              - REMOVED_FROM_SALE
-              - DEVELOPER_REMOVED_FROM_SALE
-              - WAITING_FOR_UPLOAD
-              - PROCESSING_CONTENT
-              - REPLACED
-              - REJECTED
-              - WAITING_FOR_SCREENSHOT
-              - PREPARE_FOR_SUBMISSION
-              - MISSING_METADATA
-              - READY_TO_SUBMIT
-              - WAITING_FOR_REVIEW
-              - IN_REVIEW
-              - PENDING_DEVELOPER_RELEASE
+            description:
+              type: string
+            locale:
+              type: string
         relationships:
           type: object
           properties:
-            apps:
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ScmRepository:
+      type: object
+      title: ScmRepository
+      properties:
+        type:
+          type: string
+          enum:
+          - scmRepositories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            lastAccessedDate:
+              type: string
+              format: date-time
+            httpCloneUrl:
+              type: string
+              format: uri
+            sshCloneUrl:
+              type: string
+              format: uri
+            ownerName:
+              type: string
+            repositoryName:
+              type: string
+        relationships:
+          type: object
+          properties:
+            scmProvider:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmProviders
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            defaultBranch:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmGitReferences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gitReferences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            pullRequests:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BetaLicenseAgreement:
+      type: object
+      title: BetaLicenseAgreement
+      properties:
+        type:
+          type: string
+          enum:
+          - betaLicenseAgreements
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            agreementText:
+              type: string
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_CONTRACT
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PREORDER_READY_FOR_SALE
+      - PROCESSING_FOR_APP_STORE
+      - READY_FOR_REVIEW
+      - READY_FOR_SALE
+      - REJECTED
+      - REMOVED_FROM_SALE
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+      - REPLACED_WITH_NEW_VERSION
+      - NOT_APPLICABLE
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppStoreVersionExperimentV2:
+      type: object
+      title: AppStoreVersionExperimentV2
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionExperiments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            platform:
+              $ref: '#/components/schemas/Platform'
+            trafficProportion:
+              type: integer
+            state:
+              type: string
+              enum:
+              - PREPARE_FOR_SUBMISSION
+              - READY_FOR_REVIEW
+              - WAITING_FOR_REVIEW
+              - IN_REVIEW
+              - ACCEPTED
+              - APPROVED
+              - REJECTED
+              - COMPLETED
+              - STOPPED
+            reviewRequired:
+              type: boolean
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            latestControlVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            controlVersions:
               type: object
               properties:
                 meta:
@@ -4153,72 +4039,13 @@ components:
                       type:
                         type: string
                         enum:
-                        - apps
+                        - appStoreVersions
                       id:
                         type: string
                     required:
                     - id
                     - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-      deprecated: true
-    CiProductAppLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - apps
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    CiTestDestination:
-      type: object
-      properties:
-        deviceTypeName:
-          type: string
-        deviceTypeIdentifier:
-          type: string
-        runtimeName:
-          type: string
-        runtimeIdentifier:
-          type: string
-        kind:
-          $ref: '#/components/schemas/CiTestDestinationKind'
-    CiMacOsVersion:
-      type: object
-      title: CiMacOsVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - ciMacOsVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            version:
-              type: string
-            name:
-              type: string
-        relationships:
-          type: object
-          properties:
-            xcodeVersions:
+            appStoreVersionExperimentTreatments:
               type: object
               properties:
                 links:
@@ -4233,7 +4060,7 @@ components:
                       type:
                         type: string
                         enum:
-                        - ciXcodeVersions
+                        - appStoreVersionExperimentTreatments
                       id:
                         type: string
                     required:
@@ -4244,6 +4071,30 @@ components:
       required:
       - id
       - type
+    CiProductWorkflowsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - ciWorkflows
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     App:
       type: object
       title: App
@@ -4881,85 +4732,176 @@ components:
       required:
       - id
       - type
-    ScmProvider:
+    CiMacOsVersion:
       type: object
-      title: ScmProvider
+      title: CiMacOsVersion
       properties:
         type:
           type: string
           enum:
-          - scmProviders
+          - ciMacOsVersions
         id:
           type: string
         attributes:
           type: object
           properties:
-            scmProviderType:
-              $ref: '#/components/schemas/ScmProviderType'
-            url:
+            version:
               type: string
-              format: uri
+            name:
+              type: string
         relationships:
           type: object
           properties:
-            repositories:
+            xcodeVersions:
               type: object
               properties:
                 links:
                   $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - ciXcodeVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    RelationshipLinks:
+    PagingInformation:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    AppStoreVersionExperimentV2:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
       type: object
-      title: AppStoreVersionExperimentV2
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    PrereleaseVersion:
+      type: object
+      title: PrereleaseVersion
       properties:
         type:
           type: string
           enum:
-          - appStoreVersionExperiments
+          - preReleaseVersions
         id:
           type: string
         attributes:
           type: object
           properties:
-            name:
+            version:
               type: string
             platform:
               $ref: '#/components/schemas/Platform'
-            trafficProportion:
-              type: integer
-            state:
-              type: string
-              enum:
-              - PREPARE_FOR_SUBMISSION
-              - READY_FOR_REVIEW
-              - WAITING_FOR_REVIEW
-              - IN_REVIEW
-              - ACCEPTED
-              - APPROVED
-              - REJECTED
-              - COMPLETED
-              - STOPPED
-            reviewRequired:
+        relationships:
+          type: object
+          properties:
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    GameCenterDetail:
+      type: object
+      title: GameCenterDetail
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterDetails
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            arcadeEnabled:
               type: boolean
-            startDate:
-              type: string
-              format: date-time
-            endDate:
-              type: string
-              format: date-time
+            challengeEnabled:
+              type: boolean
+              deprecated: true
         relationships:
           type: object
           properties:
@@ -4978,7 +4920,216 @@ components:
                   required:
                   - id
                   - type
-            latestControlVersion:
+            gameCenterAppVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAppVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterGroup:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterGroups
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterLeaderboards:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboards
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            gameCenterLeaderboardsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboards
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterLeaderboardSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboardSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            gameCenterLeaderboardSetsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboardSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterAchievements:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievements
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            gameCenterAchievementsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievements
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterActivities:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterActivities
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterChallenges:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterChallenges
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            defaultLeaderboard:
               type: object
               properties:
                 data:
@@ -4987,15 +5138,174 @@ components:
                     type:
                       type: string
                       enum:
-                      - appStoreVersions
+                      - gameCenterLeaderboards
                     id:
                       type: string
                   required:
                   - id
                   - type
-            controlVersions:
+              deprecated: true
+            defaultLeaderboardV2:
               type: object
               properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboards
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            defaultGroupLeaderboard:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboards
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+              deprecated: true
+            defaultGroupLeaderboardV2:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboards
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            achievementReleases:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievementReleases
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            activityReleases:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterActivityVersionReleases
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            challengeReleases:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterChallengeVersionReleases
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            leaderboardReleases:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboardReleases
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            leaderboardSetReleases:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboardSetReleases
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            challengesMinimumPlatformVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
                 meta:
                   $ref: '#/components/schemas/PagingInformation'
                 data:
@@ -5012,130 +5322,68 @@ components:
                     required:
                     - id
                     - type
-            appStoreVersionExperimentTreatments:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperimentTreatments
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    CiManualBranchStartCondition:
+    AppEncryptionDeclaration:
       type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-    BetaAppReviewDetail:
-      type: object
-      title: BetaAppReviewDetail
+      title: AppEncryptionDeclaration
       properties:
         type:
           type: string
           enum:
-          - betaAppReviewDetails
+          - appEncryptionDeclarations
         id:
           type: string
         attributes:
           type: object
           properties:
-            contactFirstName:
+            appDescription:
               type: string
-            contactLastName:
-              type: string
-            contactPhone:
-              type: string
-            contactEmail:
-              type: string
-            demoAccountName:
-              type: string
-            demoAccountPassword:
-              type: string
-            demoAccountRequired:
-              type: boolean
-            notes:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    ReviewSubmission:
-      type: object
-      title: ReviewSubmission
-      properties:
-        type:
-          type: string
-          enum:
-          - reviewSubmissions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            platform:
-              $ref: '#/components/schemas/Platform'
-            submittedDate:
+            createdDate:
               type: string
               format: date-time
-            state:
+            usesEncryption:
+              type: boolean
+              deprecated: true
+            exempt:
+              type: boolean
+            containsProprietaryCryptography:
+              type: boolean
+            containsThirdPartyCryptography:
+              type: boolean
+            availableOnFrenchStore:
+              type: boolean
+            platform:
+              deprecated: true
+              $ref: '#/components/schemas/Platform'
+            uploadedDate:
               type: string
-              enum:
-              - READY_FOR_REVIEW
-              - WAITING_FOR_REVIEW
-              - IN_REVIEW
-              - UNRESOLVED_ISSUES
-              - CANCELING
-              - COMPLETING
-              - COMPLETE
+              format: date-time
+              deprecated: true
+            documentUrl:
+              type: string
+              deprecated: true
+            documentName:
+              type: string
+              deprecated: true
+            documentType:
+              type: string
+              deprecated: true
+            appEncryptionDeclarationState:
+              $ref: '#/components/schemas/AppEncryptionDeclarationState'
+            codeValue:
+              type: string
         relationships:
           type: object
           properties:
             app:
               type: object
               properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
                 data:
                   type: object
                   properties:
@@ -5148,7 +5396,8 @@ components:
                   required:
                   - id
                   - type
-            items:
+              deprecated: true
+            builds:
               type: object
               properties:
                 links:
@@ -5163,28 +5412,75 @@ components:
                       type:
                         type: string
                         enum:
-                        - reviewSubmissionItems
+                        - builds
                       id:
                         type: string
                     required:
                     - id
                     - type
-            appStoreVersionForReview:
+              deprecated: true
+            appEncryptionDeclarationDocument:
               type: object
               properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
                 data:
                   type: object
                   properties:
                     type:
                       type: string
                       enum:
-                      - appStoreVersions
+                      - appEncryptionDeclarationDocuments
                     id:
                       type: string
                   required:
                   - id
                   - type
-            submittedByActor:
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ScmPullRequest:
+      type: object
+      title: ScmPullRequest
+      properties:
+        type:
+          type: string
+          enum:
+          - scmPullRequests
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            title:
+              type: string
+            number:
+              type: integer
+            webUrl:
+              type: string
+              format: uri
+            sourceRepositoryOwner:
+              type: string
+            sourceRepositoryName:
+              type: string
+            sourceBranchName:
+              type: string
+            destinationRepositoryOwner:
+              type: string
+            destinationRepositoryName:
+              type: string
+            destinationBranchName:
+              type: string
+            isClosed:
+              type: boolean
+            isCrossRepository:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            repository:
               type: object
               properties:
                 data:
@@ -5193,22 +5489,7 @@ components:
                     type:
                       type: string
                       enum:
-                      - actors
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            lastUpdatedByActor:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - actors
+                      - scmRepositories
                     id:
                       type: string
                   required:
@@ -5248,372 +5529,42 @@ components:
       required:
       - id
       - type
-    BetaGroup:
+    CiWorkflowsResponse:
       type: object
-      title: BetaGroup
-      properties:
-        type:
-          type: string
-          enum:
-          - betaGroups
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            isInternalGroup:
-              type: boolean
-            hasAccessToAllBuilds:
-              type: boolean
-            publicLinkEnabled:
-              type: boolean
-            publicLinkId:
-              type: string
-            publicLinkLimitEnabled:
-              type: boolean
-            publicLinkLimit:
-              type: integer
-            publicLink:
-              type: string
-            feedbackEnabled:
-              type: boolean
-            iosBuildsAvailableForAppleSiliconMac:
-              type: boolean
-            iosBuildsAvailableForAppleVision:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaTesters:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - betaTesters
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaRecruitmentCriteria:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - betaRecruitmentCriteria
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            betaRecruitmentCriterionCompatibleBuildCheck:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiScheduledStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        schedule:
-          type: object
-          properties:
-            frequency:
-              type: string
-              enum:
-              - WEEKLY
-              - DAILY
-              - HOURLY
-            days:
-              type: array
-              items:
-                type: string
-                enum:
-                - SUNDAY
-                - MONDAY
-                - TUESDAY
-                - WEDNESDAY
-                - THURSDAY
-                - FRIDAY
-                - SATURDAY
-            hour:
-              type: integer
-            minute:
-              type: integer
-            timezone:
-              type: string
-    CiWorkflow:
-      type: object
-      title: CiWorkflow
-      properties:
-        type:
-          type: string
-          enum:
-          - ciWorkflows
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            description:
-              type: string
-            branchStartCondition:
-              $ref: '#/components/schemas/CiBranchStartCondition'
-            tagStartCondition:
-              $ref: '#/components/schemas/CiTagStartCondition'
-            pullRequestStartCondition:
-              $ref: '#/components/schemas/CiPullRequestStartCondition'
-            scheduledStartCondition:
-              $ref: '#/components/schemas/CiScheduledStartCondition'
-            manualBranchStartCondition:
-              $ref: '#/components/schemas/CiManualBranchStartCondition'
-            manualTagStartCondition:
-              $ref: '#/components/schemas/CiManualTagStartCondition'
-            manualPullRequestStartCondition:
-              $ref: '#/components/schemas/CiManualPullRequestStartCondition'
-            actions:
-              type: array
-              items:
-                $ref: '#/components/schemas/CiAction'
-            isEnabled:
-              type: boolean
-            isLockedForEditing:
-              type: boolean
-            clean:
-              type: boolean
-            containerFilePath:
-              type: string
-            lastModifiedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            product:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciProducts
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            repository:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmRepositories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            xcodeVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciXcodeVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            macOsVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciMacOsVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            buildRuns:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ScmGitReference:
-      type: object
-      title: ScmGitReference
-      properties:
-        type:
-          type: string
-          enum:
-          - scmGitReferences
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            canonicalName:
-              type: string
-            isDeleted:
-              type: boolean
-            kind:
-              $ref: '#/components/schemas/CiGitRefKind'
-        relationships:
-          type: object
-          properties:
-            repository:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmRepositories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiFilesAndFoldersRule:
-      type: object
-      properties:
-        mode:
-          type: string
-          enum:
-          - START_IF_ANY_FILE_MATCHES
-          - DO_NOT_START_IF_ALL_FILES_MATCH
-        matchers:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiStartConditionFileMatcher'
-    CiProductResponse:
-      type: object
-      title: CiProductResponse
+      title: CiWorkflowsResponse
       properties:
         data:
-          $ref: '#/components/schemas/CiProduct'
+          type: array
+          items:
+            $ref: '#/components/schemas/CiWorkflow'
         included:
           type: array
           items:
             oneOf:
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/BundleId'
+            - $ref: '#/components/schemas/CiMacOsVersion'
+            - $ref: '#/components/schemas/CiProduct'
+            - $ref: '#/components/schemas/CiXcodeVersion'
             - $ref: '#/components/schemas/ScmRepository'
             discriminator:
               propertyName: type
               mapping:
                 scmRepositories: '#/components/schemas/ScmRepository'
-                bundleIds: '#/components/schemas/BundleId'
-                apps: '#/components/schemas/App'
+                ciMacOsVersions: '#/components/schemas/CiMacOsVersion'
+                ciProducts: '#/components/schemas/CiProduct'
+                ciXcodeVersions: '#/components/schemas/CiXcodeVersion'
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
-    CiManualTagStartCondition:
+    CiManualBranchStartCondition:
       type: object
       properties:
         source:
-          $ref: '#/components/schemas/CiTagPatterns'
-    CiProductWorkflowsLinkagesResponse:
+          $ref: '#/components/schemas/CiBranchPatterns'
+    CiProductAdditionalRepositoriesLinkagesResponse:
       type: object
       properties:
         data:
@@ -5624,7 +5575,7 @@ components:
               type:
                 type: string
                 enum:
-                - ciWorkflows
+                - scmRepositories
               id:
                 type: string
             required:
@@ -5637,42 +5588,48 @@ components:
       required:
       - data
       - links
-    CiActionType:
-      type: string
-      enum:
-      - BUILD
-      - ANALYZE
-      - TEST
-      - ARCHIVE
-    ResourceLinks:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        self:
+        parameter:
           type: string
-          format: uri-reference
-    GameCenterEnabledVersion:
+      required:
+      - parameter
+    AppClip:
       type: object
-      title: GameCenterEnabledVersion
+      title: AppClip
       properties:
         type:
           type: string
           enum:
-          - gameCenterEnabledVersions
+          - appClips
         id:
           type: string
         attributes:
           type: object
           properties:
-            platform:
-              $ref: '#/components/schemas/Platform'
-            versionString:
+            bundleId:
               type: string
-            iconAsset:
-              $ref: '#/components/schemas/ImageAsset'
         relationships:
           type: object
           properties:
-            compatibleVersions:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipDefaultExperiences:
               type: object
               properties:
                 links:
@@ -5687,7 +5644,325 @@ components:
                       type:
                         type: string
                         enum:
-                        - gameCenterEnabledVersions
+                        - appClipDefaultExperiences
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appClipAdvancedExperiences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppInfo:
+      type: object
+      title: AppInfo
+      properties:
+        type:
+          type: string
+          enum:
+          - appInfos
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            appStoreState:
+              deprecated: true
+              $ref: '#/components/schemas/AppStoreVersionState'
+            state:
+              type: string
+              enum:
+              - ACCEPTED
+              - DEVELOPER_REJECTED
+              - IN_REVIEW
+              - PENDING_RELEASE
+              - PREPARE_FOR_SUBMISSION
+              - READY_FOR_DISTRIBUTION
+              - READY_FOR_REVIEW
+              - REJECTED
+              - REPLACED_WITH_NEW_INFO
+              - WAITING_FOR_REVIEW
+            appStoreAgeRating:
+              deprecated: true
+              $ref: '#/components/schemas/AppStoreAgeRating'
+            australiaAgeRating:
+              type: string
+              deprecated: true
+              enum:
+              - FIFTEEN
+              - EIGHTEEN
+            brazilAgeRating:
+              deprecated: true
+              $ref: '#/components/schemas/BrazilAgeRating'
+            brazilAgeRatingV2:
+              type: string
+              deprecated: true
+              enum:
+              - SELF_RATED_L
+              - SELF_RATED_TEN
+              - SELF_RATED_TWELVE
+              - SELF_RATED_FOURTEEN
+              - SELF_RATED_SIXTEEN
+              - SELF_RATED_EIGHTEEN
+              - OFFICIAL_L
+              - OFFICIAL_TEN
+              - OFFICIAL_TWELVE
+              - OFFICIAL_FOURTEEN
+              - OFFICIAL_SIXTEEN
+              - OFFICIAL_EIGHTEEN
+            franceAgeRating:
+              type: string
+              deprecated: true
+              enum:
+              - EIGHTEEN
+            koreaAgeRating:
+              type: string
+              deprecated: true
+              enum:
+              - ALL
+              - TWELVE
+              - FIFTEEN
+              - NINETEEN
+              - NOT_APPLICABLE
+            kidsAgeBand:
+              deprecated: true
+              $ref: '#/components/schemas/KidsAgeBand'
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            ageRatingDeclaration:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ageRatingDeclarations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appInfoLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appInfoLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            primaryCategory:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCategories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            primarySubcategoryOne:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCategories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            primarySubcategoryTwo:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCategories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            secondaryCategory:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCategories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            secondarySubcategoryOne:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCategories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            secondarySubcategoryTwo:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCategories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            territoryAgeRatings:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BundleId:
+      type: object
+      title: BundleId
+      properties:
+        type:
+          type: string
+          enum:
+          - bundleIds
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            platform:
+              $ref: '#/components/schemas/BundleIdPlatform'
+            identifier:
+              type: string
+            seedId:
+              type: string
+        relationships:
+          type: object
+          properties:
+            profiles:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - profiles
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            bundleIdCapabilities:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - bundleIdCapabilities
                       id:
                         type: string
                     required:
@@ -5696,6 +5971,8 @@ components:
             app:
               type: object
               properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
                 data:
                   type: object
                   properties:
@@ -5713,7 +5990,6 @@ components:
       required:
       - id
       - type
-      deprecated: true
     AppEvent:
       type: object
       title: AppEvent
@@ -5836,266 +6112,99 @@ components:
       required:
       - id
       - type
-    AppResponse:
+    AppCustomProductPage:
       type: object
-      title: AppResponse
+      title: AppCustomProductPage
+      properties:
+        type:
+          type: string
+          enum:
+          - appCustomProductPages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            url:
+              type: string
+              format: uri
+            visible:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appCustomProductPageVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appCustomProductPageVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiProductAppLinkageResponse:
+      type: object
       properties:
         data:
-          $ref: '#/components/schemas/App'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AndroidToIosAppMappingDetail'
-            - $ref: '#/components/schemas/AppClip'
-            - $ref: '#/components/schemas/AppCustomProductPage'
-            - $ref: '#/components/schemas/AppEncryptionDeclaration'
-            - $ref: '#/components/schemas/AppEvent'
-            - $ref: '#/components/schemas/AppInfo'
-            - $ref: '#/components/schemas/AppStoreVersionExperimentV2'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            - $ref: '#/components/schemas/BetaAppLocalization'
-            - $ref: '#/components/schemas/BetaAppReviewDetail'
-            - $ref: '#/components/schemas/BetaGroup'
-            - $ref: '#/components/schemas/BetaLicenseAgreement'
-            - $ref: '#/components/schemas/BuildIcon'
-            - $ref: '#/components/schemas/Build'
-            - $ref: '#/components/schemas/CiProduct'
-            - $ref: '#/components/schemas/EndUserLicenseAgreement'
-            - $ref: '#/components/schemas/GameCenterDetail'
-            - $ref: '#/components/schemas/GameCenterEnabledVersion'
-            - $ref: '#/components/schemas/InAppPurchase'
-            - $ref: '#/components/schemas/PrereleaseVersion'
-            - $ref: '#/components/schemas/PromotedPurchase'
-            - $ref: '#/components/schemas/ReviewSubmission'
-            - $ref: '#/components/schemas/SubscriptionGracePeriod'
-            - $ref: '#/components/schemas/SubscriptionGroup'
-            discriminator:
-              propertyName: type
-              mapping:
-                betaGroups: '#/components/schemas/BetaGroup'
-                appEvents: '#/components/schemas/AppEvent'
-                appEncryptionDeclarations: '#/components/schemas/AppEncryptionDeclaration'
-                reviewSubmissions: '#/components/schemas/ReviewSubmission'
-                subscriptionGracePeriods: '#/components/schemas/SubscriptionGracePeriod'
-                appInfos: '#/components/schemas/AppInfo'
-                preReleaseVersions: '#/components/schemas/PrereleaseVersion'
-                appStoreVersionExperiments: '#/components/schemas/AppStoreVersionExperimentV2'
-                appCustomProductPages: '#/components/schemas/AppCustomProductPage'
-                inAppPurchases: '#/components/schemas/InAppPurchase'
-                appClips: '#/components/schemas/AppClip'
-                betaAppReviewDetails: '#/components/schemas/BetaAppReviewDetail'
-                buildIcons: '#/components/schemas/BuildIcon'
-                ciProducts: '#/components/schemas/CiProduct'
-                gameCenterDetails: '#/components/schemas/GameCenterDetail'
-                promotedPurchases: '#/components/schemas/PromotedPurchase'
-                androidToIosAppMappingDetails: '#/components/schemas/AndroidToIosAppMappingDetail'
-                gameCenterEnabledVersions: '#/components/schemas/GameCenterEnabledVersion'
-                subscriptionGroups: '#/components/schemas/SubscriptionGroup'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                builds: '#/components/schemas/Build'
-                betaAppLocalizations: '#/components/schemas/BetaAppLocalization'
-                betaLicenseAgreements: '#/components/schemas/BetaLicenseAgreement'
-                endUserLicenseAgreements: '#/components/schemas/EndUserLicenseAgreement'
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - apps
+            id:
+              type: string
+          required:
+          - id
+          - type
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-    CiIssueCounts:
-      type: object
-      properties:
-        analyzerWarnings:
-          type: integer
-        errors:
-          type: integer
-        testFailures:
-          type: integer
-        warnings:
-          type: integer
-    PrereleaseVersion:
-      type: object
-      title: PrereleaseVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - preReleaseVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            version:
-              type: string
-            platform:
-              $ref: '#/components/schemas/Platform'
-        relationships:
-          type: object
-          properties:
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    KidsAgeBand:
+    AppEncryptionDeclarationState:
       type: string
       enum:
-      - FIVE_AND_UNDER
-      - SIX_TO_EIGHT
-      - NINE_TO_ELEVEN
-    AppEncryptionDeclaration:
-      type: object
-      title: AppEncryptionDeclaration
-      properties:
-        type:
-          type: string
-          enum:
-          - appEncryptionDeclarations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            appDescription:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            usesEncryption:
-              type: boolean
-              deprecated: true
-            exempt:
-              type: boolean
-            containsProprietaryCryptography:
-              type: boolean
-            containsThirdPartyCryptography:
-              type: boolean
-            availableOnFrenchStore:
-              type: boolean
-            platform:
-              deprecated: true
-              $ref: '#/components/schemas/Platform'
-            uploadedDate:
-              type: string
-              format: date-time
-              deprecated: true
-            documentUrl:
-              type: string
-              deprecated: true
-            documentName:
-              type: string
-              deprecated: true
-            documentType:
-              type: string
-              deprecated: true
-            appEncryptionDeclarationState:
-              $ref: '#/components/schemas/AppEncryptionDeclarationState'
-            codeValue:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-              deprecated: true
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            appEncryptionDeclarationDocument:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appEncryptionDeclarationDocuments
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
+      - CREATED
+      - IN_REVIEW
+      - APPROVED
+      - REJECTED
+      - INVALID
+      - EXPIRED
     Build:
       type: object
       title: Build
@@ -6378,11 +6487,496 @@ components:
       required:
       - id
       - type
-    SubscriptionStatusUrlVersion:
+    IconAssetType:
       type: string
       enum:
-      - V1
-      - V2
+      - APP_STORE
+      - MESSAGES_APP_STORE
+      - WATCH_APP_STORE
+      - TV_OS_HOME_SCREEN
+      - TV_OS_TOP_SHELF
+      - ALTERNATE_EXPERIMENT
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AndroidToIosAppMappingDetail:
+      type: object
+      title: AndroidToIosAppMappingDetail
+      properties:
+        type:
+          type: string
+          enum:
+          - androidToIosAppMappingDetails
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            packageName:
+              type: string
+            appSigningKeyPublicCertificateSha256Fingerprints:
+              type: array
+              items:
+                type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ScmRepositoriesResponse:
+      type: object
+      title: ScmRepositoriesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmRepository'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ScmGitReference'
+            - $ref: '#/components/schemas/ScmProvider'
+            discriminator:
+              propertyName: type
+              mapping:
+                scmProviders: '#/components/schemas/ScmProvider'
+                scmGitReferences: '#/components/schemas/ScmGitReference'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    BuildAudienceType:
+      type: string
+      enum:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    CiProductsResponse:
+      type: object
+      title: CiProductsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiProduct'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/BundleId'
+            - $ref: '#/components/schemas/ScmRepository'
+            discriminator:
+              propertyName: type
+              mapping:
+                scmRepositories: '#/components/schemas/ScmRepository'
+                bundleIds: '#/components/schemas/BundleId'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CiPullRequestStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        destination:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        filesAndFoldersRule:
+          $ref: '#/components/schemas/CiFilesAndFoldersRule'
+        autoCancel:
+          type: boolean
+    CiTagStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiTagPatterns'
+        filesAndFoldersRule:
+          $ref: '#/components/schemas/CiFilesAndFoldersRule'
+        autoCancel:
+          type: boolean
+    CiExecutionProgress:
+      type: string
+      enum:
+      - PENDING
+      - RUNNING
+      - COMPLETE
+    CiTestDestinationKind:
+      type: string
+      enum:
+      - SIMULATOR
+      - MAC
+    CiXcodeVersion:
+      type: object
+      title: CiXcodeVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - ciXcodeVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            version:
+              type: string
+            name:
+              type: string
+            testDestinations:
+              type: array
+              items:
+                type: object
+                properties:
+                  deviceTypeName:
+                    type: string
+                  deviceTypeIdentifier:
+                    type: string
+                  availableRuntimes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        runtimeName:
+                          type: string
+                        runtimeIdentifier:
+                          type: string
+                  kind:
+                    $ref: '#/components/schemas/CiTestDestinationKind'
+        relationships:
+          type: object
+          properties:
+            macOsVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - ciMacOsVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
+    CiFilesAndFoldersRule:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+          - START_IF_ANY_FILE_MATCHES
+          - DO_NOT_START_IF_ALL_FILES_MATCH
+        matchers:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiStartConditionFileMatcher'
+    CiCompletionStatus:
+      type: string
+      enum:
+      - SUCCEEDED
+      - FAILED
+      - ERRORED
+      - CANCELED
+      - SKIPPED
+    SubscriptionGroup:
+      type: object
+      title: SubscriptionGroup
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionGroups
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+        relationships:
+          type: object
+          properties:
+            subscriptions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            subscriptionGroupLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptionGroupLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    CiTestDestination:
+      type: object
+      properties:
+        deviceTypeName:
+          type: string
+        deviceTypeIdentifier:
+          type: string
+        runtimeName:
+          type: string
+        runtimeIdentifier:
+          type: string
+        kind:
+          $ref: '#/components/schemas/CiTestDestinationKind'
+    BetaAppReviewDetail:
+      type: object
+      title: BetaAppReviewDetail
+      properties:
+        type:
+          type: string
+          enum:
+          - betaAppReviewDetails
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            contactFirstName:
+              type: string
+            contactLastName:
+              type: string
+            contactPhone:
+              type: string
+            contactEmail:
+              type: string
+            demoAccountName:
+              type: string
+            demoAccountPassword:
+              type: string
+            demoAccountRequired:
+              type: boolean
+            notes:
+              type: string
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreAgeRating:
+      type: string
+      enum:
+      - L
+      - ALL
+      - ONE_PLUS
+      - TWO_PLUS
+      - THREE_PLUS
+      - FOUR_PLUS
+      - FIVE_PLUS
+      - SIX_PLUS
+      - SEVEN_PLUS
+      - EIGHT_PLUS
+      - NINE_PLUS
+      - TEN_PLUS
+      - ELEVEN_PLUS
+      - TWELVE_PLUS
+      - THIRTEEN_PLUS
+      - FOURTEEN_PLUS
+      - FIFTEEN_PLUS
+      - SIXTEEN_PLUS
+      - SEVENTEEN_PLUS
+      - EIGHTEEN_PLUS
+      - NINETEEN_PLUS
+      - TWENTY_PLUS
+      - TWENTY_ONE_PLUS
+      - UNRATED
+    CiStartConditionFileMatcher:
+      type: object
+      properties:
+        directory:
+          type: string
+        fileExtension:
+          type: string
+        fileName:
+          type: string
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    CiScheduledStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        schedule:
+          type: object
+          properties:
+            frequency:
+              type: string
+              enum:
+              - WEEKLY
+              - DAILY
+              - HOURLY
+            days:
+              type: array
+              items:
+                type: string
+                enum:
+                - SUNDAY
+                - MONDAY
+                - TUESDAY
+                - WEDNESDAY
+                - THURSDAY
+                - FRIDAY
+                - SATURDAY
+            hour:
+              type: integer
+            minute:
+              type: integer
+            timezone:
+              type: string
+    ScmProviderType:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+          - BITBUCKET_CLOUD
+          - BITBUCKET_SERVER
+          - GITHUB_CLOUD
+          - GITHUB_ENTERPRISE
+          - GITLAB_CLOUD
+          - GITLAB_SELF_MANAGED
+        displayName:
+          type: string
+        isOnPremise:
+          type: boolean
     EndUserLicenseAgreement:
       type: object
       title: EndUserLicenseAgreement
@@ -6442,612 +7036,18 @@ components:
       required:
       - id
       - type
-    ScmRepository:
-      type: object
-      title: ScmRepository
-      properties:
-        type:
-          type: string
-          enum:
-          - scmRepositories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            lastAccessedDate:
-              type: string
-              format: date-time
-            httpCloneUrl:
-              type: string
-              format: uri
-            sshCloneUrl:
-              type: string
-              format: uri
-            ownerName:
-              type: string
-            repositoryName:
-              type: string
-        relationships:
-          type: object
-          properties:
-            scmProvider:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmProviders
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            defaultBranch:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmGitReferences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gitReferences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            pullRequests:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppStoreVersion:
-      type: object
-      title: AppStoreVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            platform:
-              $ref: '#/components/schemas/Platform'
-            versionString:
-              type: string
-            appStoreState:
-              deprecated: true
-              $ref: '#/components/schemas/AppStoreVersionState'
-            appVersionState:
-              $ref: '#/components/schemas/AppVersionState'
-            copyright:
-              type: string
-            reviewType:
-              type: string
-              enum:
-              - APP_STORE
-              - NOTARIZATION
-            releaseType:
-              type: string
-              enum:
-              - MANUAL
-              - AFTER_APPROVAL
-              - SCHEDULED
-            earliestReleaseDate:
-              type: string
-              format: date-time
-            usesIdfa:
-              type: boolean
-              deprecated: true
-            downloadable:
-              type: boolean
-            createdDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            build:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - builds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionPhasedRelease:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionPhasedReleases
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterAppVersion:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAppVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            routingAppCoverage:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - routingAppCoverages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreReviewDetail:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreReviewDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionSubmission:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionSubmissions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDefaultExperience:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDefaultExperiences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperiments:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperiments
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appStoreVersionExperimentsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperiments
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            customerReviews:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            alternativeDistributionPackage:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - alternativeDistributionPackages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiGitUser:
-      type: object
-      properties:
-        displayName:
-          type: string
-        avatarUrl:
-          type: string
-          format: uri
-    ScmProviderType:
-      type: object
-      properties:
-        kind:
-          type: string
-          enum:
-          - BITBUCKET_CLOUD
-          - BITBUCKET_SERVER
-          - GITHUB_CLOUD
-          - GITHUB_ENTERPRISE
-          - GITLAB_CLOUD
-          - GITLAB_SELF_MANAGED
-        displayName:
-          type: string
-        isOnPremise:
-          type: boolean
     SubscriptionGracePeriodDuration:
       type: string
       enum:
       - THREE_DAYS
       - SIXTEEN_DAYS
       - TWENTY_EIGHT_DAYS
-    IconAssetType:
-      type: string
-      enum:
-      - APP_STORE
-      - MESSAGES_APP_STORE
-      - WATCH_APP_STORE
-      - TV_OS_HOME_SCREEN
-      - TV_OS_TOP_SHELF
-      - ALTERNATE_EXPERIMENT
-    CiBranchPatterns:
+    ResourceLinks:
       type: object
       properties:
-        isAllMatch:
-          type: boolean
-        patterns:
-          type: array
-          items:
-            type: object
-            properties:
-              pattern:
-                type: string
-              isPrefix:
-                type: boolean
-    CiBuildRun:
-      type: object
-      title: CiBuildRun
-      properties:
-        type:
+        self:
           type: string
-          enum:
-          - ciBuildRuns
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            number:
-              type: integer
-            createdDate:
-              type: string
-              format: date-time
-            startedDate:
-              type: string
-              format: date-time
-            finishedDate:
-              type: string
-              format: date-time
-            sourceCommit:
-              type: object
-              properties:
-                commitSha:
-                  type: string
-                message:
-                  type: string
-                author:
-                  $ref: '#/components/schemas/CiGitUser'
-                committer:
-                  $ref: '#/components/schemas/CiGitUser'
-                webUrl:
-                  type: string
-                  format: uri
-            destinationCommit:
-              type: object
-              properties:
-                commitSha:
-                  type: string
-                message:
-                  type: string
-                author:
-                  $ref: '#/components/schemas/CiGitUser'
-                committer:
-                  $ref: '#/components/schemas/CiGitUser'
-                webUrl:
-                  type: string
-                  format: uri
-            isPullRequestBuild:
-              type: boolean
-            issueCounts:
-              $ref: '#/components/schemas/CiIssueCounts'
-            executionProgress:
-              $ref: '#/components/schemas/CiExecutionProgress'
-            completionStatus:
-              $ref: '#/components/schemas/CiCompletionStatus'
-            startReason:
-              type: string
-              enum:
-              - GIT_REF_CHANGE
-              - MANUAL
-              - MANUAL_REBUILD
-              - PULL_REQUEST_OPEN
-              - PULL_REQUEST_UPDATE
-              - SCHEDULE
-            cancelReason:
-              type: string
-              enum:
-              - AUTOMATICALLY_BY_NEWER_BUILD
-              - MANUALLY_BY_USER
-        relationships:
-          type: object
-          properties:
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            workflow:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciWorkflows
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            product:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciProducts
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            sourceBranchOrTag:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmGitReferences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            destinationBranch:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmGitReferences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            actions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            pullRequest:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmPullRequests
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppStoreVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_CONTRACT
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PREORDER_READY_FOR_SALE
-      - PROCESSING_FOR_APP_STORE
-      - READY_FOR_REVIEW
-      - READY_FOR_SALE
-      - REJECTED
-      - REMOVED_FROM_SALE
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-      - REPLACED_WITH_NEW_VERSION
-      - NOT_APPLICABLE
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

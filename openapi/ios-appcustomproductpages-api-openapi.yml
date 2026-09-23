@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AppCustomProductPages API
+  title: App Store Connect App Custom Product Pages API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -541,211 +541,173 @@ paths:
       summary: List Related App Custom Product Pages / App Custom Product Page Versions
 components:
   schemas:
-    PagedDocumentLinks:
+    AppCustomProductPage:
       type: object
+      title: AppCustomProductPage
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
-        first:
+          enum:
+          - appCustomProductPages
+        id:
           type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppCustomProductPageVersionsResponse:
-      type: object
-      title: AppCustomProductPageVersionsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppCustomProductPageVersion'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
-            - $ref: '#/components/schemas/AppCustomProductPage'
-            discriminator:
-              propertyName: type
-              mapping:
-                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
-                appCustomProductPages: '#/components/schemas/AppCustomProductPage'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    AppCustomProductPageCreateRequest:
-      type: object
-      title: AppCustomProductPageCreateRequest
-      properties:
-        data:
+        attributes:
           type: object
           properties:
-            type:
+            name:
               type: string
-              enum:
-              - appCustomProductPages
-            attributes:
+            url:
+              type: string
+              format: uri
+            visible:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            app:
               type: object
               properties:
-                name:
-                  type: string
-              required:
-              - name
-            relationships:
-              type: object
-              properties:
-                app:
+                data:
                   type: object
                   properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
                   required:
-                  - data
-                appCustomProductPageVersions:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - appCustomProductPageVersions
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-                appStoreVersionTemplate:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appStoreVersions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                customProductPageTemplate:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appCustomProductPages
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppCustomProductPageLocalizationInlineCreate'
-            - $ref: '#/components/schemas/AppCustomProductPageVersionInlineCreate'
-      required:
-      - data
-    AppCustomProductPageResponse:
-      type: object
-      title: AppCustomProductPageResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppCustomProductPage'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
-            - $ref: '#/components/schemas/AppCustomProductPageVersion'
-            - $ref: '#/components/schemas/App'
-            discriminator:
-              propertyName: type
-              mapping:
-                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
-                appCustomProductPageVersions: '#/components/schemas/AppCustomProductPageVersion'
-                apps: '#/components/schemas/App'
+                  - id
+                  - type
+            appCustomProductPageVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appCustomProductPageVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
-      - links
-    DocumentLinks:
+      - id
+      - type
+    AppCustomProductPageLocalization:
       type: object
+      title: AppCustomProductPageLocalization
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
+          enum:
+          - appCustomProductPageLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            promotionalText:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appCustomProductPageVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCustomProductPageVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appScreenshotSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appScreenshotSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appPreviewSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appPreviewSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            searchKeywords:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appKeywords
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - self
+      - id
+      - type
     AppCustomProductPageVersionInlineCreate:
       type: object
       properties:
@@ -759,9 +721,10 @@ components:
           type: object
           properties:
             deepLink:
-              type: string
+              type:
+              - string
+              - 'null'
               format: uri
-              nullable: true
         relationships:
           type: object
           properties:
@@ -799,6 +762,34 @@ components:
                     - type
       required:
       - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     AppCustomProductPageVersion:
       type: object
       title: AppCustomProductPageVersion
@@ -872,38 +863,6 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     App:
       type: object
       title: App
@@ -1541,159 +1500,6 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    AppCustomProductPageLocalizationInlineCreate:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - appCustomProductPageLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-            promotionalText:
-              type: string
-              nullable: true
-          required:
-          - locale
-        relationships:
-          type: object
-          properties:
-            appCustomProductPageVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCustomProductPageVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-      required:
-      - attributes
-      - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    AppCustomProductPage:
-      type: object
-      title: AppCustomProductPage
-      properties:
-        type:
-          type: string
-          enum:
-          - appCustomProductPages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            url:
-              type: string
-              format: uri
-            visible:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appCustomProductPageVersions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appCustomProductPageVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppCustomProductPageUpdateRequest:
-      type: object
-      title: AppCustomProductPageUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appCustomProductPages
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                name:
-                  type: string
-                  nullable: true
-                visible:
-                  type: boolean
-                  nullable: true
-          required:
-          - id
-          - type
-      required:
-      - data
     PagingInformation:
       type: object
       properties:
@@ -1710,6 +1516,33 @@ components:
           - limit
       required:
       - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
     AppCustomProductPageAppCustomProductPageVersionsLinkagesResponse:
       type: object
       properties:
@@ -1734,9 +1567,8 @@ components:
       required:
       - data
       - links
-    AppCustomProductPageLocalization:
+    AppCustomProductPageLocalizationInlineCreate:
       type: object
-      title: AppCustomProductPageLocalization
       properties:
         type:
           type: string
@@ -1750,7 +1582,11 @@ components:
             locale:
               type: string
             promotionalText:
-              type: string
+              type:
+              - string
+              - 'null'
+          required:
+          - locale
         relationships:
           type: object
           properties:
@@ -1769,74 +1605,242 @@ components:
                   required:
                   - id
                   - type
-            appScreenshotSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appScreenshotSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appPreviewSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appPreviewSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            searchKeywords:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appKeywords
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
+      - attributes
       - type
+    AppCustomProductPageResponse:
+      type: object
+      title: AppCustomProductPageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppCustomProductPage'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
+            - $ref: '#/components/schemas/AppCustomProductPageVersion'
+            - $ref: '#/components/schemas/App'
+            discriminator:
+              propertyName: type
+              mapping:
+                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
+                appCustomProductPageVersions: '#/components/schemas/AppCustomProductPageVersion'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppCustomProductPageVersionsResponse:
+      type: object
+      title: AppCustomProductPageVersionsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppCustomProductPageVersion'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
+            - $ref: '#/components/schemas/AppCustomProductPage'
+            discriminator:
+              propertyName: type
+              mapping:
+                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
+                appCustomProductPages: '#/components/schemas/AppCustomProductPage'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppCustomProductPageUpdateRequest:
+      type: object
+      title: AppCustomProductPageUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appCustomProductPages
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                name:
+                  type:
+                  - string
+                  - 'null'
+                visible:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppCustomProductPageCreateRequest:
+      type: object
+      title: AppCustomProductPageCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appCustomProductPages
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+                appCustomProductPageVersions:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - appCustomProductPageVersions
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+                appStoreVersionTemplate:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appStoreVersions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                customProductPageTemplate:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appCustomProductPages
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppCustomProductPageLocalizationInlineCreate'
+            - $ref: '#/components/schemas/AppCustomProductPageVersionInlineCreate'
+      required:
+      - data
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

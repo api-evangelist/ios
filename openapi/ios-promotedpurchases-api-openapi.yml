@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations PromotedPurchases API
+  title: App Store Connect Promoted Purchases API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -307,129 +307,14 @@ paths:
       summary: Delete Promoted Purchases
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    PromotedPurchaseUpdateRequest:
-      type: object
-      title: PromotedPurchaseUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - promotedPurchases
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                visibleForAllUsers:
-                  type: boolean
-                  nullable: true
-                enabled:
-                  type: boolean
-                  nullable: true
-          required:
-          - id
-          - type
-      required:
-      - data
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    PromotedPurchaseCreateRequest:
-      type: object
-      title: PromotedPurchaseCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - promotedPurchases
-            attributes:
-              type: object
-              properties:
-                visibleForAllUsers:
-                  type: boolean
-                enabled:
-                  type: boolean
-                  nullable: true
-              required:
-              - visibleForAllUsers
-            relationships:
-              type: object
-              properties:
-                app:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-                inAppPurchaseV2:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - inAppPurchases
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                subscription:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - subscriptions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
+      - pointer
     PromotedPurchaseResponse:
       type: object
       title: PromotedPurchaseResponse
@@ -452,74 +337,6 @@ components:
       required:
       - data
       - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PromotedPurchase:
-      type: object
-      title: PromotedPurchase
-      properties:
-        type:
-          type: string
-          enum:
-          - promotedPurchases
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            visibleForAllUsers:
-              type: boolean
-            enabled:
-              type: boolean
-            state:
-              type: string
-              enum:
-              - APPROVED
-              - IN_REVIEW
-              - PREPARE_FOR_SUBMISSION
-              - REJECTED
-        relationships:
-          type: object
-          properties:
-            inAppPurchaseV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - inAppPurchases
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            subscription:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     InAppPurchaseV2:
       type: object
       title: InAppPurchaseV2
@@ -724,6 +541,15 @@ components:
       required:
       - id
       - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
     Subscription:
       type: object
       title: Subscription
@@ -995,34 +821,6 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     InAppPurchaseState:
       type: string
       enum:
@@ -1038,6 +836,43 @@ components:
       - DEVELOPER_REMOVED_FROM_SALE
       - REMOVED_FROM_SALE
       - REJECTED
+    PromotedPurchaseUpdateRequest:
+      type: object
+      title: PromotedPurchaseUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - promotedPurchases
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                visibleForAllUsers:
+                  type:
+                  - boolean
+                  - 'null'
+                enabled:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -1070,20 +905,188 @@ components:
             - detail
             - status
             - title
-    ErrorSourcePointer:
+    ErrorLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
     InAppPurchaseType:
       type: string
       enum:
       - CONSUMABLE
       - NON_CONSUMABLE
       - NON_RENEWING_SUBSCRIPTION
+    PromotedPurchase:
+      type: object
+      title: PromotedPurchase
+      properties:
+        type:
+          type: string
+          enum:
+          - promotedPurchases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            visibleForAllUsers:
+              type: boolean
+            enabled:
+              type: boolean
+            state:
+              type: string
+              enum:
+              - APPROVED
+              - IN_REVIEW
+              - PREPARE_FOR_SUBMISSION
+              - REJECTED
+        relationships:
+          type: object
+          properties:
+            inAppPurchaseV2:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - inAppPurchases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            subscription:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PromotedPurchaseCreateRequest:
+      type: object
+      title: PromotedPurchaseCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - promotedPurchases
+            attributes:
+              type: object
+              properties:
+                visibleForAllUsers:
+                  type: boolean
+                enabled:
+                  type:
+                  - boolean
+                  - 'null'
+              required:
+              - visibleForAllUsers
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+                inAppPurchaseV2:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - inAppPurchases
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                subscription:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - subscriptions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
     PagingInformation:
       type: object
       properties:

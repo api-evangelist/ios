@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AppStoreVersionPhasedReleases API
+  title: App Store Connect App Store Version Phased Releases API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -178,28 +178,48 @@ paths:
       summary: Delete App Store Version Phased Releases
 components:
   schemas:
-    DocumentLinks:
+    AppStoreVersionPhasedReleaseResponse:
       type: object
+      title: AppStoreVersionPhasedReleaseResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/AppStoreVersionPhasedRelease'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - self
-    ResourceLinks:
+      - data
+      - links
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        pointer:
           type: string
       required:
-      - parameter
+      - pointer
+    AppStoreVersionPhasedReleaseUpdateRequest:
+      type: object
+      title: AppStoreVersionPhasedReleaseUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersionPhasedReleases
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                phasedReleaseState:
+                  $ref: '#/components/schemas/PhasedReleaseState'
+          required:
+          - id
+          - type
+      required:
+      - data
     ErrorLinks:
       type: object
       properties:
@@ -235,7 +255,6 @@ components:
               type: object
               properties:
                 phasedReleaseState:
-                  nullable: true
                   $ref: '#/components/schemas/PhasedReleaseState'
             relationships:
               type: object
@@ -264,6 +283,14 @@ components:
           - type
       required:
       - data
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -296,38 +323,14 @@ components:
             - detail
             - status
             - title
-    ErrorSourcePointer:
+    ErrorSourceParameter:
       type: object
-      title: JsonPointer
+      title: Parameter
       properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
-    AppStoreVersionPhasedReleaseUpdateRequest:
-      type: object
-      title: AppStoreVersionPhasedReleaseUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersionPhasedReleases
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                phasedReleaseState:
-                  nullable: true
-                  $ref: '#/components/schemas/PhasedReleaseState'
-          required:
-          - id
-          - type
-      required:
-      - data
+      - parameter
     PhasedReleaseState:
       type: string
       enum:
@@ -335,6 +338,12 @@ components:
       - ACTIVE
       - PAUSED
       - COMPLETE
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     AppStoreVersionPhasedRelease:
       type: object
       title: AppStoreVersionPhasedRelease
@@ -362,17 +371,6 @@ components:
       required:
       - id
       - type
-    AppStoreVersionPhasedReleaseResponse:
-      type: object
-      title: AppStoreVersionPhasedReleaseResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersionPhasedRelease'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
   securitySchemes:
     itc-bearer-token:
       type: http

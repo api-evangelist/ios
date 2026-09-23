@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations SubscriptionGracePeriods API
+  title: App Store Connect Subscription Grace Periods API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -142,14 +142,6 @@ paths:
       summary: Update Subscription Grace Periods
 components:
   schemas:
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     SubscriptionGracePeriod:
       type: object
       title: SubscriptionGracePeriod
@@ -179,56 +171,14 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
-          type: string
-          format: uri-reference
-    SubscriptionGracePeriodUpdateRequest:
-      type: object
-      title: SubscriptionGracePeriodUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionGracePeriods
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                optIn:
-                  type: boolean
-                  nullable: true
-                sandboxOptIn:
-                  type: boolean
-                  nullable: true
-                duration:
-                  nullable: true
-                  $ref: '#/components/schemas/SubscriptionGracePeriodDuration'
-                renewalType:
-                  type: string
-                  nullable: true
-                  enum:
-                  - ALL_RENEWALS
-                  - PAID_TO_PAID_ONLY
-          required:
-          - id
-          - type
-      required:
-      - data
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        pointer:
           type: string
       required:
-      - parameter
+      - pointer
     ErrorLinks:
       type: object
       properties:
@@ -249,6 +199,14 @@ components:
                 properties:
                   source:
                     type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -281,6 +239,58 @@ components:
             - detail
             - status
             - title
+    SubscriptionGracePeriodUpdateRequest:
+      type: object
+      title: SubscriptionGracePeriodUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionGracePeriods
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                optIn:
+                  type:
+                  - boolean
+                  - 'null'
+                sandboxOptIn:
+                  type:
+                  - boolean
+                  - 'null'
+                duration:
+                  $ref: '#/components/schemas/SubscriptionGracePeriodDuration'
+                renewalType:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - ALL_RENEWALS
+                  - PAID_TO_PAID_ONLY
+          required:
+          - id
+          - type
+      required:
+      - data
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    SubscriptionGracePeriodDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - SIXTEEN_DAYS
+      - TWENTY_EIGHT_DAYS
     SubscriptionGracePeriodResponse:
       type: object
       title: SubscriptionGracePeriodResponse
@@ -292,20 +302,12 @@ components:
       required:
       - data
       - links
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
-    SubscriptionGracePeriodDuration:
-      type: string
-      enum:
-      - THREE_DAYS
-      - SIXTEEN_DAYS
-      - TWENTY_EIGHT_DAYS
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

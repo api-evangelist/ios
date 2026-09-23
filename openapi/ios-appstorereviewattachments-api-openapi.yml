@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AppStoreReviewAttachments API
+  title: App Store Connect App Store Review Attachments API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -271,29 +271,14 @@ paths:
       summary: Delete App Store Review Attachments
 components:
   schemas:
-    AppStoreReviewAttachmentResponse:
+    ErrorSourcePointer:
       type: object
-      title: AppStoreReviewAttachmentResponse
+      title: JsonPointer
       properties:
-        data:
-          $ref: '#/components/schemas/AppStoreReviewAttachment'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreReviewDetail'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    DocumentLinks:
-      type: object
-      properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
+      - pointer
     AppStoreReviewDetail:
       type: object
       title: AppStoreReviewDetail
@@ -367,84 +352,6 @@ components:
       required:
       - id
       - type
-    AppStoreReviewAttachment:
-      type: object
-      title: AppStoreReviewAttachment
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreReviewAttachments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            sourceFileChecksum:
-              type: string
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        relationships:
-          type: object
-          properties:
-            appStoreReviewDetail:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreReviewDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
     AppStoreReviewAttachmentCreateRequest:
       type: object
       title: AppStoreReviewAttachmentCreateRequest
@@ -494,6 +401,106 @@ components:
           - type
       required:
       - data
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    AppStoreReviewAttachmentUpdateRequest:
+      type: object
+      title: AppStoreReviewAttachmentUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreReviewAttachments
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppStoreReviewAttachment:
+      type: object
+      title: AppStoreReviewAttachment
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreReviewAttachments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            sourceFileChecksum:
+              type: string
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        relationships:
+          type: object
+          properties:
+            appStoreReviewDetail:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreReviewDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     ErrorLinks:
       type: object
       properties:
@@ -514,57 +521,14 @@ components:
                 properties:
                   source:
                     type: string
-    ErrorSourceParameter:
+    DocumentLinks:
       type: object
-      title: Parameter
       properties:
-        parameter:
+        self:
           type: string
+          format: uri-reference
       required:
-      - parameter
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    AppStoreReviewAttachmentUpdateRequest:
-      type: object
-      title: AppStoreReviewAttachmentUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreReviewAttachments
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type: string
-                  nullable: true
-                uploaded:
-                  type: boolean
-                  nullable: true
-          required:
-          - id
-          - type
-      required:
-      - data
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -597,21 +561,21 @@ components:
             - detail
             - status
             - title
-    AppMediaStateError:
+    UploadOperation:
       type: object
       properties:
-        code:
+        method:
           type: string
-        description:
+        url:
           type: string
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
     AppMediaAssetState:
       type: object
       properties:
@@ -630,13 +594,51 @@ components:
           - UPLOAD_COMPLETE
           - COMPLETE
           - FAILED
-    HttpHeader:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
       type: object
       properties:
-        name:
+        self:
           type: string
-        value:
-          type: string
+          format: uri-reference
+    AppStoreReviewAttachmentResponse:
+      type: object
+      title: AppStoreReviewAttachmentResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreReviewAttachment'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreReviewDetail'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations GameCenterLeaderboardEntrySubmissions API
+  title: App Store Connect Game Center Leaderboard Entry Submissions…
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -70,28 +70,25 @@ paths:
       summary: Create Game Center Leaderboard Entry Submissions
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        pointer:
           type: string
       required:
-      - parameter
+      - pointer
+    GameCenterLeaderboardEntrySubmissionResponse:
+      type: object
+      title: GameCenterLeaderboardEntrySubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterLeaderboardEntrySubmission'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     ErrorLinks:
       type: object
       properties:
@@ -112,55 +109,14 @@ components:
                 properties:
                   source:
                     type: string
-    GameCenterLeaderboardEntrySubmissionCreateRequest:
+    DocumentLinks:
       type: object
-      title: GameCenterLeaderboardEntrySubmissionCreateRequest
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterLeaderboardEntrySubmissions
-            attributes:
-              type: object
-              properties:
-                bundleId:
-                  type: string
-                challengeIds:
-                  type: array
-                  items:
-                    type: string
-                  nullable: true
-                context:
-                  type: string
-                  format: number
-                  nullable: true
-                scopedPlayerId:
-                  type: string
-                score:
-                  type: string
-                  format: number
-                submittedDate:
-                  type: string
-                  format: date-time
-                  nullable: true
-                vendorIdentifier:
-                  type: string
-                preReleased:
-                  type: boolean
-                  nullable: true
-              required:
-              - vendorIdentifier
-              - score
-              - bundleId
-              - scopedPlayerId
-          required:
-          - attributes
-          - type
+        self:
+          type: string
+          format: uri-reference
       required:
-      - data
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -193,14 +149,67 @@ components:
             - detail
             - status
             - title
-    ErrorSourcePointer:
+    ErrorSourceParameter:
       type: object
-      title: JsonPointer
+      title: Parameter
       properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    GameCenterLeaderboardEntrySubmissionCreateRequest:
+      type: object
+      title: GameCenterLeaderboardEntrySubmissionCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterLeaderboardEntrySubmissions
+            attributes:
+              type: object
+              properties:
+                bundleId:
+                  type: string
+                challengeIds:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                context:
+                  type:
+                  - string
+                  - 'null'
+                  format: number
+                scopedPlayerId:
+                  type: string
+                score:
+                  type: string
+                  format: number
+                submittedDate:
+                  type:
+                  - string
+                  - 'null'
+                  format: date-time
+                vendorIdentifier:
+                  type: string
+                preReleased:
+                  type:
+                  - boolean
+                  - 'null'
+              required:
+              - vendorIdentifier
+              - score
+              - bundleId
+              - scopedPlayerId
+          required:
+          - attributes
+          - type
+      required:
+      - data
     GameCenterLeaderboardEntrySubmission:
       type: object
       title: GameCenterLeaderboardEntrySubmission
@@ -240,17 +249,12 @@ components:
       required:
       - id
       - type
-    GameCenterLeaderboardEntrySubmissionResponse:
+    ResourceLinks:
       type: object
-      title: GameCenterLeaderboardEntrySubmissionResponse
       properties:
-        data:
-          $ref: '#/components/schemas/GameCenterLeaderboardEntrySubmission'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+        self:
+          type: string
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

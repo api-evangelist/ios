@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations SubscriptionOfferCodeOneTimeUseCodes API
+  title: App Store Connect Subscription Offer Code One Time Use…
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -291,6 +291,69 @@ paths:
       summary: Get Related Subscription Offer Code One Time Use Codes / Values
 components:
   schemas:
+    SubscriptionOfferMode:
+      type: string
+      enum:
+      - PAY_AS_YOU_GO
+      - PAY_UP_FRONT
+      - FREE_TRIAL
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    OfferCodeEnvironment:
+      type: string
+      enum:
+      - PRODUCTION
+      - SANDBOX
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     SubscriptionOfferCodeOneTimeUseCode:
       type: object
       title: SubscriptionOfferCodeOneTimeUseCode
@@ -344,6 +407,11 @@ components:
       required:
       - id
       - type
+    SubscriptionOfferEligibility:
+      type: string
+      enum:
+      - STACK_WITH_INTRO_OFFERS
+      - REPLACE_INTRO_OFFERS
     SubscriptionOfferDuration:
       type: string
       enum:
@@ -355,56 +423,21 @@ components:
       - THREE_MONTHS
       - SIX_MONTHS
       - ONE_YEAR
-    SubscriptionOfferMode:
-      type: string
-      enum:
-      - PAY_AS_YOU_GO
-      - PAY_UP_FRONT
-      - FREE_TRIAL
-    ResourceLinks:
+    SubscriptionOfferCodeOneTimeUseCodeResponse:
       type: object
+      title: SubscriptionOfferCodeOneTimeUseCodeResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
+        data:
+          $ref: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionOfferCode'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - parameter
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    csv:
-      type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+      - data
+      - links
     SubscriptionOfferCodeOneTimeUseCodeUpdateRequest:
       type: object
       title: SubscriptionOfferCodeOneTimeUseCodeUpdateRequest
@@ -422,8 +455,9 @@ components:
               type: object
               properties:
                 active:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
           required:
           - id
           - type
@@ -461,123 +495,6 @@ components:
             - detail
             - status
             - title
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    SubscriptionOfferCodeOneTimeUseCodeCreateRequest:
-      type: object
-      title: SubscriptionOfferCodeOneTimeUseCodeCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionOfferCodeOneTimeUseCodes
-            attributes:
-              type: object
-              properties:
-                numberOfCodes:
-                  type: integer
-                expirationDate:
-                  type: string
-                  format: date
-                environment:
-                  nullable: true
-                  $ref: '#/components/schemas/OfferCodeEnvironment'
-              required:
-              - numberOfCodes
-              - expirationDate
-            relationships:
-              type: object
-              properties:
-                offerCode:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - subscriptionOfferCodes
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - offerCode
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    SubscriptionCustomerEligibility:
-      type: string
-      enum:
-      - NEW
-      - EXISTING
-      - EXPIRED
-    SubscriptionOfferCodeOneTimeUseCodeResponse:
-      type: object
-      title: SubscriptionOfferCodeOneTimeUseCodeResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionOfferCode'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    OfferCodeEnvironment:
-      type: string
-      enum:
-      - PRODUCTION
-      - SANDBOX
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    SubscriptionOfferEligibility:
-      type: string
-      enum:
-      - STACK_WITH_INTRO_OFFERS
-      - REPLACE_INTRO_OFFERS
     SubscriptionOfferCode:
       type: object
       title: SubscriptionOfferCode
@@ -701,6 +618,89 @@ components:
       required:
       - id
       - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    SubscriptionOfferCodeOneTimeUseCodeCreateRequest:
+      type: object
+      title: SubscriptionOfferCodeOneTimeUseCodeCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionOfferCodeOneTimeUseCodes
+            attributes:
+              type: object
+              properties:
+                numberOfCodes:
+                  type: integer
+                expirationDate:
+                  type: string
+                  format: date
+                environment:
+                  $ref: '#/components/schemas/OfferCodeEnvironment'
+              required:
+              - numberOfCodes
+              - expirationDate
+            relationships:
+              type: object
+              properties:
+                offerCode:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - subscriptionOfferCodes
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - offerCode
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    SubscriptionCustomerEligibility:
+      type: string
+      enum:
+      - NEW
+      - EXISTING
+      - EXPIRED
+    csv:
+      type: string
   securitySchemes:
     itc-bearer-token:
       type: http

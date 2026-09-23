@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations GameCenterMatchmakingTeams API
+  title: App Store Connect Game Center Matchmaking Teams API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -178,14 +178,6 @@ paths:
       summary: Delete Game Center Matchmaking Teams
 components:
   schemas:
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     GameCenterMatchmakingTeamUpdateRequest:
       type: object
       title: GameCenterMatchmakingTeamUpdateRequest
@@ -203,22 +195,26 @@ components:
               type: object
               properties:
                 minPlayers:
-                  type: integer
-                  nullable: true
+                  type:
+                  - integer
+                  - 'null'
                 maxPlayers:
-                  type: integer
-                  nullable: true
+                  type:
+                  - integer
+                  - 'null'
           required:
           - id
           - type
       required:
       - data
-    ResourceLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
+      required:
+      - pointer
     GameCenterMatchmakingTeam:
       type: object
       title: GameCenterMatchmakingTeam
@@ -243,14 +239,6 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     ErrorLinks:
       type: object
       properties:
@@ -271,6 +259,52 @@ components:
                 properties:
                   source:
                     type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     GameCenterMatchmakingTeamCreateRequest:
       type: object
       title: GameCenterMatchmakingTeamCreateRequest
@@ -323,38 +357,14 @@ components:
           - type
       required:
       - data
-    ErrorResponse:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+        parameter:
+          type: string
+      required:
+      - parameter
     GameCenterMatchmakingTeamResponse:
       type: object
       title: GameCenterMatchmakingTeamResponse
@@ -366,14 +376,6 @@ components:
       required:
       - data
       - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
   securitySchemes:
     itc-bearer-token:
       type: http

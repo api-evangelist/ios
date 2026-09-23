@@ -1,21 +1,21 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations MerchantIds API
+  title: App Store Connect Merchant IDS API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
 - itc-bearer-token: []
 tags:
-- name: MerchantIds
+- name: Merchant IDs
 paths:
   /v1/merchantIds:
     get:
       tags:
-      - MerchantIds
+      - Merchant IDs
       operationId: merchantIds_getCollection
       parameters:
       - name: filter[name]
@@ -148,7 +148,7 @@ paths:
       summary: List Merchant Ids
     post:
       tags:
-      - MerchantIds
+      - Merchant IDs
       operationId: merchantIds_createInstance
       requestBody:
         description: MerchantId representation
@@ -212,7 +212,7 @@ paths:
       required: true
     get:
       tags:
-      - MerchantIds
+      - Merchant IDs
       operationId: merchantIds_getInstance
       parameters:
       - name: fields[merchantIds]
@@ -309,7 +309,7 @@ paths:
       summary: Get Merchant Ids
     patch:
       tags:
-      - MerchantIds
+      - Merchant IDs
       operationId: merchantIds_updateInstance
       requestBody:
         description: MerchantId representation
@@ -370,7 +370,7 @@ paths:
       summary: Update Merchant Ids
     delete:
       tags:
-      - MerchantIds
+      - Merchant IDs
       operationId: merchantIds_deleteInstance
       responses:
         '400':
@@ -417,7 +417,7 @@ paths:
       required: true
     get:
       tags:
-      - MerchantIds
+      - Merchant IDs
       operationId: merchantIds_certificates_getToManyRelationship
       parameters:
       - name: limit
@@ -476,7 +476,7 @@ paths:
       required: true
     get:
       tags:
-      - MerchantIds
+      - Merchant IDs
       operationId: merchantIds_certificates_getToManyRelated
       parameters:
       - name: filter[displayName]
@@ -642,80 +642,53 @@ paths:
       summary: List Related Merchant Ids / Certificates
 components:
   schemas:
-    PagedDocumentLinks:
+    MerchantIdCreateRequest:
       type: object
+      title: MerchantIdCreateRequest
       properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    MerchantId:
-      type: object
-      title: MerchantId
-      properties:
-        type:
-          type: string
-          enum:
-          - merchantIds
-        id:
-          type: string
-        attributes:
+        data:
           type: object
           properties:
-            name:
+            type:
               type: string
-            identifier:
-              type: string
-        relationships:
-          type: object
-          properties:
-            certificates:
+              enum:
+              - merchantIds
+            attributes:
               type: object
               properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - certificates
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+                name:
+                  type: string
+                identifier:
+                  type: string
+              required:
+              - identifier
+              - name
+          required:
+          - attributes
+          - type
       required:
-      - id
-      - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
+      - data
+    CertificateType:
+      type: string
+      enum:
+      - APPLE_PAY
+      - APPLE_PAY_MERCHANT_IDENTITY
+      - APPLE_PAY_PSP_IDENTITY
+      - APPLE_PAY_RSA
+      - DEVELOPER_ID_KEXT
+      - DEVELOPER_ID_KEXT_G2
+      - DEVELOPER_ID_APPLICATION
+      - DEVELOPER_ID_APPLICATION_G2
+      - DEVELOPMENT
+      - DISTRIBUTION
+      - IDENTITY_ACCESS
+      - IOS_DEVELOPMENT
+      - IOS_DISTRIBUTION
+      - MAC_APP_DISTRIBUTION
+      - MAC_INSTALLER_DISTRIBUTION
+      - MAC_APP_DEVELOPMENT
+      - PASS_TYPE_ID
+      - PASS_TYPE_ID_WITH_NFC
     ErrorLinks:
       type: object
       properties:
@@ -736,107 +709,6 @@ components:
                 properties:
                   source:
                     type: string
-    PassTypeId:
-      type: object
-      title: PassTypeId
-      properties:
-        type:
-          type: string
-          enum:
-          - passTypeIds
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            identifier:
-              type: string
-        relationships:
-          type: object
-          properties:
-            certificates:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - certificates
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    MerchantIdResponse:
-      type: object
-      title: MerchantIdResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/MerchantId'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Certificate'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     Certificate:
       type: object
       title: Certificate
@@ -892,41 +764,104 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    MerchantIdCreateRequest:
+      required:
+      - self
+    PagingInformation:
       type: object
-      title: MerchantIdCreateRequest
       properties:
-        data:
+        paging:
           type: object
           properties:
-            type:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
               type: string
-              enum:
-              - merchantIds
-            attributes:
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    PassTypeId:
+      type: object
+      title: PassTypeId
+      properties:
+        type:
+          type: string
+          enum:
+          - passTypeIds
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            identifier:
+              type: string
+        relationships:
+          type: object
+          properties:
+            certificates:
               type: object
               properties:
-                name:
-                  type: string
-                identifier:
-                  type: string
-              required:
-              - identifier
-              - name
-          required:
-          - attributes
-          - type
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - certificates
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
+      - id
+      - type
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
     MerchantIdUpdateRequest:
       type: object
       title: MerchantIdUpdateRequest
@@ -944,33 +879,104 @@ components:
               type: object
               properties:
                 name:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
           required:
           - id
           - type
       required:
       - data
-    ErrorSourcePointer:
+    ErrorResponse:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    MerchantIdsResponse:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    MerchantId:
       type: object
-      title: MerchantIdsResponse
+      title: MerchantId
+      properties:
+        type:
+          type: string
+          enum:
+          - merchantIds
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            identifier:
+              type: string
+        relationships:
+          type: object
+          properties:
+            certificates:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - certificates
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CertificatesResponse:
+      type: object
+      title: CertificatesResponse
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/MerchantId'
+            $ref: '#/components/schemas/Certificate'
         included:
           type: array
           items:
-            $ref: '#/components/schemas/Certificate'
+            $ref: '#/components/schemas/PassTypeId'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -978,43 +984,38 @@ components:
       required:
       - data
       - links
-    CertificateType:
-      type: string
-      enum:
-      - APPLE_PAY
-      - APPLE_PAY_MERCHANT_IDENTITY
-      - APPLE_PAY_PSP_IDENTITY
-      - APPLE_PAY_RSA
-      - DEVELOPER_ID_KEXT
-      - DEVELOPER_ID_KEXT_G2
-      - DEVELOPER_ID_APPLICATION
-      - DEVELOPER_ID_APPLICATION_G2
-      - DEVELOPMENT
-      - DISTRIBUTION
-      - IDENTITY_ACCESS
-      - IOS_DEVELOPMENT
-      - IOS_DISTRIBUTION
-      - MAC_APP_DISTRIBUTION
-      - MAC_INSTALLER_DISTRIBUTION
-      - MAC_APP_DEVELOPMENT
-      - PASS_TYPE_ID
-      - PASS_TYPE_ID_WITH_NFC
-    PagingInformation:
+    MerchantIdResponse:
+      type: object
+      title: MerchantIdResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/MerchantId'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    RelationshipLinks:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
       required:
-      - paging
+      - parameter
     MerchantIdCertificatesLinkagesResponse:
       type: object
       properties:
@@ -1039,24 +1040,18 @@ components:
       required:
       - data
       - links
-    BundleIdPlatform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - UNIVERSAL
-    CertificatesResponse:
+    MerchantIdsResponse:
       type: object
-      title: CertificatesResponse
+      title: MerchantIdsResponse
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Certificate'
+            $ref: '#/components/schemas/MerchantId'
         included:
           type: array
           items:
-            $ref: '#/components/schemas/PassTypeId'
+            $ref: '#/components/schemas/Certificate'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1064,6 +1059,12 @@ components:
       required:
       - data
       - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

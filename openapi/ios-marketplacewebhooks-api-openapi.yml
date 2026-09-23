@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations MarketplaceWebhooks API
+  title: App Store Connect Marketplace Webhooks API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -238,84 +238,41 @@ paths:
       summary: Delete Marketplace Webhooks
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    MarketplaceWebhook:
+      - pointer
+    MarketplaceWebhookResponse:
       type: object
-      title: MarketplaceWebhook
-      properties:
-        type:
-          type: string
-          enum:
-          - marketplaceWebhooks
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            endpointUrl:
-              type: string
-              format: uri
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-      deprecated: true
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    MarketplaceWebhookUpdateRequest:
-      type: object
-      title: MarketplaceWebhookUpdateRequest
+      title: MarketplaceWebhookResponse
       properties:
         data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - marketplaceWebhooks
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                endpointUrl:
-                  type: string
-                  format: uri
-                  nullable: true
-                secret:
-                  type: string
-                  nullable: true
-          required:
-          - id
-          - type
+          $ref: '#/components/schemas/MarketplaceWebhook'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
+      - links
+      deprecated: true
+    MarketplaceWebhooksResponse:
+      type: object
+      title: MarketplaceWebhooksResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketplaceWebhook'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
       deprecated: true
     MarketplaceWebhookCreateRequest:
       type: object
@@ -345,14 +302,20 @@ components:
       required:
       - data
       deprecated: true
-    ErrorSourceParameter:
+    PagedDocumentLinks:
       type: object
-      title: Parameter
       properties:
-        parameter:
+        self:
           type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - parameter
+      - self
     ErrorLinks:
       type: object
       properties:
@@ -405,42 +368,81 @@ components:
             - detail
             - status
             - title
-    ErrorSourcePointer:
+    DocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    MarketplaceWebhook:
+      type: object
+      title: MarketplaceWebhook
+      properties:
+        type:
+          type: string
+          enum:
+          - marketplaceWebhooks
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            endpointUrl:
+              type: string
+              format: uri
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+      deprecated: true
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
-    MarketplaceWebhooksResponse:
+      - parameter
+    MarketplaceWebhookUpdateRequest:
       type: object
-      title: MarketplaceWebhooksResponse
+      title: MarketplaceWebhookUpdateRequest
       properties:
         data:
-          type: array
-          items:
-            $ref: '#/components/schemas/MarketplaceWebhook'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - marketplaceWebhooks
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                endpointUrl:
+                  type:
+                  - string
+                  - 'null'
+                  format: uri
+                secret:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
       required:
       - data
-      - links
       deprecated: true
-    MarketplaceWebhookResponse:
+    ResourceLinks:
       type: object
-      title: MarketplaceWebhookResponse
       properties:
-        data:
-          $ref: '#/components/schemas/MarketplaceWebhook'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
+        self:
+          type: string
+          format: uri-reference
     PagingInformation:
       type: object
       properties:

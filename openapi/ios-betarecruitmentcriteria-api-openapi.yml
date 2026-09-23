@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations BetaRecruitmentCriteria API
+  title: App Store Connect Beta Recruitment Criteria API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -178,14 +178,23 @@ paths:
       summary: Delete Beta Recruitment Criteria
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    DeviceFamilyOsVersionFilter:
       type: object
       properties:
-        self:
+        deviceFamily:
+          $ref: '#/components/schemas/DeviceFamily'
+        minimumOsInclusive:
           type: string
-          format: uri-reference
-      required:
-      - self
+        maximumOsInclusive:
+          type: string
     BetaRecruitmentCriterion:
       type: object
       title: BetaRecruitmentCriterion
@@ -211,20 +220,6 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     ErrorLinks:
       type: object
       properties:
@@ -245,41 +240,29 @@ components:
                 properties:
                   source:
                     type: string
-    DeviceFamilyOsVersionFilter:
+    DeviceFamily:
+      type: string
+      enum:
+      - IPHONE
+      - IPAD
+      - APPLE_TV
+      - APPLE_WATCH
+      - MAC
+      - VISION
+    DocumentLinks:
       type: object
       properties:
-        deviceFamily:
-          $ref: '#/components/schemas/DeviceFamily'
-        minimumOsInclusive:
+        self:
           type: string
-        maximumOsInclusive:
-          type: string
-    BetaRecruitmentCriterionUpdateRequest:
-      type: object
-      title: BetaRecruitmentCriterionUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - betaRecruitmentCriteria
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                deviceFamilyOsVersionFilters:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/DeviceFamilyOsVersionFilter'
-                  nullable: true
-          required:
-          - id
-          - type
+          format: uri-reference
       required:
-      - data
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     ErrorResponse:
       type: object
       properties:
@@ -312,14 +295,52 @@ components:
             - detail
             - status
             - title
-    ErrorSourcePointer:
+    BetaRecruitmentCriterionResponse:
       type: object
-      title: JsonPointer
+      title: BetaRecruitmentCriterionResponse
       properties:
-        pointer:
+        data:
+          $ref: '#/components/schemas/BetaRecruitmentCriterion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    BetaRecruitmentCriterionUpdateRequest:
+      type: object
+      title: BetaRecruitmentCriterionUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - betaRecruitmentCriteria
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                deviceFamilyOsVersionFilters:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    $ref: '#/components/schemas/DeviceFamilyOsVersionFilter'
+          required:
+          - id
+          - type
+      required:
+      - data
     BetaRecruitmentCriterionCreateRequest:
       type: object
       title: BetaRecruitmentCriterionCreateRequest
@@ -368,26 +389,6 @@ components:
           - type
       required:
       - data
-    BetaRecruitmentCriterionResponse:
-      type: object
-      title: BetaRecruitmentCriterionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BetaRecruitmentCriterion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    DeviceFamily:
-      type: string
-      enum:
-      - IPHONE
-      - IPAD
-      - APPLE_TV
-      - APPLE_WATCH
-      - MAC
-      - VISION
   securitySchemes:
     itc-bearer-token:
       type: http

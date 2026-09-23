@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations Devices API
+  title: App Store Connect Devices API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -341,43 +341,20 @@ paths:
       summary: Update Devices
 components:
   schemas:
-    DocumentLinks:
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    DeviceCreateRequest:
-      type: object
-      title: DeviceCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - devices
-            attributes:
-              type: object
-              properties:
-                name:
-                  type: string
-                platform:
-                  $ref: '#/components/schemas/BundleIdPlatform'
-                udid:
-                  type: string
-              required:
-              - name
-              - udid
-              - platform
-          required:
-          - attributes
-          - type
-      required:
-      - data
+      - pointer
     PagedDocumentLinks:
       type: object
       properties:
@@ -392,36 +369,26 @@ components:
           format: uri-reference
       required:
       - self
-    DeviceUpdateRequest:
+    ErrorLinks:
       type: object
-      title: DeviceUpdateRequest
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - devices
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                name:
-                  type: string
-                  nullable: true
-                status:
-                  type: string
-                  nullable: true
-                  enum:
-                  - ENABLED
-                  - DISABLED
-          required:
-          - id
-          - type
-      required:
-      - data
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     DevicesResponse:
       type: object
       title: DevicesResponse
@@ -437,12 +404,46 @@ components:
       required:
       - data
       - links
-    BundleIdPlatform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - UNIVERSAL
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     Device:
       type: object
       title: Device
@@ -487,12 +488,6 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     ErrorSourceParameter:
       type: object
       title: Parameter
@@ -501,58 +496,38 @@ components:
           type: string
       required:
       - parameter
-    ErrorLinks:
+    DeviceUpdateRequest:
       type: object
+      title: DeviceUpdateRequest
       properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - devices
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                name:
+                  type:
+                  - string
+                  - 'null'
+                status:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - ENABLED
+                  - DISABLED
+          required:
+          - id
+          - type
+      required:
+      - data
     DeviceResponse:
       type: object
       title: DeviceResponse
@@ -564,14 +539,41 @@ components:
       required:
       - data
       - links
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
+          format: uri-reference
+    DeviceCreateRequest:
+      type: object
+      title: DeviceCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - devices
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+                platform:
+                  $ref: '#/components/schemas/BundleIdPlatform'
+                udid:
+                  type: string
+              required:
+              - name
+              - udid
+              - platform
+          required:
+          - attributes
+          - type
       required:
-      - pointer
+      - data
     PagingInformation:
       type: object
       properties:

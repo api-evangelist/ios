@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AppStoreVersions API
+  title: App Store Connect App Store Versions API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -3230,78 +3230,6 @@ paths:
       summary: Get Related App Store Versions / Routing App Coverage
 components:
   schemas:
-    AppClip:
-      type: object
-      title: AppClip
-      properties:
-        type:
-          type: string
-          enum:
-          - appClips
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            bundleId:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDefaultExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appClipDefaultExperiences
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appClipAdvancedExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     AppVersionState:
       type: string
       enum:
@@ -3320,12 +3248,225 @@ components:
       - REPLACED_WITH_NEW_VERSION
       - WAITING_FOR_EXPORT_COMPLIANCE
       - WAITING_FOR_REVIEW
-    AppClipAction:
-      type: string
-      enum:
-      - OPEN
-      - VIEW
-      - PLAY
+    AppStoreVersionAppStoreVersionExperimentsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appStoreVersionExperiments
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+      deprecated: true
+    GameCenterAppVersion:
+      type: object
+      title: GameCenterAppVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterAppVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            compatibilityVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAppVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appStoreVersion:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppClipDefaultExperienceResponse:
+      type: object
+      title: AppClipDefaultExperienceResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppClipDefaultExperience'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppClipAppStoreReviewDetail'
+            - $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
+            - $ref: '#/components/schemas/AppClip'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appClipDefaultExperienceLocalizations: '#/components/schemas/AppClipDefaultExperienceLocalization'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                appClipAppStoreReviewDetails: '#/components/schemas/AppClipAppStoreReviewDetail'
+                appClips: '#/components/schemas/AppClip'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    AppStoreVersionCustomerReviewsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - customerReviews
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CustomerReview:
+      type: object
+      title: CustomerReview
+      properties:
+        type:
+          type: string
+          enum:
+          - customerReviews
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            rating:
+              type: integer
+              maximum: 5
+              minimum: 1
+            title:
+              type: string
+            body:
+              type: string
+            reviewerNickname:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            territory:
+              $ref: '#/components/schemas/TerritoryCode'
+        relationships:
+          type: object
+          properties:
+            response:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - customerReviewResponses
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            reviewTerritory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     AppStoreVersionAppStoreVersionLocalizationsLinkagesResponse:
       type: object
       properties:
@@ -3350,375 +3491,53 @@ components:
       required:
       - data
       - links
-    AlternativeDistributionPackageResponse:
+    AppStoreVersionAppClipDefaultExperienceLinkageRequest:
       type: object
-      title: AlternativeDistributionPackageResponse
       properties:
         data:
-          $ref: '#/components/schemas/AlternativeDistributionPackage'
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipDefaultExperiences
+            id:
+              type: string
+          required:
+          - id
+          - type
+      required:
+      - data
+    AppStoreVersionLocalizationsResponse:
+      type: object
+      title: AppStoreVersionLocalizationsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreVersionLocalization'
         included:
           type: array
           items:
-            $ref: '#/components/schemas/AlternativeDistributionPackageVersion'
+            oneOf:
+            - $ref: '#/components/schemas/AppKeyword'
+            - $ref: '#/components/schemas/AppPreviewSet'
+            - $ref: '#/components/schemas/AppScreenshotSet'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appScreenshotSets: '#/components/schemas/AppScreenshotSet'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                appKeywords: '#/components/schemas/AppKeyword'
+                appPreviewSets: '#/components/schemas/AppPreviewSet'
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
-    AppStoreVersionBuildLinkageRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - builds
-            id:
-              type: string
-          required:
-          - id
-          - type
-      required:
-      - data
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AlternativeDistributionPackage:
-      type: object
-      title: AlternativeDistributionPackage
-      properties:
-        type:
-          type: string
-          enum:
-          - alternativeDistributionPackages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            sourceFileChecksum:
-              $ref: '#/components/schemas/Checksums'
-        relationships:
-          type: object
-          properties:
-            versions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - alternativeDistributionPackageVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PhasedReleaseState:
-      type: string
-      enum:
-      - INACTIVE
-      - ACTIVE
-      - PAUSED
-      - COMPLETE
-    AppStoreVersionPhasedRelease:
-      type: object
-      title: AppStoreVersionPhasedRelease
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionPhasedReleases
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            phasedReleaseState:
-              $ref: '#/components/schemas/PhasedReleaseState'
-            startDate:
-              type: string
-              format: date-time
-            totalPauseDuration:
-              type: integer
-            currentDayNumber:
-              type: integer
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppStoreVersionSubmission:
-      type: object
-      title: AppStoreVersionSubmission
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionSubmissions
-        id:
-          type: string
-        relationships:
-          type: object
-          properties:
-            appStoreVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-      deprecated: true
-    AppStoreVersionAppStoreVersionPhasedReleaseLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersionPhasedReleases
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppClipDefaultExperience:
-      type: object
-      title: AppClipDefaultExperience
-      properties:
-        type:
-          type: string
-          enum:
-          - appClipDefaultExperiences
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            action:
-              $ref: '#/components/schemas/AppClipAction'
-        relationships:
-          type: object
-          properties:
-            appClip:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClips
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            releaseWithAppStoreVersion:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDefaultExperienceLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appClipDefaultExperienceLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appClipAppStoreReviewDetail:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipAppStoreReviewDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppStoreVersionExperimentTreatment:
-      type: object
-      title: AppStoreVersionExperimentTreatment
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionExperimentTreatments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            appIcon:
-              $ref: '#/components/schemas/ImageAsset'
-            appIconName:
-              type: string
-            promotedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            appStoreVersionExperiment:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionExperiments
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionExperiments
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentTreatmentLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperimentTreatmentLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     TerritoryCode:
       type: string
       enum:
@@ -3955,6 +3774,170 @@ components:
       - ZAF
       - ZMB
       - ZWE
+    PreviewType:
+      type: string
+      enum:
+      - IPHONE_67
+      - IPHONE_61
+      - IPHONE_65
+      - IPHONE_58
+      - IPHONE_55
+      - IPHONE_47
+      - IPHONE_40
+      - IPHONE_35
+      - IPAD_PRO_3GEN_129
+      - IPAD_PRO_3GEN_11
+      - IPAD_PRO_129
+      - IPAD_105
+      - IPAD_97
+      - DESKTOP
+      - APPLE_TV
+      - APPLE_VISION_PRO
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AlternativeDistributionPackageResponse:
+      type: object
+      title: AlternativeDistributionPackageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AlternativeDistributionPackage'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternativeDistributionPackageVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    AppClipDefaultExperienceLocalization:
+      type: object
+      title: AppClipDefaultExperienceLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - appClipDefaultExperienceLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            subtitle:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appClipDefaultExperience:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDefaultExperiences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipHeaderImage:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipHeaderImages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionPhasedReleaseWithoutIncludesResponse:
+      type: object
+      title: AppStoreVersionPhasedReleaseWithoutIncludesResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreVersionPhasedRelease'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    AppStoreVersionAppClipDefaultExperienceLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipDefaultExperiences
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    RoutingAppCoverageResponse:
+      type: object
+      title: RoutingAppCoverageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/RoutingAppCoverage'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppStoreVersionGameCenterAppVersionLinkageResponse:
       type: object
       properties:
@@ -3975,32 +3958,797 @@ components:
       required:
       - data
       - links
-    AppClipDefaultExperienceResponse:
+    AppStoreVersionExperimentsResponse:
       type: object
-      title: AppClipDefaultExperienceResponse
+      title: AppStoreVersionExperimentsResponse
       properties:
         data:
-          $ref: '#/components/schemas/AppClipDefaultExperience'
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreVersionExperiment'
         included:
           type: array
           items:
             oneOf:
-            - $ref: '#/components/schemas/AppClipAppStoreReviewDetail'
-            - $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
-            - $ref: '#/components/schemas/AppClip'
+            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
             - $ref: '#/components/schemas/AppStoreVersion'
             discriminator:
               propertyName: type
               mapping:
-                appClipDefaultExperienceLocalizations: '#/components/schemas/AppClipDefaultExperienceLocalization'
+                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
                 appStoreVersions: '#/components/schemas/AppStoreVersion'
-                appClipAppStoreReviewDetails: '#/components/schemas/AppClipAppStoreReviewDetail'
-                appClips: '#/components/schemas/AppClip'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+      deprecated: true
+    RoutingAppCoverage:
+      type: object
+      title: RoutingAppCoverage
+      properties:
+        type:
+          type: string
+          enum:
+          - routingAppCoverages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            sourceFileChecksum:
+              type: string
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        relationships:
+          type: object
+          properties:
+            appStoreVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionCreateRequest:
+      type: object
+      title: AppStoreVersionCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersions
+            attributes:
+              type: object
+              properties:
+                platform:
+                  $ref: '#/components/schemas/Platform'
+                versionString:
+                  type: string
+                copyright:
+                  type:
+                  - string
+                  - 'null'
+                reviewType:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - APP_STORE
+                  - NOTARIZATION
+                releaseType:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - MANUAL
+                  - AFTER_APPROVAL
+                  - SCHEDULED
+                earliestReleaseDate:
+                  type:
+                  - string
+                  - 'null'
+                  format: date-time
+                usesIdfa:
+                  type:
+                  - boolean
+                  - 'null'
+                  deprecated: true
+              required:
+              - versionString
+              - platform
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+                appStoreVersionLocalizations:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - appStoreVersionLocalizations
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+                build:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - builds
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppStoreVersionExperimentsV2Response:
+      type: object
+      title: AppStoreVersionExperimentsV2Response
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreVersionExperimentV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            - $ref: '#/components/schemas/App'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppStoreReviewDetailResponse:
+      type: object
+      title: AppStoreReviewDetailResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreReviewDetail'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppStoreReviewAttachment'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                appStoreReviewAttachments: '#/components/schemas/AppStoreReviewAttachment'
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
+    AppStoreVersionRoutingAppCoverageLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - routingAppCoverages
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    AppStoreVersionAppStoreVersionPhasedReleaseLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersionPhasedReleases
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    AppStoreVersionBuildLinkageRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - builds
+            id:
+              type: string
+          required:
+          - id
+          - type
+      required:
+      - data
+    AppPreviewSet:
+      type: object
+      title: AppPreviewSet
+      properties:
+        type:
+          type: string
+          enum:
+          - appPreviewSets
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            previewType:
+              $ref: '#/components/schemas/PreviewType'
+        relationships:
+          type: object
+          properties:
+            appStoreVersionLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appCustomProductPageLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCustomProductPageLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperimentTreatmentLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionExperimentTreatmentLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appPreviews:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appPreviews
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionResponse:
+      type: object
+      title: AppStoreVersionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreVersion'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AlternativeDistributionPackage'
+            - $ref: '#/components/schemas/AppClipDefaultExperience'
+            - $ref: '#/components/schemas/AppStoreReviewDetail'
+            - $ref: '#/components/schemas/AppStoreVersionExperiment'
+            - $ref: '#/components/schemas/AppStoreVersionLocalization'
+            - $ref: '#/components/schemas/AppStoreVersionPhasedRelease'
+            - $ref: '#/components/schemas/AppStoreVersionSubmission'
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/Build'
+            - $ref: '#/components/schemas/GameCenterAppVersion'
+            - $ref: '#/components/schemas/RoutingAppCoverage'
+            discriminator:
+              propertyName: type
+              mapping:
+                alternativeDistributionPackages: '#/components/schemas/AlternativeDistributionPackage'
+                appClipDefaultExperiences: '#/components/schemas/AppClipDefaultExperience'
+                appStoreVersionLocalizations: '#/components/schemas/AppStoreVersionLocalization'
+                routingAppCoverages: '#/components/schemas/RoutingAppCoverage'
+                appStoreVersionPhasedReleases: '#/components/schemas/AppStoreVersionPhasedRelease'
+                appStoreReviewDetails: '#/components/schemas/AppStoreReviewDetail'
+                appStoreVersionExperiments: '#/components/schemas/AppStoreVersionExperiment'
+                builds: '#/components/schemas/Build'
+                appStoreVersionSubmissions: '#/components/schemas/AppStoreVersionSubmission'
+                gameCenterAppVersions: '#/components/schemas/GameCenterAppVersion'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    AppStoreVersionExperimentTreatment:
+      type: object
+      title: AppStoreVersionExperimentTreatment
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionExperimentTreatments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            appIcon:
+              $ref: '#/components/schemas/ImageAsset'
+            appIconName:
+              type: string
+            promotedDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            appStoreVersionExperiment:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionExperiments
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperimentV2:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionExperiments
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperimentTreatmentLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionExperimentTreatmentLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersion:
+      type: object
+      title: AppStoreVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            platform:
+              $ref: '#/components/schemas/Platform'
+            versionString:
+              type: string
+            appStoreState:
+              deprecated: true
+              $ref: '#/components/schemas/AppStoreVersionState'
+            appVersionState:
+              $ref: '#/components/schemas/AppVersionState'
+            copyright:
+              type: string
+            reviewType:
+              type: string
+              enum:
+              - APP_STORE
+              - NOTARIZATION
+            releaseType:
+              type: string
+              enum:
+              - MANUAL
+              - AFTER_APPROVAL
+              - SCHEDULED
+            earliestReleaseDate:
+              type: string
+              format: date-time
+            usesIdfa:
+              type: boolean
+              deprecated: true
+            downloadable:
+              type: boolean
+            createdDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            build:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - builds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionPhasedRelease:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionPhasedReleases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterAppVersion:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAppVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            routingAppCoverage:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - routingAppCoverages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreReviewDetail:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreReviewDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionSubmission:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionSubmissions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipDefaultExperience:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDefaultExperiences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperiments:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionExperiments
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appStoreVersionExperimentsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionExperiments
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            customerReviews:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            alternativeDistributionPackage:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - alternativeDistributionPackages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
     AppScreenshotSet:
       type: object
       title: AppScreenshotSet
@@ -4090,128 +4838,91 @@ components:
       required:
       - id
       - type
-    AppStoreVersionCreateRequest:
+    CustomerReviewResponseV1:
       type: object
-      title: AppStoreVersionCreateRequest
+      title: CustomerReviewResponseV1
       properties:
-        data:
+        type:
+          type: string
+          enum:
+          - customerReviewResponses
+        id:
+          type: string
+        attributes:
           type: object
           properties:
-            type:
+            responseBody:
+              type: string
+            lastModifiedDate:
+              type: string
+              format: date-time
+            state:
               type: string
               enum:
-              - appStoreVersions
-            attributes:
+              - PUBLISHED
+              - PENDING_PUBLISH
+        relationships:
+          type: object
+          properties:
+            review:
               type: object
               properties:
-                platform:
-                  $ref: '#/components/schemas/Platform'
-                versionString:
-                  type: string
-                copyright:
-                  type: string
-                  nullable: true
-                reviewType:
-                  type: string
-                  nullable: true
-                  enum:
-                  - APP_STORE
-                  - NOTARIZATION
-                releaseType:
-                  type: string
-                  nullable: true
-                  enum:
-                  - MANUAL
-                  - AFTER_APPROVAL
-                  - SCHEDULED
-                earliestReleaseDate:
-                  type: string
-                  format: date-time
-                  nullable: true
-                usesIdfa:
-                  type: boolean
-                  deprecated: true
-                  nullable: true
-              required:
-              - versionString
-              - platform
-            relationships:
-              type: object
-              properties:
-                app:
+                data:
                   type: object
                   properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
+                    type:
+                      type: string
+                      enum:
+                      - customerReviews
+                    id:
+                      type: string
                   required:
-                  - data
-                appStoreVersionLocalizations:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - appStoreVersionLocalizations
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-                build:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - builds
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
-    AppStoreVersionAppStoreVersionExperimentsV2LinkagesResponse:
+      - id
+      - type
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
+    AppKeyword:
       type: object
+      title: AppKeyword
+      properties:
+        type:
+          type: string
+          enum:
+          - appKeywords
+        id:
+          type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CustomerReviewsResponse:
+      type: object
+      title: CustomerReviewsResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appStoreVersionExperiments
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/CustomerReview'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CustomerReviewResponseV1'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                customerReviewResponses: '#/components/schemas/CustomerReviewResponseV1'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -4219,206 +4930,73 @@ components:
       required:
       - data
       - links
-    ErrorResponse:
+    AppStoreVersionBuildLinkageResponse:
       type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AppClipDefaultExperienceLocalization:
-      type: object
-      title: AppClipDefaultExperienceLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - appClipDefaultExperienceLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-            subtitle:
-              type: string
-        relationships:
-          type: object
-          properties:
-            appClipDefaultExperience:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDefaultExperiences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipHeaderImage:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipHeaderImages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    GameCenterAppVersionResponse:
-      type: object
-      title: GameCenterAppVersionResponse
       properties:
         data:
-          $ref: '#/components/schemas/GameCenterAppVersion'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreVersion'
-            - $ref: '#/components/schemas/GameCenterAppVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                gameCenterAppVersions: '#/components/schemas/GameCenterAppVersion'
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - builds
+            id:
+              type: string
+          required:
+          - id
+          - type
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-    ChecksumAlgorithm:
+    AppStoreVersionSubmissionResponse:
+      type: object
+      title: AppStoreVersionSubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreVersionSubmission'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    AppStoreVersionState:
       type: string
       enum:
-      - MD5
-      - SHA_256
-    CustomerReview:
+      - ACCEPTED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_CONTRACT
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PREORDER_READY_FOR_SALE
+      - PROCESSING_FOR_APP_STORE
+      - READY_FOR_REVIEW
+      - READY_FOR_SALE
+      - REJECTED
+      - REMOVED_FROM_SALE
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+      - REPLACED_WITH_NEW_VERSION
+      - NOT_APPLICABLE
+    AppStoreReviewAttachment:
       type: object
-      title: CustomerReview
+      title: AppStoreReviewAttachment
       properties:
         type:
           type: string
           enum:
-          - customerReviews
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            rating:
-              type: integer
-              maximum: 5
-              minimum: 1
-            title:
-              type: string
-            body:
-              type: string
-            reviewerNickname:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            territory:
-              $ref: '#/components/schemas/TerritoryCode'
-        relationships:
-          type: object
-          properties:
-            response:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - customerReviewResponses
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            reviewTerritory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    RoutingAppCoverage:
-      type: object
-      title: RoutingAppCoverage
-      properties:
-        type:
-          type: string
-          enum:
-          - routingAppCoverages
+          - appStoreReviewAttachments
         id:
           type: string
         attributes:
@@ -4439,7 +5017,92 @@ components:
         relationships:
           type: object
           properties:
-            appStoreVersion:
+            appStoreReviewDetail:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreReviewDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppStoreVersionExperimentV2:
+      type: object
+      title: AppStoreVersionExperimentV2
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionExperiments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            platform:
+              $ref: '#/components/schemas/Platform'
+            trafficProportion:
+              type: integer
+            state:
+              type: string
+              enum:
+              - PREPARE_FOR_SUBMISSION
+              - READY_FOR_REVIEW
+              - WAITING_FOR_REVIEW
+              - IN_REVIEW
+              - ACCEPTED
+              - APPROVED
+              - REJECTED
+              - COMPLETED
+              - STOPPED
+            reviewRequired:
+              type: boolean
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            latestControlVersion:
               type: object
               properties:
                 data:
@@ -4454,82 +5117,26 @@ components:
                   required:
                   - id
                   - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ScreenshotDisplayType:
-      type: string
-      enum:
-      - APP_IPHONE_67
-      - APP_IPHONE_61
-      - APP_IPHONE_65
-      - APP_IPHONE_58
-      - APP_IPHONE_55
-      - APP_IPHONE_47
-      - APP_IPHONE_40
-      - APP_IPHONE_35
-      - APP_IPAD_PRO_3GEN_129
-      - APP_IPAD_PRO_3GEN_11
-      - APP_IPAD_PRO_129
-      - APP_IPAD_105
-      - APP_IPAD_97
-      - APP_DESKTOP
-      - APP_WATCH_ULTRA
-      - APP_WATCH_SERIES_10
-      - APP_WATCH_SERIES_7
-      - APP_WATCH_SERIES_4
-      - APP_WATCH_SERIES_3
-      - APP_APPLE_TV
-      - APP_APPLE_VISION_PRO
-      - IMESSAGE_APP_IPHONE_67
-      - IMESSAGE_APP_IPHONE_61
-      - IMESSAGE_APP_IPHONE_65
-      - IMESSAGE_APP_IPHONE_58
-      - IMESSAGE_APP_IPHONE_55
-      - IMESSAGE_APP_IPHONE_47
-      - IMESSAGE_APP_IPHONE_40
-      - IMESSAGE_APP_IPAD_PRO_3GEN_129
-      - IMESSAGE_APP_IPAD_PRO_3GEN_11
-      - IMESSAGE_APP_IPAD_PRO_129
-      - IMESSAGE_APP_IPAD_105
-      - IMESSAGE_APP_IPAD_97
-    GameCenterAppVersion:
-      type: object
-      title: GameCenterAppVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterAppVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            enabled:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            compatibilityVersions:
+            controlVersions:
+              type: object
+              properties:
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appStoreVersionExperimentTreatments:
               type: object
               properties:
                 links:
@@ -4544,29 +5151,12 @@ components:
                       type:
                         type: string
                         enum:
-                        - gameCenterAppVersions
+                        - appStoreVersionExperimentTreatments
                       id:
                         type: string
                     required:
                     - id
                     - type
-            appStoreVersion:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
@@ -4665,228 +5255,6 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    RoutingAppCoverageResponse:
-      type: object
-      title: RoutingAppCoverageResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/RoutingAppCoverage'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    AppStoreVersionAppStoreVersionSubmissionLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersionSubmissions
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    Checksums:
-      type: object
-      properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    AppStoreVersionAppStoreReviewDetailLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreReviewDetails
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppStoreVersionExperiment:
-      type: object
-      title: AppStoreVersionExperiment
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionExperiments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            trafficProportion:
-              type: integer
-            state:
-              type: string
-              enum:
-              - PREPARE_FOR_SUBMISSION
-              - READY_FOR_REVIEW
-              - WAITING_FOR_REVIEW
-              - IN_REVIEW
-              - ACCEPTED
-              - APPROVED
-              - REJECTED
-              - COMPLETED
-              - STOPPED
-            reviewRequired:
-              type: boolean
-            startDate:
-              type: string
-              format: date-time
-            endDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            appStoreVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentTreatments:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperimentTreatments
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-      deprecated: true
-    AppStoreVersionAppClipDefaultExperienceLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipDefaultExperiences
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     App:
       type: object
       title: App
@@ -5524,6 +5892,448 @@ components:
       required:
       - id
       - type
+    BuildWithoutIncludesResponse:
+      type: object
+      title: BuildWithoutIncludesResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Build'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppClipAction:
+      type: string
+      enum:
+      - OPEN
+      - VIEW
+      - PLAY
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppStoreVersionUpdateRequest:
+      type: object
+      title: AppStoreVersionUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersions
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                versionString:
+                  type:
+                  - string
+                  - 'null'
+                copyright:
+                  type:
+                  - string
+                  - 'null'
+                reviewType:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - APP_STORE
+                  - NOTARIZATION
+                releaseType:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - MANUAL
+                  - AFTER_APPROVAL
+                  - SCHEDULED
+                earliestReleaseDate:
+                  type:
+                  - string
+                  - 'null'
+                  format: date-time
+                usesIdfa:
+                  type:
+                  - boolean
+                  - 'null'
+                  deprecated: true
+                downloadable:
+                  type:
+                  - boolean
+                  - 'null'
+            relationships:
+              type: object
+              properties:
+                build:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - builds
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                appClipDefaultExperience:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appClipDefaultExperiences
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+          required:
+          - id
+          - type
+      required:
+      - data
+    AppClipAppStoreReviewDetail:
+      type: object
+      title: AppClipAppStoreReviewDetail
+      properties:
+        type:
+          type: string
+          enum:
+          - appClipAppStoreReviewDetails
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            invocationUrls:
+              type: array
+              items:
+                type: string
+                format: uri
+        relationships:
+          type: object
+          properties:
+            appClipDefaultExperience:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDefaultExperiences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AlternativeDistributionPackage:
+      type: object
+      title: AlternativeDistributionPackage
+      properties:
+        type:
+          type: string
+          enum:
+          - alternativeDistributionPackages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            sourceFileChecksum:
+              $ref: '#/components/schemas/Checksums'
+        relationships:
+          type: object
+          properties:
+            versions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - alternativeDistributionPackageVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionSubmission:
+      type: object
+      title: AppStoreVersionSubmission
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionSubmissions
+        id:
+          type: string
+        relationships:
+          type: object
+          properties:
+            appStoreVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+      deprecated: true
+    AppStoreVersionLocalization:
+      type: object
+      title: AppStoreVersionLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            description:
+              type: string
+            locale:
+              type: string
+            keywords:
+              type: string
+            marketingUrl:
+              type: string
+              format: uri
+            promotionalText:
+              type: string
+            supportUrl:
+              type: string
+              format: uri
+            whatsNew:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appStoreVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appScreenshotSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appScreenshotSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appPreviewSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appPreviewSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            searchKeywords:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appKeywords
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionAppStoreVersionSubmissionLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersionSubmissions
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    ScreenshotDisplayType:
+      type: string
+      enum:
+      - APP_IPHONE_67
+      - APP_IPHONE_61
+      - APP_IPHONE_65
+      - APP_IPHONE_58
+      - APP_IPHONE_55
+      - APP_IPHONE_47
+      - APP_IPHONE_40
+      - APP_IPHONE_35
+      - APP_IPAD_PRO_3GEN_129
+      - APP_IPAD_PRO_3GEN_11
+      - APP_IPAD_PRO_129
+      - APP_IPAD_105
+      - APP_IPAD_97
+      - APP_DESKTOP
+      - APP_WATCH_ULTRA
+      - APP_WATCH_SERIES_10
+      - APP_WATCH_SERIES_7
+      - APP_WATCH_SERIES_4
+      - APP_WATCH_SERIES_3
+      - APP_APPLE_TV
+      - APP_APPLE_VISION_PRO
+      - IMESSAGE_APP_IPHONE_67
+      - IMESSAGE_APP_IPHONE_61
+      - IMESSAGE_APP_IPHONE_65
+      - IMESSAGE_APP_IPHONE_58
+      - IMESSAGE_APP_IPHONE_55
+      - IMESSAGE_APP_IPHONE_47
+      - IMESSAGE_APP_IPHONE_40
+      - IMESSAGE_APP_IPAD_PRO_3GEN_129
+      - IMESSAGE_APP_IPAD_PRO_3GEN_11
+      - IMESSAGE_APP_IPAD_PRO_129
+      - IMESSAGE_APP_IPAD_105
+      - IMESSAGE_APP_IPAD_97
     AppStoreReviewDetail:
       type: object
       title: AppStoreReviewDetail
@@ -5597,54 +6407,51 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    GameCenterAppVersionResponse:
       type: object
+      title: GameCenterAppVersionResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    AppStoreVersionExperimentV2:
+        data:
+          $ref: '#/components/schemas/GameCenterAppVersion'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppStoreVersion'
+            - $ref: '#/components/schemas/GameCenterAppVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                gameCenterAppVersions: '#/components/schemas/GameCenterAppVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
       type: object
-      title: AppStoreVersionExperimentV2
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    AppClip:
+      type: object
+      title: AppClip
       properties:
         type:
           type: string
           enum:
-          - appStoreVersionExperiments
+          - appClips
         id:
           type: string
         attributes:
           type: object
           properties:
-            name:
+            bundleId:
               type: string
-            platform:
-              $ref: '#/components/schemas/Platform'
-            trafficProportion:
-              type: integer
-            state:
-              type: string
-              enum:
-              - PREPARE_FOR_SUBMISSION
-              - READY_FOR_REVIEW
-              - WAITING_FOR_REVIEW
-              - IN_REVIEW
-              - ACCEPTED
-              - APPROVED
-              - REJECTED
-              - COMPLETED
-              - STOPPED
-            reviewRequired:
-              type: boolean
-            startDate:
-              type: string
-              format: date-time
-            endDate:
-              type: string
-              format: date-time
         relationships:
           type: object
           properties:
@@ -5663,41 +6470,7 @@ components:
                   required:
                   - id
                   - type
-            latestControlVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            controlVersions:
-              type: object
-              properties:
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appStoreVersionExperimentTreatments:
+            appClipDefaultExperiences:
               type: object
               properties:
                 links:
@@ -5712,506 +6485,22 @@ components:
                       type:
                         type: string
                         enum:
-                        - appStoreVersionExperimentTreatments
+                        - appClipDefaultExperiences
                       id:
                         type: string
                     required:
                     - id
                     - type
+            appClipAdvancedExperiences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    AppClipAppStoreReviewDetail:
-      type: object
-      title: AppClipAppStoreReviewDetail
-      properties:
-        type:
-          type: string
-          enum:
-          - appClipAppStoreReviewDetails
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            invocationUrls:
-              type: array
-              items:
-                type: string
-                format: uri
-        relationships:
-          type: object
-          properties:
-            appClipDefaultExperience:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDefaultExperiences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppStoreVersionUpdateRequest:
-      type: object
-      title: AppStoreVersionUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersions
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                versionString:
-                  type: string
-                  nullable: true
-                copyright:
-                  type: string
-                  nullable: true
-                reviewType:
-                  type: string
-                  nullable: true
-                  enum:
-                  - APP_STORE
-                  - NOTARIZATION
-                releaseType:
-                  type: string
-                  nullable: true
-                  enum:
-                  - MANUAL
-                  - AFTER_APPROVAL
-                  - SCHEDULED
-                earliestReleaseDate:
-                  type: string
-                  format: date-time
-                  nullable: true
-                usesIdfa:
-                  type: boolean
-                  deprecated: true
-                  nullable: true
-                downloadable:
-                  type: boolean
-                  nullable: true
-            relationships:
-              type: object
-              properties:
-                build:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - builds
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                appClipDefaultExperience:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appClipDefaultExperiences
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-          required:
-          - id
-          - type
-      required:
-      - data
-    AppStoreVersionAppStoreVersionExperimentsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appStoreVersionExperiments
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-      deprecated: true
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    AppStoreReviewDetailResponse:
-      type: object
-      title: AppStoreReviewDetailResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreReviewDetail'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreReviewAttachment'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                appStoreReviewAttachments: '#/components/schemas/AppStoreReviewAttachment'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppStoreVersionPhasedReleaseWithoutIncludesResponse:
-      type: object
-      title: AppStoreVersionPhasedReleaseWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersionPhasedRelease'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppKeyword:
-      type: object
-      title: AppKeyword
-      properties:
-        type:
-          type: string
-          enum:
-          - appKeywords
-        id:
-          type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BuildWithoutIncludesResponse:
-      type: object
-      title: BuildWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppStoreVersionRoutingAppCoverageLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - routingAppCoverages
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppStoreVersionSubmissionResponse:
-      type: object
-      title: AppStoreVersionSubmissionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersionSubmission'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppStoreVersionCustomerReviewsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - customerReviews
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    AppStoreVersionLocalizationsResponse:
-      type: object
-      title: AppStoreVersionLocalizationsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreVersionLocalization'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppKeyword'
-            - $ref: '#/components/schemas/AppPreviewSet'
-            - $ref: '#/components/schemas/AppScreenshotSet'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                appScreenshotSets: '#/components/schemas/AppScreenshotSet'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                appKeywords: '#/components/schemas/AppKeyword'
-                appPreviewSets: '#/components/schemas/AppPreviewSet'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppStoreReviewAttachment:
-      type: object
-      title: AppStoreReviewAttachment
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreReviewAttachments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            sourceFileChecksum:
-              type: string
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        relationships:
-          type: object
-          properties:
-            appStoreReviewDetail:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreReviewDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CustomerReviewResponseV1:
-      type: object
-      title: CustomerReviewResponseV1
-      properties:
-        type:
-          type: string
-          enum:
-          - customerReviewResponses
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            responseBody:
-              type: string
-            lastModifiedDate:
-              type: string
-              format: date-time
-            state:
-              type: string
-              enum:
-              - PUBLISHED
-              - PENDING_PUBLISH
-        relationships:
-          type: object
-          properties:
-            review:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - customerReviews
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    PreviewType:
-      type: string
-      enum:
-      - IPHONE_67
-      - IPHONE_61
-      - IPHONE_65
-      - IPHONE_58
-      - IPHONE_55
-      - IPHONE_47
-      - IPHONE_40
-      - IPHONE_35
-      - IPAD_PRO_3GEN_129
-      - IPAD_PRO_3GEN_11
-      - IPAD_PRO_129
-      - IPAD_105
-      - IPAD_97
-      - DESKTOP
-      - APPLE_TV
-      - APPLE_VISION_PRO
-    AppStoreVersionAppClipDefaultExperienceLinkageRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipDefaultExperiences
-            id:
-              type: string
-          required:
-          - id
-          - type
-      required:
-      - data
-    AppStoreVersionExperimentsResponse:
-      type: object
-      title: AppStoreVersionExperimentsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreVersionExperiment'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-      deprecated: true
     Build:
       type: object
       title: Build
@@ -6494,68 +6783,194 @@ components:
       required:
       - id
       - type
-    AppStoreVersionExperimentsV2Response:
+    ErrorLinks:
       type: object
-      title: AppStoreVersionExperimentsV2Response
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreVersionExperimentV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            - $ref: '#/components/schemas/App'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    SubscriptionStatusUrlVersion:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    BuildAudienceType:
       type: string
       enum:
-      - V1
-      - V2
-    AppStoreVersionLocalization:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    Checksums:
       type: object
-      title: AppStoreVersionLocalization
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    PhasedReleaseState:
+      type: string
+      enum:
+      - INACTIVE
+      - ACTIVE
+      - PAUSED
+      - COMPLETE
+    AppClipDefaultExperience:
+      type: object
+      title: AppClipDefaultExperience
       properties:
         type:
           type: string
           enum:
-          - appStoreVersionLocalizations
+          - appClipDefaultExperiences
         id:
           type: string
         attributes:
           type: object
           properties:
-            description:
+            action:
+              $ref: '#/components/schemas/AppClipAction'
+        relationships:
+          type: object
+          properties:
+            appClip:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClips
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            releaseWithAppStoreVersion:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipDefaultExperienceLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appClipDefaultExperienceLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appClipAppStoreReviewDetail:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipAppStoreReviewDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionExperiment:
+      type: object
+      title: AppStoreVersionExperiment
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionExperiments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
               type: string
-            locale:
+            trafficProportion:
+              type: integer
+            state:
               type: string
-            keywords:
+              enum:
+              - PREPARE_FOR_SUBMISSION
+              - READY_FOR_REVIEW
+              - WAITING_FOR_REVIEW
+              - IN_REVIEW
+              - ACCEPTED
+              - APPROVED
+              - REJECTED
+              - COMPLETED
+              - STOPPED
+            reviewRequired:
+              type: boolean
+            startDate:
               type: string
-            marketingUrl:
+              format: date-time
+            endDate:
               type: string
-              format: uri
-            promotionalText:
-              type: string
-            supportUrl:
-              type: string
-              format: uri
-            whatsNew:
-              type: string
+              format: date-time
         relationships:
           type: object
           properties:
@@ -6574,7 +6989,7 @@ components:
                   required:
                   - id
                   - type
-            appScreenshotSets:
+            appStoreVersionExperimentTreatments:
               type: object
               properties:
                 links:
@@ -6589,49 +7004,7 @@ components:
                       type:
                         type: string
                         enum:
-                        - appScreenshotSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appPreviewSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appPreviewSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            searchKeywords:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appKeywords
+                        - appStoreVersionExperimentTreatments
                       id:
                         type: string
                     required:
@@ -6642,280 +7015,71 @@ components:
       required:
       - id
       - type
-    AppStoreVersion:
+      deprecated: true
+    ErrorResponse:
       type: object
-      title: AppStoreVersion
       properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            platform:
-              $ref: '#/components/schemas/Platform'
-            versionString:
-              type: string
-            appStoreState:
-              deprecated: true
-              $ref: '#/components/schemas/AppStoreVersionState'
-            appVersionState:
-              $ref: '#/components/schemas/AppVersionState'
-            copyright:
-              type: string
-            reviewType:
-              type: string
-              enum:
-              - APP_STORE
-              - NOTARIZATION
-            releaseType:
-              type: string
-              enum:
-              - MANUAL
-              - AFTER_APPROVAL
-              - SCHEDULED
-            earliestReleaseDate:
-              type: string
-              format: date-time
-            usesIdfa:
-              type: boolean
-              deprecated: true
-            downloadable:
-              type: boolean
-            createdDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            build:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - builds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionPhasedRelease:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionPhasedReleases
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterAppVersion:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAppVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            routingAppCoverage:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - routingAppCoverages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreReviewDetail:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreReviewDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionSubmission:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionSubmissions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDefaultExperience:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDefaultExperiences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperiments:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperiments
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appStoreVersionExperimentsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperiments
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            customerReviews:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            alternativeDistributionPackage:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - alternativeDistributionPackages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppStoreVersionAppStoreVersionExperimentsV2LinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appStoreVersionExperiments
+              id:
+                type: string
+            required:
+            - id
+            - type
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - id
-      - type
-    AppStoreVersionBuildLinkageResponse:
+      - data
+      - links
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    AppStoreVersionAppStoreReviewDetailLinkageResponse:
       type: object
       properties:
         data:
@@ -6924,7 +7088,7 @@ components:
             type:
               type: string
               enum:
-              - builds
+              - appStoreReviewDetails
             id:
               type: string
           required:
@@ -6932,72 +7096,6 @@ components:
           - type
         links:
           $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppStoreVersionResponse:
-      type: object
-      title: AppStoreVersionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersion'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AlternativeDistributionPackage'
-            - $ref: '#/components/schemas/AppClipDefaultExperience'
-            - $ref: '#/components/schemas/AppStoreReviewDetail'
-            - $ref: '#/components/schemas/AppStoreVersionExperiment'
-            - $ref: '#/components/schemas/AppStoreVersionLocalization'
-            - $ref: '#/components/schemas/AppStoreVersionPhasedRelease'
-            - $ref: '#/components/schemas/AppStoreVersionSubmission'
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/Build'
-            - $ref: '#/components/schemas/GameCenterAppVersion'
-            - $ref: '#/components/schemas/RoutingAppCoverage'
-            discriminator:
-              propertyName: type
-              mapping:
-                alternativeDistributionPackages: '#/components/schemas/AlternativeDistributionPackage'
-                appClipDefaultExperiences: '#/components/schemas/AppClipDefaultExperience'
-                appStoreVersionLocalizations: '#/components/schemas/AppStoreVersionLocalization'
-                routingAppCoverages: '#/components/schemas/RoutingAppCoverage'
-                appStoreVersionPhasedReleases: '#/components/schemas/AppStoreVersionPhasedRelease'
-                appStoreReviewDetails: '#/components/schemas/AppStoreReviewDetail'
-                appStoreVersionExperiments: '#/components/schemas/AppStoreVersionExperiment'
-                builds: '#/components/schemas/Build'
-                appStoreVersionSubmissions: '#/components/schemas/AppStoreVersionSubmission'
-                gameCenterAppVersions: '#/components/schemas/GameCenterAppVersion'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    CustomerReviewsResponse:
-      type: object
-      title: CustomerReviewsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomerReview'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/CustomerReviewResponseV1'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                customerReviewResponses: '#/components/schemas/CustomerReviewResponseV1'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
@@ -7021,102 +7119,6 @@ components:
       required:
       - data
       - links
-    AppPreviewSet:
-      type: object
-      title: AppPreviewSet
-      properties:
-        type:
-          type: string
-          enum:
-          - appPreviewSets
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            previewType:
-              $ref: '#/components/schemas/PreviewType'
-        relationships:
-          type: object
-          properties:
-            appStoreVersionLocalization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appCustomProductPageLocalization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCustomProductPageLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentTreatmentLocalization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionExperimentTreatmentLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appPreviews:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appPreviews
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
     Territory:
       type: object
       title: Territory
@@ -7137,29 +7139,39 @@ components:
       required:
       - id
       - type
-    AppStoreVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_CONTRACT
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PREORDER_READY_FOR_SALE
-      - PROCESSING_FOR_APP_STORE
-      - READY_FOR_REVIEW
-      - READY_FOR_SALE
-      - REJECTED
-      - REMOVED_FROM_SALE
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-      - REPLACED_WITH_NEW_VERSION
-      - NOT_APPLICABLE
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    AppStoreVersionPhasedRelease:
+      type: object
+      title: AppStoreVersionPhasedRelease
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionPhasedReleases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            phasedReleaseState:
+              $ref: '#/components/schemas/PhasedReleaseState'
+            startDate:
+              type: string
+              format: date-time
+            totalPauseDuration:
+              type: integer
+            currentDayNumber:
+              type: integer
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
   securitySchemes:
     itc-bearer-token:
       type: http

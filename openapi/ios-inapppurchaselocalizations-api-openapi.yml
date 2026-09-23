@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations InAppPurchaseLocalizations API
+  title: App Store Connect In App Purchase Localizations API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -276,29 +276,78 @@ paths:
       summary: Delete in App Purchase Localizations
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    RelationshipLinks:
+      - pointer
+    InAppPurchaseLocalizationResponse:
       type: object
+      title: InAppPurchaseLocalizationResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ResourceLinks:
+        data:
+          $ref: '#/components/schemas/InAppPurchaseLocalization'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/InAppPurchaseV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    InAppPurchaseLocalization:
       type: object
+      title: InAppPurchaseLocalization
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
+          enum:
+          - inAppPurchaseLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            locale:
+              type: string
+            description:
+              type: string
+            state:
+              type: string
+              enum:
+              - PREPARE_FOR_SUBMISSION
+              - WAITING_FOR_REVIEW
+              - APPROVED
+              - REJECTED
+        relationships:
+          type: object
+          properties:
+            inAppPurchaseV2:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - inAppPurchases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     InAppPurchaseV2:
       type: object
       title: InAppPurchaseV2
@@ -503,14 +552,83 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
+    InAppPurchaseLocalizationCreateRequest:
       type: object
-      title: Parameter
+      title: InAppPurchaseLocalizationCreateRequest
       properties:
-        parameter:
-          type: string
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - inAppPurchaseLocalizations
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+                locale:
+                  type: string
+                description:
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - name
+              - locale
+            relationships:
+              type: object
+              properties:
+                inAppPurchaseV2:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - inAppPurchases
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - inAppPurchaseV2
+          required:
+          - relationships
+          - attributes
+          - type
       required:
-      - parameter
+      - data
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    InAppPurchaseState:
+      type: string
+      enum:
+      - MISSING_METADATA
+      - WAITING_FOR_UPLOAD
+      - PROCESSING_CONTENT
+      - READY_TO_SUBMIT
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_ACTION_NEEDED
+      - PENDING_BINARY_APPROVAL
+      - APPROVED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - REMOVED_FROM_SALE
+      - REJECTED
     ErrorLinks:
       type: object
       properties:
@@ -531,36 +649,14 @@ components:
                 properties:
                   source:
                     type: string
-    InAppPurchaseLocalizationResponse:
+    DocumentLinks:
       type: object
-      title: InAppPurchaseLocalizationResponse
       properties:
-        data:
-          $ref: '#/components/schemas/InAppPurchaseLocalization'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchaseV2'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        self:
+          type: string
+          format: uri-reference
       required:
-      - data
-      - links
-    InAppPurchaseState:
-      type: string
-      enum:
-      - MISSING_METADATA
-      - WAITING_FOR_UPLOAD
-      - PROCESSING_CONTENT
-      - READY_TO_SUBMIT
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_ACTION_NEEDED
-      - PENDING_BINARY_APPROVAL
-      - APPROVED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - REMOVED_FROM_SALE
-      - REJECTED
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -593,137 +689,26 @@ components:
             - detail
             - status
             - title
-    ErrorSourcePointer:
+    ErrorSourceParameter:
       type: object
-      title: JsonPointer
+      title: Parameter
       properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
-    InAppPurchaseLocalizationCreateRequest:
-      type: object
-      title: InAppPurchaseLocalizationCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - inAppPurchaseLocalizations
-            attributes:
-              type: object
-              properties:
-                name:
-                  type: string
-                locale:
-                  type: string
-                description:
-                  type: string
-                  nullable: true
-              required:
-              - name
-              - locale
-            relationships:
-              type: object
-              properties:
-                inAppPurchaseV2:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - inAppPurchases
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - inAppPurchaseV2
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
+      - parameter
     InAppPurchaseType:
       type: string
       enum:
       - CONSUMABLE
       - NON_CONSUMABLE
       - NON_RENEWING_SUBSCRIPTION
-    InAppPurchaseLocalization:
-      type: object
-      title: InAppPurchaseLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - inAppPurchaseLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            locale:
-              type: string
-            description:
-              type: string
-            state:
-              type: string
-              enum:
-              - PREPARE_FOR_SUBMISSION
-              - WAITING_FOR_REVIEW
-              - APPROVED
-              - REJECTED
-        relationships:
-          type: object
-          properties:
-            inAppPurchaseV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - inAppPurchases
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
+    ResourceLinks:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
+        self:
+          type: string
+          format: uri-reference
     InAppPurchaseLocalizationUpdateRequest:
       type: object
       title: InAppPurchaseLocalizationUpdateRequest
@@ -741,16 +726,34 @@ components:
               type: object
               properties:
                 name:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                 description:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
           required:
           - id
           - type
       required:
       - data
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

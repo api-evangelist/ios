@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations CustomerReviewResponses API
+  title: App Store Connect Customer Review Responses API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -206,23 +206,128 @@ paths:
       summary: Delete Customer Review Responses
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    RelationshipLinks:
+      - pointer
+    CustomerReview:
       type: object
+      title: CustomerReview
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
-        related:
+          enum:
+          - customerReviews
+        id:
           type: string
-          format: uri-reference
+        attributes:
+          type: object
+          properties:
+            rating:
+              type: integer
+              maximum: 5
+              minimum: 1
+            title:
+              type: string
+            body:
+              type: string
+            reviewerNickname:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            territory:
+              $ref: '#/components/schemas/TerritoryCode'
+        relationships:
+          type: object
+          properties:
+            response:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - customerReviewResponses
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            reviewTerritory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CustomerReviewResponseV1CreateRequest:
+      type: object
+      title: CustomerReviewResponseV1CreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - customerReviewResponses
+            attributes:
+              type: object
+              properties:
+                responseBody:
+                  type: string
+              required:
+              - responseBody
+            relationships:
+              type: object
+              properties:
+                review:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - customerReviews
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - review
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
     CustomerReviewResponseV1:
       type: object
       title: CustomerReviewResponseV1
@@ -269,12 +374,98 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    CustomerReviewResponseV1Response:
+      type: object
+      title: CustomerReviewResponseV1Response
+      properties:
+        data:
+          $ref: '#/components/schemas/CustomerReviewResponseV1'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerReview'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     TerritoryCode:
       type: string
       enum:
@@ -511,203 +702,12 @@ components:
       - ZAF
       - ZMB
       - ZWE
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ErrorLinks:
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    CustomerReview:
-      type: object
-      title: CustomerReview
-      properties:
-        type:
-          type: string
-          enum:
-          - customerReviews
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            rating:
-              type: integer
-              maximum: 5
-              minimum: 1
-            title:
-              type: string
-            body:
-              type: string
-            reviewerNickname:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            territory:
-              $ref: '#/components/schemas/TerritoryCode'
-        relationships:
-          type: object
-          properties:
-            response:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - customerReviewResponses
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            reviewTerritory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    CustomerReviewResponseV1CreateRequest:
-      type: object
-      title: CustomerReviewResponseV1CreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - customerReviewResponses
-            attributes:
-              type: object
-              properties:
-                responseBody:
-                  type: string
-              required:
-              - responseBody
-            relationships:
-              type: object
-              properties:
-                review:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - customerReviews
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - review
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    CustomerReviewResponseV1Response:
-      type: object
-      title: CustomerReviewResponseV1Response
-      properties:
-        data:
-          $ref: '#/components/schemas/CustomerReviewResponseV1'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomerReview'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
   securitySchemes:
     itc-bearer-token:
       type: http

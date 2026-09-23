@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations InAppPurchaseSubmissions API
+  title: App Store Connect In App Purchase Submissions API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -70,77 +70,52 @@ paths:
       summary: Create in App Purchase Submissions
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    InAppPurchaseSubmissionResponse:
+      - pointer
+    InAppPurchaseSubmissionCreateRequest:
       type: object
-      title: InAppPurchaseSubmissionResponse
+      title: InAppPurchaseSubmissionCreateRequest
       properties:
         data:
-          $ref: '#/components/schemas/InAppPurchaseSubmission'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchaseV2'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    InAppPurchaseSubmission:
-      type: object
-      title: InAppPurchaseSubmission
-      properties:
-        type:
-          type: string
-          enum:
-          - inAppPurchaseSubmissions
-        id:
-          type: string
-        relationships:
           type: object
           properties:
-            inAppPurchaseV2:
+            type:
+              type: string
+              enum:
+              - inAppPurchaseSubmissions
+            relationships:
               type: object
               properties:
-                data:
+                inAppPurchaseV2:
                   type: object
                   properties:
-                    type:
-                      type: string
-                      enum:
-                      - inAppPurchases
-                    id:
-                      type: string
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - inAppPurchases
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
                   required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+                  - data
+              required:
+              - inAppPurchaseV2
+          required:
+          - relationships
+          - type
       required:
-      - id
-      - type
+      - data
     InAppPurchaseV2:
       type: object
       title: InAppPurchaseV2
@@ -345,14 +320,30 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
+    RelationshipLinks:
       type: object
-      title: Parameter
       properties:
-        parameter:
+        self:
           type: string
-      required:
-      - parameter
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    InAppPurchaseState:
+      type: string
+      enum:
+      - MISSING_METADATA
+      - WAITING_FOR_UPLOAD
+      - PROCESSING_CONTENT
+      - READY_TO_SUBMIT
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_ACTION_NEEDED
+      - PENDING_BINARY_APPROVAL
+      - APPROVED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - REMOVED_FROM_SALE
+      - REJECTED
     ErrorLinks:
       type: object
       properties:
@@ -373,21 +364,20 @@ components:
                 properties:
                   source:
                     type: string
-    InAppPurchaseState:
-      type: string
-      enum:
-      - MISSING_METADATA
-      - WAITING_FOR_UPLOAD
-      - PROCESSING_CONTENT
-      - READY_TO_SUBMIT
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_ACTION_NEEDED
-      - PENDING_BINARY_APPROVAL
-      - APPROVED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - REMOVED_FROM_SALE
-      - REJECTED
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -420,58 +410,68 @@ components:
             - detail
             - status
             - title
-    InAppPurchaseSubmissionCreateRequest:
+    InAppPurchaseSubmission:
       type: object
-      title: InAppPurchaseSubmissionCreateRequest
+      title: InAppPurchaseSubmission
       properties:
-        data:
+        type:
+          type: string
+          enum:
+          - inAppPurchaseSubmissions
+        id:
+          type: string
+        relationships:
           type: object
           properties:
-            type:
-              type: string
-              enum:
-              - inAppPurchaseSubmissions
-            relationships:
+            inAppPurchaseV2:
               type: object
               properties:
-                inAppPurchaseV2:
+                data:
                   type: object
                   properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - inAppPurchases
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
+                    type:
+                      type: string
+                      enum:
+                      - inAppPurchases
+                    id:
+                      type: string
                   required:
-                  - data
-              required:
-              - inAppPurchaseV2
-          required:
-          - relationships
-          - type
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
-    ErrorSourcePointer:
+      - id
+      - type
+    ErrorSourceParameter:
       type: object
-      title: JsonPointer
+      title: Parameter
       properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
     InAppPurchaseType:
       type: string
       enum:
       - CONSUMABLE
       - NON_CONSUMABLE
       - NON_RENEWING_SUBSCRIPTION
+    InAppPurchaseSubmissionResponse:
+      type: object
+      title: InAppPurchaseSubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/InAppPurchaseSubmission'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/InAppPurchaseV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     PagingInformation:
       type: object
       properties:

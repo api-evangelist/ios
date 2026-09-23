@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AndroidToIosAppMappingDetails API
+  title: App Store Connect Android To Ios App Mapping Details API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -234,20 +234,25 @@ paths:
       summary: Delete Android to Ios App Mapping Details
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    ResourceLinks:
+      - pointer
+    AndroidToIosAppMappingDetailResponse:
       type: object
+      title: AndroidToIosAppMappingDetailResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/AndroidToIosAppMappingDetail'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AndroidToIosAppMappingDetailCreateRequest:
       type: object
       title: AndroidToIosAppMappingDetailCreateRequest
@@ -299,14 +304,6 @@ components:
           - type
       required:
       - data
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     ErrorLinks:
       type: object
       properties:
@@ -327,30 +324,14 @@ components:
                 properties:
                   source:
                     type: string
-    AndroidToIosAppMappingDetail:
+    DocumentLinks:
       type: object
-      title: AndroidToIosAppMappingDetail
       properties:
-        type:
+        self:
           type: string
-          enum:
-          - androidToIosAppMappingDetails
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            packageName:
-              type: string
-            appSigningKeyPublicCertificateSha256Fingerprints:
-              type: array
-              items:
-                type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+          format: uri-reference
       required:
-      - id
-      - type
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -383,14 +364,38 @@ components:
             - detail
             - status
             - title
-    ErrorSourcePointer:
+    ErrorSourceParameter:
       type: object
-      title: JsonPointer
+      title: Parameter
       properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    AndroidToIosAppMappingDetail:
+      type: object
+      title: AndroidToIosAppMappingDetail
+      properties:
+        type:
+          type: string
+          enum:
+          - androidToIosAppMappingDetails
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            packageName:
+              type: string
+            appSigningKeyPublicCertificateSha256Fingerprints:
+              type: array
+              items:
+                type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     AndroidToIosAppMappingDetailUpdateRequest:
       type: object
       title: AndroidToIosAppMappingDetailUpdateRequest
@@ -408,29 +413,26 @@ components:
               type: object
               properties:
                 packageName:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                 appSigningKeyPublicCertificateSha256Fingerprints:
-                  type: array
+                  type:
+                  - array
+                  - 'null'
                   items:
                     type: string
-                  nullable: true
           required:
           - id
           - type
       required:
       - data
-    AndroidToIosAppMappingDetailResponse:
+    ResourceLinks:
       type: object
-      title: AndroidToIosAppMappingDetailResponse
       properties:
-        data:
-          $ref: '#/components/schemas/AndroidToIosAppMappingDetail'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+        self:
+          type: string
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations InAppPurchasePriceSchedules API
+  title: App Store Connect In App Purchase Price Schedules API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -667,6 +667,26 @@ paths:
       summary: List Related in App Purchase Price Schedules / Manual Prices
 components:
   schemas:
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     InAppPurchasePriceScheduleBaseTerritoryLinkageResponse:
       type: object
       properties:
@@ -687,6 +707,14 @@ components:
       required:
       - data
       - links
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     InAppPurchasePrice:
       type: object
       title: InAppPurchasePrice
@@ -746,97 +774,41 @@ components:
       required:
       - id
       - type
-    PagedDocumentLinks:
+    PagingInformation:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
       required:
-      - self
-    ResourceLinks:
+      - paging
+    TerritoryResponse:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    TerritoryInlineCreate:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-      required:
-      - type
-    InAppPurchasePriceScheduleAutomaticPricesLinkagesResponse:
-      type: object
+      title: TerritoryResponse
       properties:
         data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - inAppPurchasePrices
-              id:
-                type: string
-            required:
-            - id
-            - type
+          $ref: '#/components/schemas/Territory'
         links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     InAppPurchasePriceSchedule:
       type: object
       title: InAppPurchasePriceSchedule
@@ -914,254 +886,20 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    InAppPurchasePriceScheduleManualPricesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - inAppPurchasePrices
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    InAppPurchasePricesResponse:
-      type: object
-      title: InAppPurchasePricesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchasePrice'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/InAppPurchasePricePoint'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                inAppPurchasePricePoints: '#/components/schemas/InAppPurchasePricePoint'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    RelationshipLinks:
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
+        first:
           type: string
           format: uri-reference
-    TerritoryResponse:
-      type: object
-      title: TerritoryResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Territory'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        next:
           type: string
+          format: uri-reference
       required:
-      - pointer
-    InAppPurchasePriceScheduleResponse:
-      type: object
-      title: InAppPurchasePriceScheduleResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/InAppPurchasePriceSchedule'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/InAppPurchasePrice'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                inAppPurchasePrices: '#/components/schemas/InAppPurchasePrice'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    InAppPurchasePricePoint:
-      type: object
-      title: InAppPurchasePricePoint
-      properties:
-        type:
-          type: string
-          enum:
-          - inAppPurchasePricePoints
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            customerPrice:
-              type: string
-            proceeds:
-              type: string
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            equalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    InAppPurchasePriceInlineCreate:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - inAppPurchasePrices
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            startDate:
-              type: string
-              format: date
-              nullable: true
-            endDate:
-              type: string
-              format: date
-              nullable: true
-        relationships:
-          type: object
-          properties:
-            inAppPurchaseV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - inAppPurchases
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            inAppPurchasePricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - inAppPurchasePricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-      required:
-      - type
+      - self
     InAppPurchasePriceScheduleCreateRequest:
       type: object
       title: InAppPurchasePriceScheduleCreateRequest
@@ -1244,6 +982,264 @@ components:
             - $ref: '#/components/schemas/TerritoryInlineCreate'
       required:
       - data
+    TerritoryInlineCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+      required:
+      - type
+    InAppPurchasePriceScheduleManualPricesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - inAppPurchasePrices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    InAppPurchasePriceScheduleResponse:
+      type: object
+      title: InAppPurchasePriceScheduleResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/InAppPurchasePriceSchedule'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/InAppPurchasePrice'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                inAppPurchasePrices: '#/components/schemas/InAppPurchasePrice'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    InAppPurchasePriceInlineCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - inAppPurchasePrices
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            startDate:
+              type:
+              - string
+              - 'null'
+              format: date
+            endDate:
+              type:
+              - string
+              - 'null'
+              format: date
+        relationships:
+          type: object
+          properties:
+            inAppPurchaseV2:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - inAppPurchases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            inAppPurchasePricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - inAppPurchasePricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+      required:
+      - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    InAppPurchasePriceScheduleAutomaticPricesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - inAppPurchasePrices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    InAppPurchasePricesResponse:
+      type: object
+      title: InAppPurchasePricesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InAppPurchasePrice'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/InAppPurchasePricePoint'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                inAppPurchasePricePoints: '#/components/schemas/InAppPurchasePricePoint'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    InAppPurchasePricePoint:
+      type: object
+      title: InAppPurchasePricePoint
+      properties:
+        type:
+          type: string
+          enum:
+          - inAppPurchasePricePoints
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            customerPrice:
+              type: string
+            proceeds:
+              type: string
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            equalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     Territory:
       type: object
       title: Territory
@@ -1264,6 +1260,12 @@ components:
       required:
       - id
       - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

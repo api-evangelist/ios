@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AnalyticsReportRequests API
+  title: App Store Connect Analytics Report Requests API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -363,14 +363,14 @@ paths:
       summary: List Related Analytics Report Requests / Reports
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
+      - pointer
     AnalyticsReportRequestCreateRequest:
       type: object
       title: AnalyticsReportRequestCreateRequest
@@ -420,21 +420,6 @@ components:
           - type
       required:
       - data
-    AnalyticsReportRequestResponse:
-      type: object
-      title: AnalyticsReportRequestResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AnalyticsReportRequest'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnalyticsReport'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     PagedDocumentLinks:
       type: object
       properties:
@@ -458,20 +443,6 @@ components:
         related:
           type: string
           format: uri-reference
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     ErrorLinks:
       type: object
       properties:
@@ -492,21 +463,6 @@ components:
                 properties:
                   source:
                     type: string
-    AnalyticsReportsResponse:
-      type: object
-      title: AnalyticsReportsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnalyticsReport'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
     AnalyticsReportRequestReportsLinkagesResponse:
       type: object
       properties:
@@ -524,6 +480,76 @@ components:
             required:
             - id
             - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AnalyticsReportRequestResponse:
+      type: object
+      title: AnalyticsReportRequestResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AnalyticsReportRequest'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalyticsReport'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AnalyticsReportsResponse:
+      type: object
+      title: AnalyticsReportsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalyticsReport'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -567,38 +593,14 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+        parameter:
+          type: string
+      required:
+      - parameter
     AnalyticsReportRequest:
       type: object
       title: AnalyticsReportRequest
@@ -648,14 +650,12 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
+          format: uri-reference
     PagingInformation:
       type: object
       properties:

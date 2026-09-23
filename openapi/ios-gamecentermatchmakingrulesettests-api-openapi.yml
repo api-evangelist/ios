@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations GameCenterMatchmakingRuleSetTests API
+  title: App Store Connect Game Center Matchmaking Rule Set Tests API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -70,28 +70,28 @@ paths:
       summary: Create Game Center Matchmaking Rule Set Tests
 components:
   schemas:
-    DocumentLinks:
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    Property:
+      - pointer
+    GameCenterMatchmakingTeamAssignment:
       type: object
       properties:
-        key:
+        playerId:
           type: string
-        value:
+        team:
           type: string
-    Location:
-      type: object
-      properties:
-        latitude:
-          type: number
-        longitude:
-          type: number
     GameCenterMatchmakingTestPlayerPropertyInlineCreate:
       type: object
       properties:
@@ -107,12 +107,174 @@ components:
             playerId:
               type: string
             properties:
-              type: array
+              type:
+              - array
+              - 'null'
               items:
                 $ref: '#/components/schemas/Property'
-              nullable: true
       required:
       - type
+    Property:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    GameCenterMatchmakingTestRequestInlineCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterMatchmakingTestRequests
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            requestName:
+              type: string
+            secondsInQueue:
+              type: integer
+            locale:
+              type:
+              - string
+              - 'null'
+              enum:
+              - AR-SA
+              - CA-ES
+              - CS-CZ
+              - DA-DK
+              - DE-DE
+              - EL-GR
+              - EN-AU
+              - EN-GB
+              - EN-US
+              - EN-KY
+              - ES-ES
+              - ES-MX
+              - FI-FI
+              - FR-CA
+              - FR-FR
+              - HI-IN
+              - HR-HR
+              - HU-HU
+              - ID-ID
+              - IT-IT
+              - IW-IL
+              - JA-JP
+              - KO-KR
+              - MS-MY
+              - NL-NL
+              - NO-NO
+              - PL-PL
+              - PT-BR
+              - PT-PT
+              - RO-RO
+              - RU-RU
+              - SK-SK
+              - SV-SE
+              - TH-TH
+              - TR-TR
+              - UK-UA
+              - ZH-CN
+              - ZH-TW
+              - ZH-HK
+            location:
+              $ref: '#/components/schemas/Location'
+            minPlayers:
+              type:
+              - integer
+              - 'null'
+            maxPlayers:
+              type:
+              - integer
+              - 'null'
+            playerCount:
+              type:
+              - integer
+              - 'null'
+            bundleId:
+              type: string
+            platform:
+              $ref: '#/components/schemas/Platform'
+            appVersion:
+              type: string
+        relationships:
+          type: object
+          properties:
+            matchmakingPlayerProperties:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterMatchmakingTestPlayerProperties
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+      required:
+      - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     GameCenterMatchmakingTestRequest:
       type: object
       title: GameCenterMatchmakingTestRequest
@@ -128,12 +290,6 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     ErrorSourceParameter:
       type: object
       title: Parameter
@@ -173,33 +329,51 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
+    GameCenterMatchmakingTestPlayerProperty:
+      type: object
+      title: GameCenterMatchmakingTestPlayerProperty
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterMatchmakingTestPlayerProperties
+        id:
+          type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    DocumentLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    GameCenterMatchmakingTeamAssignment:
+      required:
+      - self
+    GameCenterMatchmakingRuleSetTestResponse:
       type: object
+      title: GameCenterMatchmakingRuleSetTestResponse
       properties:
-        playerId:
-          type: string
-        team:
-          type: string
+        data:
+          $ref: '#/components/schemas/GameCenterMatchmakingRuleSetTest'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterMatchmakingTestPlayerProperty'
+            - $ref: '#/components/schemas/GameCenterMatchmakingTestRequest'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterMatchmakingTestRequests: '#/components/schemas/GameCenterMatchmakingTestRequest'
+                gameCenterMatchmakingTestPlayerProperties: '#/components/schemas/GameCenterMatchmakingTestPlayerProperty'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     GameCenterMatchmakingRuleSetTestCreateRequest:
       type: object
       title: GameCenterMatchmakingRuleSetTestCreateRequest
@@ -264,189 +438,19 @@ components:
             - $ref: '#/components/schemas/GameCenterMatchmakingTestRequestInlineCreate'
       required:
       - data
-    GameCenterMatchmakingTestPlayerProperty:
-      type: object
-      title: GameCenterMatchmakingTestPlayerProperty
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterMatchmakingTestPlayerProperties
-        id:
-          type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    GameCenterMatchmakingTestRequestInlineCreate:
+    Location:
       type: object
       properties:
-        type:
-          type: string
-          enum:
-          - gameCenterMatchmakingTestRequests
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            requestName:
-              type: string
-            secondsInQueue:
-              type: integer
-            locale:
-              type: string
-              nullable: true
-              enum:
-              - AR-SA
-              - CA-ES
-              - CS-CZ
-              - DA-DK
-              - DE-DE
-              - EL-GR
-              - EN-AU
-              - EN-GB
-              - EN-US
-              - EN-KY
-              - ES-ES
-              - ES-MX
-              - FI-FI
-              - FR-CA
-              - FR-FR
-              - HI-IN
-              - HR-HR
-              - HU-HU
-              - ID-ID
-              - IT-IT
-              - IW-IL
-              - JA-JP
-              - KO-KR
-              - MS-MY
-              - NL-NL
-              - NO-NO
-              - PL-PL
-              - PT-BR
-              - PT-PT
-              - RO-RO
-              - RU-RU
-              - SK-SK
-              - SV-SE
-              - TH-TH
-              - TR-TR
-              - UK-UA
-              - ZH-CN
-              - ZH-TW
-              - ZH-HK
-            location:
-              nullable: true
-              $ref: '#/components/schemas/Location'
-            minPlayers:
-              type: integer
-              nullable: true
-            maxPlayers:
-              type: integer
-              nullable: true
-            playerCount:
-              type: integer
-              nullable: true
-            bundleId:
-              type: string
-            platform:
-              $ref: '#/components/schemas/Platform'
-            appVersion:
-              type: string
-        relationships:
-          type: object
-          properties:
-            matchmakingPlayerProperties:
-              type: object
-              properties:
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterMatchmakingTestPlayerProperties
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-      required:
-      - type
-    ErrorResponse:
+        latitude:
+          type: number
+        longitude:
+          type: number
+    ResourceLinks:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
-    GameCenterMatchmakingRuleSetTestResponse:
-      type: object
-      title: GameCenterMatchmakingRuleSetTestResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterMatchmakingRuleSetTest'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterMatchmakingTestPlayerProperty'
-            - $ref: '#/components/schemas/GameCenterMatchmakingTestRequest'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterMatchmakingTestRequests: '#/components/schemas/GameCenterMatchmakingTestRequest'
-                gameCenterMatchmakingTestPlayerProperties: '#/components/schemas/GameCenterMatchmakingTestPlayerProperty'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

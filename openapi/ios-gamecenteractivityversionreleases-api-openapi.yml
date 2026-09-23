@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations GameCenterActivityVersionReleases API
+  title: App Store Connect Game Center Activity Version Releases API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -205,23 +205,71 @@ paths:
       summary: Delete Game Center Activity Version Releases
 components:
   schemas:
-    DocumentLinks:
+    GameCenterActivityVersionReleaseCreateRequest:
       type: object
+      title: GameCenterActivityVersionReleaseCreateRequest
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterActivityVersionReleases
+            relationships:
+              type: object
+              properties:
+                gameCenterDetail:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - gameCenterDetails
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+                version:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - gameCenterActivityVersions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - gameCenterDetail
+              - version
+          required:
+          - relationships
+          - type
       required:
-      - self
-    RelationshipLinks:
+      - data
+      deprecated: true
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+      required:
+      - pointer
     GameCenterActivityVersion:
       type: object
       title: GameCenterActivityVersion
@@ -321,20 +369,31 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
+    GameCenterActivityVersionReleaseResponse:
+      type: object
+      title: GameCenterActivityVersionReleaseResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterActivityVersionRelease'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterActivityVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        related:
           type: string
-      required:
-      - parameter
+          format: uri-reference
     ErrorLinks:
       type: object
       properties:
@@ -355,35 +414,14 @@ components:
                 properties:
                   source:
                     type: string
-    GameCenterActivityVersionReleaseResponse:
+    DocumentLinks:
       type: object
-      title: GameCenterActivityVersionReleaseResponse
       properties:
-        data:
-          $ref: '#/components/schemas/GameCenterActivityVersionRelease'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterActivityVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        self:
+          type: string
+          format: uri-reference
       required:
-      - data
-      - links
-      deprecated: true
-    GameCenterVersionState:
-      type: string
-      enum:
-      - PREPARE_FOR_SUBMISSION
-      - READY_FOR_REVIEW
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_REJECTED
-      - REJECTED
-      - ACCEPTED
-      - PENDING_RELEASE
-      - LIVE
-      - REPLACED_WITH_NEW_VERSION
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -416,71 +454,6 @@ components:
             - detail
             - status
             - title
-    GameCenterActivityVersionReleaseCreateRequest:
-      type: object
-      title: GameCenterActivityVersionReleaseCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterActivityVersionReleases
-            relationships:
-              type: object
-              properties:
-                gameCenterDetail:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - gameCenterDetails
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-                version:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - gameCenterActivityVersions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - gameCenterDetail
-              - version
-          required:
-          - relationships
-          - type
-      required:
-      - data
-      deprecated: true
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     GameCenterActivityVersionRelease:
       type: object
       title: GameCenterActivityVersionRelease
@@ -515,6 +488,33 @@ components:
       - id
       - type
       deprecated: true
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    GameCenterVersionState:
+      type: string
+      enum:
+      - PREPARE_FOR_SUBMISSION
+      - READY_FOR_REVIEW
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_REJECTED
+      - REJECTED
+      - ACCEPTED
+      - PENDING_RELEASE
+      - LIVE
+      - REPLACED_WITH_NEW_VERSION
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     PagingInformation:
       type: object
       properties:

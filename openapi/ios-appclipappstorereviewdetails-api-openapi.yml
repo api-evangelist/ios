@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AppClipAppStoreReviewDetails API
+  title: App Store Connect App Clip App Store Review Details API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -224,14 +224,63 @@ paths:
       summary: Update App Clip App Store Review Details
 components:
   schemas:
-    DocumentLinks:
+    AppClipAction:
+      type: string
+      enum:
+      - OPEN
+      - VIEW
+      - PLAY
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
+      - pointer
+    AppClipAppStoreReviewDetailUpdateRequest:
+      type: object
+      title: AppClipAppStoreReviewDetailUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipAppStoreReviewDetails
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                invocationUrls:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                    format: uri
+          required:
+          - id
+          - type
+      required:
+      - data
+    AppClipAppStoreReviewDetailResponse:
+      type: object
+      title: AppClipAppStoreReviewDetailResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppClipAppStoreReviewDetail'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppClipDefaultExperience'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     RelationshipLinks:
       type: object
       properties:
@@ -241,12 +290,74 @@ components:
         related:
           type: string
           format: uri-reference
-    ResourceLinks:
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
+      required:
+      - self
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     AppClipAppStoreReviewDetail:
       type: object
       title: AppClipAppStoreReviewDetail
@@ -288,34 +399,60 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
+    AppClipAppStoreReviewDetailCreateRequest:
       type: object
-      title: Parameter
+      title: AppClipAppStoreReviewDetailCreateRequest
       properties:
-        parameter:
-          type: string
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipAppStoreReviewDetails
+            attributes:
+              type: object
+              properties:
+                invocationUrls:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                    format: uri
+            relationships:
+              type: object
+              properties:
+                appClipDefaultExperience:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appClipDefaultExperiences
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appClipDefaultExperience
+          required:
+          - relationships
+          - type
       required:
-      - parameter
-    ErrorLinks:
+      - data
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
     AppClipDefaultExperience:
       type: object
       title: AppClipDefaultExperience
@@ -409,141 +546,6 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AppClipAppStoreReviewDetailResponse:
-      type: object
-      title: AppClipAppStoreReviewDetailResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppClipAppStoreReviewDetail'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppClipDefaultExperience'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppClipAppStoreReviewDetailCreateRequest:
-      type: object
-      title: AppClipAppStoreReviewDetailCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipAppStoreReviewDetails
-            attributes:
-              type: object
-              properties:
-                invocationUrls:
-                  type: array
-                  items:
-                    type: string
-                    format: uri
-                  nullable: true
-            relationships:
-              type: object
-              properties:
-                appClipDefaultExperience:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appClipDefaultExperiences
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appClipDefaultExperience
-          required:
-          - relationships
-          - type
-      required:
-      - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    AppClipAction:
-      type: string
-      enum:
-      - OPEN
-      - VIEW
-      - PLAY
-    AppClipAppStoreReviewDetailUpdateRequest:
-      type: object
-      title: AppClipAppStoreReviewDetailUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipAppStoreReviewDetails
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                invocationUrls:
-                  type: array
-                  items:
-                    type: string
-                    format: uri
-                  nullable: true
-          required:
-          - id
-          - type
-      required:
-      - data
     PagingInformation:
       type: object
       properties:

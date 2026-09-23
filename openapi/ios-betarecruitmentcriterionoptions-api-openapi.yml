@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations BetaRecruitmentCriterionOptions API
+  title: App Store Connect Beta Recruitment Criterion Options API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -71,6 +71,43 @@ paths:
       summary: List Beta Recruitment Criterion Options
 components:
   schemas:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    BetaRecruitmentCriterionOption:
+      type: object
+      title: BetaRecruitmentCriterionOption
+      properties:
+        type:
+          type: string
+          enum:
+          - betaRecruitmentCriterionOptions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            deviceFamilyOsVersions:
+              type: array
+              items:
+                type: object
+                properties:
+                  deviceFamily:
+                    $ref: '#/components/schemas/DeviceFamily'
+                  osVersions:
+                    type: array
+                    items:
+                      type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     PagedDocumentLinks:
       type: object
       properties:
@@ -85,20 +122,21 @@ components:
           format: uri-reference
       required:
       - self
-    ResourceLinks:
+    BetaRecruitmentCriterionOptionsResponse:
       type: object
+      title: BetaRecruitmentCriterionOptionsResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetaRecruitmentCriterionOption'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - parameter
+      - data
+      - links
     ErrorLinks:
       type: object
       properties:
@@ -119,6 +157,15 @@ components:
                 properties:
                   source:
                     type: string
+    DeviceFamily:
+      type: string
+      enum:
+      - IPHONE
+      - IPAD
+      - APPLE_TV
+      - APPLE_WATCH
+      - MAC
+      - VISION
     ErrorResponse:
       type: object
       properties:
@@ -151,67 +198,20 @@ components:
             - detail
             - status
             - title
-    BetaRecruitmentCriterionOption:
+    ErrorSourceParameter:
       type: object
-      title: BetaRecruitmentCriterionOption
+      title: Parameter
       properties:
-        type:
-          type: string
-          enum:
-          - betaRecruitmentCriterionOptions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            deviceFamilyOsVersions:
-              type: array
-              items:
-                type: object
-                properties:
-                  deviceFamily:
-                    $ref: '#/components/schemas/DeviceFamily'
-                  osVersions:
-                    type: array
-                    items:
-                      type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BetaRecruitmentCriterionOptionsResponse:
-      type: object
-      title: BetaRecruitmentCriterionOptionsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BetaRecruitmentCriterionOption'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
-    DeviceFamily:
-      type: string
-      enum:
-      - IPHONE
-      - IPAD
-      - APPLE_TV
-      - APPLE_WATCH
-      - MAC
-      - VISION
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     PagingInformation:
       type: object
       properties:

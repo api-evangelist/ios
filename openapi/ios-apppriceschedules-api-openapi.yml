@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AppPriceSchedules API
+  title: App Store Connect App Price Schedules API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -773,98 +773,66 @@ paths:
       summary: List Related App Price Schedules / Manual Prices
 components:
   schemas:
-    PagedDocumentLinks:
+    AppPricePointV3:
       type: object
+      title: AppPricePointV3
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
-        first:
+          enum:
+          - appPricePoints
+        id:
           type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    AppPriceScheduleBaseTerritoryLinkageResponse:
-      type: object
-      properties:
-        data:
+        attributes:
           type: object
           properties:
-            type:
+            customerPrice:
               type: string
-              enum:
-              - territories
-            id:
+            proceeds:
               type: string
-          required:
-          - id
-          - type
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            equalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
-      - links
-    AppPriceScheduleAutomaticPricesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appPrices
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
+      - id
+      - type
     AppPriceSchedule:
       type: object
       title: AppPriceSchedule
@@ -957,32 +925,46 @@ components:
       required:
       - id
       - type
-    AppPricesV2Response:
+    AppPriceScheduleBaseTerritoryLinkageResponse:
       type: object
-      title: AppPricesV2Response
       properties:
         data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppPriceV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppPricePointV3'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                appPricePoints: '#/components/schemas/AppPricePointV3'
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - territories
+            id:
+              type: string
+          required:
+          - id
+          - type
         links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     DocumentLinks:
       type: object
       properties:
@@ -991,49 +973,6 @@ components:
           format: uri-reference
       required:
       - self
-    TerritoryInlineCreate:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-      required:
-      - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     App:
       type: object
       title: App
@@ -1671,63 +1610,6 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    TerritoryResponse:
-      type: object
-      title: TerritoryResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Territory'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppPriceScheduleResponse:
-      type: object
-      title: AppPriceScheduleResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppPriceSchedule'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppPriceV2'
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                appPrices: '#/components/schemas/AppPriceV2'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     PagingInformation:
       type: object
       properties:
@@ -1744,124 +1626,54 @@ components:
           - limit
       required:
       - paging
-    AppPricePointV3:
+    TerritoryResponse:
       type: object
-      title: AppPricePointV3
+      title: TerritoryResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Territory'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    TerritoryInlineCreate:
+      type: object
       properties:
         type:
           type: string
           enum:
-          - appPricePoints
+          - territories
         id:
           type: string
-        attributes:
-          type: object
-          properties:
-            customerPrice:
-              type: string
-            proceeds:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            equalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
-      - type
-    AppPriceV2:
-      type: object
-      title: AppPriceV2
-      properties:
-        type:
-          type: string
-          enum:
-          - appPrices
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            manual:
-              type: boolean
-            startDate:
-              type: string
-              format: date
-            endDate:
-              type: string
-              format: date
-        relationships:
-          type: object
-          properties:
-            appPricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appPricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
       - type
     AppPriceScheduleCreateRequest:
       type: object
@@ -1969,26 +1781,88 @@ components:
       required:
       - data
       - links
-    Territory:
+    ErrorResponse:
       type: object
-      title: Territory
       properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppPricesV2Response:
+      type: object
+      title: AppPricesV2Response
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppPriceV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppPricePointV3'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                appPricePoints: '#/components/schemas/AppPricePointV3'
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - id
-      - type
+      - data
+      - links
+    AppPriceScheduleResponse:
+      type: object
+      title: AppPriceScheduleResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppPriceSchedule'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppPriceV2'
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                appPrices: '#/components/schemas/AppPriceV2'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppPriceV2InlineCreate:
       type: object
       properties:
@@ -2002,13 +1876,15 @@ components:
           type: object
           properties:
             startDate:
-              type: string
+              type:
+              - string
+              - 'null'
               format: date
-              nullable: true
             endDate:
-              type: string
+              type:
+              - string
+              - 'null'
               format: date
-              nullable: true
         relationships:
           type: object
           properties:
@@ -2029,6 +1905,132 @@ components:
                   - type
       required:
       - type
+    AppPriceV2:
+      type: object
+      title: AppPriceV2
+      properties:
+        type:
+          type: string
+          enum:
+          - appPrices
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            manual:
+              type: boolean
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+        relationships:
+          type: object
+          properties:
+            appPricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appPricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    Territory:
+      type: object
+      title: Territory
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            currency:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppPriceScheduleAutomaticPricesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appPrices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

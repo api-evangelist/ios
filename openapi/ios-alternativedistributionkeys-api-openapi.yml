@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AlternativeDistributionKeys API
+  title: App Store Connect Alternative Distribution Keys API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -236,34 +236,17 @@ paths:
       summary: Delete Alternative Distribution Keys
 components:
   schemas:
-    DocumentLinks:
+    AlternativeDistributionKeyResponse:
       type: object
+      title: AlternativeDistributionKeyResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/AlternativeDistributionKey'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - self
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+      - data
+      - links
     AlternativeDistributionKeyCreateRequest:
       type: object
       title: AlternativeDistributionKeyCreateRequest
@@ -305,29 +288,48 @@ components:
           - type
       required:
       - data
-    ErrorSourceParameter:
+    ErrorSourcePointer:
       type: object
-      title: Parameter
+      title: JsonPointer
       properties:
-        parameter:
+        pointer:
           type: string
       required:
-      - parameter
-    AlternativeDistributionKeysResponse:
+      - pointer
+    PagedDocumentLinks:
       type: object
-      title: AlternativeDistributionKeysResponse
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlternativeDistributionKey'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - data
-      - links
+      - self
+    AlternativeDistributionKey:
+      type: object
+      title: AlternativeDistributionKey
+      properties:
+        type:
+          type: string
+          enum:
+          - alternativeDistributionKeys
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            publicKey:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     ErrorLinks:
       type: object
       properties:
@@ -348,6 +350,14 @@ components:
                 properties:
                   source:
                     type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -380,45 +390,35 @@ components:
             - detail
             - status
             - title
-    AlternativeDistributionKey:
+    ErrorSourceParameter:
       type: object
-      title: AlternativeDistributionKey
+      title: Parameter
       properties:
-        type:
+        parameter:
           type: string
-          enum:
-          - alternativeDistributionKeys
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            publicKey:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
-      - type
-    AlternativeDistributionKeyResponse:
+      - parameter
+    AlternativeDistributionKeysResponse:
       type: object
-      title: AlternativeDistributionKeyResponse
+      title: AlternativeDistributionKeysResponse
       properties:
         data:
-          $ref: '#/components/schemas/AlternativeDistributionKey'
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternativeDistributionKey'
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
+          format: uri-reference
     PagingInformation:
       type: object
       properties:

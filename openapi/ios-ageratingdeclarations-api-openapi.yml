@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations AgeRatingDeclarations API
+  title: App Store Connect Age Rating Declarations API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -84,20 +84,14 @@ paths:
       summary: Update Age Rating Declarations
 components:
   schemas:
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+      - pointer
     AgeRatingDeclarationResponse:
       type: object
       title: AgeRatingDeclarationResponse
@@ -109,14 +103,6 @@ components:
       required:
       - data
       - links
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     ErrorLinks:
       type: object
       properties:
@@ -137,6 +123,52 @@ components:
                 properties:
                   source:
                     type: string
+    KidsAgeBand:
+      type: string
+      enum:
+      - FIVE_AND_UNDER
+      - SIX_TO_EIGHT
+      - NINE_TO_ELEVEN
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     AgeRatingDeclaration:
       type: object
       title: AgeRatingDeclaration
@@ -307,12 +339,14 @@ components:
       required:
       - id
       - type
-    KidsAgeBand:
-      type: string
-      enum:
-      - FIVE_AND_UNDER
-      - SIX_TO_EIGHT
-      - NINE_TO_ELEVEN
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     AgeRatingDeclarationUpdateRequest:
       type: object
       title: AgeRatingDeclarationUpdateRequest
@@ -330,11 +364,13 @@ components:
               type: object
               properties:
                 advertising:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 alcoholTobaccoOrDrugUseOrReferences:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -342,8 +378,9 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 contests:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -351,11 +388,13 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 gambling:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 gamblingSimulated:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -363,8 +402,9 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 gunsOrOtherWeapons:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -372,17 +412,19 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 healthOrWellnessTopics:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 kidsAgeBand:
-                  nullable: true
                   $ref: '#/components/schemas/KidsAgeBand'
                 lootBox:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 medicalOrTreatmentInformation:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -390,14 +432,17 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 messagingAndChat:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 parentalControls:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 profanityOrCrudeHumor:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -405,11 +450,13 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 ageAssurance:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 sexualContentGraphicAndNudity:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -417,8 +464,9 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 sexualContentOrNudity:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -426,8 +474,9 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 horrorOrFearThemes:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -435,8 +484,9 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 matureOrSuggestiveThemes:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -444,14 +494,17 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 unrestrictedWebAccess:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 userGeneratedContent:
-                  type: boolean
-                  nullable: true
+                  type:
+                  - boolean
+                  - 'null'
                 violenceCartoonOrFantasy:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -459,8 +512,9 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 violenceRealisticProlongedGraphicOrSadistic:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -468,8 +522,9 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 violenceRealistic:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - INFREQUENT_OR_MILD
@@ -477,9 +532,10 @@ components:
                   - INFREQUENT
                   - FREQUENT
                 ageRatingOverride:
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                   deprecated: true
-                  nullable: true
                   enum:
                   - NONE
                   - NINE_PLUS
@@ -488,8 +544,9 @@ components:
                   - SEVENTEEN_PLUS
                   - UNRATED
                 ageRatingOverrideV2:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - NINE_PLUS
@@ -498,61 +555,29 @@ components:
                   - EIGHTEEN_PLUS
                   - UNRATED
                 koreaAgeRatingOverride:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   enum:
                   - NONE
                   - FIFTEEN_PLUS
                   - NINETEEN_PLUS
                 developerAgeRatingInfoUrl:
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                   format: uri
-                  nullable: true
           required:
           - id
           - type
       required:
       - data
-    ErrorResponse:
+    ResourceLinks:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

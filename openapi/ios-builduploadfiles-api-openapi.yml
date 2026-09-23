@@ -1,10 +1,10 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: App Store Connect AccessibilityDeclarations BuildUploadFiles API
+  title: App Store Connect Build Upload Files API
   version: 4.3.1
   x-platforms:
     app_store_connect_api: App Store Connect API
-  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles. It covers apps, builds, TestFlight, in-app purchases, subscriptions, Game Center, Xcode Cloud, provisioning, pricing and availability, and the full reporting surface (analytics, sales and trends, financial reports, power and performance). This spec is the official OpenAPI 3.0 document published by Apple at https://developer.apple.com/app-store-connect/api/ — mirrored here unmodified except for title-cased operation summaries.
+  description: The App Store Connect API is the standards-based REST API Apple provides to automate tasks across App Store Connect, Xcode, and Certificates, Identifiers & Profiles.
 servers:
 - url: https://api.appstoreconnect.apple.com/
 security:
@@ -202,68 +202,6 @@ paths:
       summary: Update Build Upload Files
 components:
   schemas:
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BuildUploadFile:
-      type: object
-      title: BuildUploadFile
-      properties:
-        type:
-          type: string
-          enum:
-          - buildUploadFiles
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-            assetToken:
-              type: string
-            assetType:
-              type: string
-              enum:
-              - ASSET
-              - ASSET_DESCRIPTION
-              - ASSET_SPI
-            fileName:
-              type: string
-            fileSize:
-              type: integer
-              format: int64
-              maximum: 9007199254740991
-              minimum: 1
-            sourceFileChecksums:
-              $ref: '#/components/schemas/Checksums'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/DeliveryFileUploadOperation'
-            uti:
-              type: string
-              enum:
-              - com.apple.binary-property-list
-              - com.apple.ipa
-              - com.apple.pkg
-              - com.apple.xml-property-list
-              - com.pkware.zip-archive
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
     Checksums:
       type: object
       properties:
@@ -283,67 +221,28 @@ components:
               type: string
               enum:
               - MD5
-    BuildUploadFileUpdateRequest:
+    ErrorSourcePointer:
       type: object
-      title: BuildUploadFileUpdateRequest
+      title: JsonPointer
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - buildUploadFiles
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksums:
-                  nullable: true
-                  $ref: '#/components/schemas/Checksums'
-                uploaded:
-                  type: boolean
-                  nullable: true
-          required:
-          - id
-          - type
-      required:
-      - data
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        pointer:
           type: string
       required:
-      - parameter
-    ErrorLinks:
+      - pointer
+    HttpHeader:
       type: object
       properties:
-        about:
+        name:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+        value:
+          type: string
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
     BuildUploadFileCreateRequest:
       type: object
       title: BuildUploadFileCreateRequest
@@ -412,6 +311,31 @@ components:
           - type
       required:
       - data
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     DeliveryFileUploadOperation:
       type: object
       properties:
@@ -443,6 +367,14 @@ components:
           minimum: 1
         entityTag:
           type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -475,21 +407,14 @@ components:
             - detail
             - status
             - title
-    AppMediaStateError:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        code:
-          type: string
-        description:
-          type: string
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
     AppMediaAssetState:
       type: object
       properties:
@@ -508,6 +433,82 @@ components:
           - UPLOAD_COMPLETE
           - COMPLETE
           - FAILED
+    BuildUploadFile:
+      type: object
+      title: BuildUploadFile
+      properties:
+        type:
+          type: string
+          enum:
+          - buildUploadFiles
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+            assetToken:
+              type: string
+            assetType:
+              type: string
+              enum:
+              - ASSET
+              - ASSET_DESCRIPTION
+              - ASSET_SPI
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+              format: int64
+              maximum: 9007199254740991
+              minimum: 1
+            sourceFileChecksums:
+              $ref: '#/components/schemas/Checksums'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeliveryFileUploadOperation'
+            uti:
+              type: string
+              enum:
+              - com.apple.binary-property-list
+              - com.apple.ipa
+              - com.apple.pkg
+              - com.apple.xml-property-list
+              - com.pkware.zip-archive
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BuildUploadFileUpdateRequest:
+      type: object
+      title: BuildUploadFileUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - buildUploadFiles
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksums:
+                  $ref: '#/components/schemas/Checksums'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
     BuildUploadFileResponse:
       type: object
       title: BuildUploadFileResponse
@@ -519,13 +520,12 @@ components:
       required:
       - data
       - links
-    HttpHeader:
+    ResourceLinks:
       type: object
       properties:
-        name:
+        self:
           type: string
-        value:
-          type: string
+          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http
