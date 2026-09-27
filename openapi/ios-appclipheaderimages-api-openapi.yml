@@ -266,14 +266,93 @@ paths:
       summary: Delete App Clip Header Images
 components:
   schemas:
-    ErrorSourcePointer:
+    AppMediaAssetState:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppClipHeaderImageResponse:
+      type: object
+      title: AppClipHeaderImageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppClipHeaderImage'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppClipHeaderImage:
       type: object
       title: AppClipHeaderImage
@@ -324,215 +403,14 @@ components:
       required:
       - id
       - type
-    HttpHeader:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        name:
+        pointer:
           type: string
-        value:
-          type: string
-    AppClipHeaderImageResponse:
-      type: object
-      title: AppClipHeaderImageResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppClipHeaderImage'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - data
-      - links
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    AppClipHeaderImageUpdateRequest:
-      type: object
-      title: AppClipHeaderImageUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipHeaderImages
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    AppClipHeaderImageCreateRequest:
-      type: object
-      title: AppClipHeaderImageCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipHeaderImages
-            attributes:
-              type: object
-              properties:
-                fileSize:
-                  type: integer
-                fileName:
-                  type: string
-              required:
-              - fileName
-              - fileSize
-            relationships:
-              type: object
-              properties:
-                appClipDefaultExperienceLocalization:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appClipDefaultExperienceLocalizations
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appClipDefaultExperienceLocalization
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
+      - pointer
     AppClipDefaultExperienceLocalization:
       type: object
       title: AppClipDefaultExperienceLocalization
@@ -590,29 +468,151 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
+    ErrorLinks:
       type: object
       properties:
-        self:
+        about:
           type: string
           format: uri-reference
-    ImageAsset:
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    UploadOperation:
       type: object
       properties:
-        templateUrl:
+        method:
           type: string
-        width:
+        url:
+          type: string
+        length:
           type: integer
-        height:
+        offset:
           type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    AppClipHeaderImageCreateRequest:
+      type: object
+      title: AppClipHeaderImageCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipHeaderImages
+            attributes:
+              type: object
+              properties:
+                fileSize:
+                  type: integer
+                fileName:
+                  type: string
+              required:
+              - fileName
+              - fileSize
+            relationships:
+              type: object
+              properties:
+                appClipDefaultExperienceLocalization:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appClipDefaultExperienceLocalizations
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appClipDefaultExperienceLocalization
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppClipHeaderImageUpdateRequest:
+      type: object
+      title: AppClipHeaderImageUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipHeaderImages
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
   securitySchemes:
     itc-bearer-token:
       type: http

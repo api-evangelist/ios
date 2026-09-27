@@ -213,14 +213,6 @@ paths:
       summary: List Related App Tags / Territories
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     PagedDocumentLinks:
       type: object
       properties:
@@ -235,31 +227,14 @@ components:
           format: uri-reference
       required:
       - self
-    AppTagUpdateRequest:
+    ErrorSourceParameter:
       type: object
-      title: AppTagUpdateRequest
+      title: Parameter
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appTags
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                visibleInAppStore:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
+        parameter:
+          type: string
       required:
-      - data
+      - parameter
     RelationshipLinks:
       type: object
       properties:
@@ -269,6 +244,75 @@ components:
         related:
           type: string
           format: uri-reference
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppTagTerritoriesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - territories
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    TerritoriesResponse:
+      type: object
+      title: TerritoriesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Territory'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     ErrorLinks:
       type: object
       properties:
@@ -301,113 +345,6 @@ components:
             $ref: '#/components/schemas/Territory'
         links:
           $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    TerritoriesResponse:
-      type: object
-      title: TerritoriesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppTagTerritoriesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - territories
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
@@ -457,28 +394,91 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
-    PagingInformation:
+      required:
+      - pointer
+    ErrorResponse:
       type: object
       properties:
-        paging:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppTagUpdateRequest:
+      type: object
+      title: AppTagUpdateRequest
+      properties:
+        data:
           type: object
           properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
+            type:
               type: string
+              enum:
+              - appTags
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                visibleInAppStore:
+                  type:
+                  - boolean
+                  - 'null'
           required:
-          - limit
+          - id
+          - type
       required:
-      - paging
+      - data
+    Territory:
+      type: object
+      title: Territory
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            currency:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
   securitySchemes:
     itc-bearer-token:
       type: http

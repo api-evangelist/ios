@@ -244,6 +244,52 @@ paths:
       summary: Delete Game Center Leaderboard Set Releases
 components:
   schemas:
+    GameCenterLeaderboardSetReleaseResponse:
+      type: object
+      title: GameCenterLeaderboardSetReleaseResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterLeaderboardSetRelease'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterDetail'
+            - $ref: '#/components/schemas/GameCenterLeaderboardSet'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterDetails: '#/components/schemas/GameCenterDetail'
+                gameCenterLeaderboardSets: '#/components/schemas/GameCenterLeaderboardSet'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
     GameCenterLeaderboardSetReleaseCreateRequest:
       type: object
       title: GameCenterLeaderboardSetReleaseCreateRequest
@@ -301,14 +347,30 @@ components:
       required:
       - data
       deprecated: true
-    ErrorSourcePointer:
+    DocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
+          format: uri-reference
       required:
-      - pointer
+      - self
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     GameCenterDetail:
       type: object
       title: GameCenterDetail
@@ -806,15 +868,6 @@ components:
       - id
       - type
       deprecated: true
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     ErrorLinks:
       type: object
       properties:
@@ -835,60 +888,6 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     GameCenterLeaderboardSet:
       type: object
       title: GameCenterLeaderboardSet
@@ -1026,45 +1025,46 @@ components:
       - id
       - type
       deprecated: true
-    GameCenterLeaderboardSetReleaseResponse:
+    ErrorSourcePointer:
       type: object
-      title: GameCenterLeaderboardSetReleaseResponse
+      title: JsonPointer
       properties:
-        data:
-          $ref: '#/components/schemas/GameCenterLeaderboardSetRelease'
-        included:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
           type: array
           items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterDetail'
-            - $ref: '#/components/schemas/GameCenterLeaderboardSet'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterDetails: '#/components/schemas/GameCenterDetail'
-                gameCenterLeaderboardSets: '#/components/schemas/GameCenterLeaderboardSet'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
   securitySchemes:
     itc-bearer-token:
       type: http

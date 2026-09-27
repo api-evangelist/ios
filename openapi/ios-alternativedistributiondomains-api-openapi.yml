@@ -232,14 +232,6 @@ paths:
       summary: Delete Alternative Distribution Domains
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     PagedDocumentLinks:
       type: object
       properties:
@@ -250,6 +242,44 @@ components:
           type: string
           format: uri-reference
         next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    DocumentLinks:
+      type: object
+      properties:
+        self:
           type: string
           format: uri-reference
       required:
@@ -299,40 +329,40 @@ components:
                 properties:
                   source:
                     type: string
-    AlternativeDistributionDomainCreateRequest:
+    AlternativeDistributionDomainResponse:
       type: object
-      title: AlternativeDistributionDomainCreateRequest
+      title: AlternativeDistributionDomainResponse
       properties:
         data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - alternativeDistributionDomains
-            attributes:
-              type: object
-              properties:
-                domain:
-                  type: string
-                referenceName:
-                  type: string
-              required:
-              - domain
-              - referenceName
-          required:
-          - attributes
-          - type
+          $ref: '#/components/schemas/AlternativeDistributionDomain'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
-    DocumentLinks:
+      - links
+    AlternativeDistributionDomainsResponse:
       type: object
+      title: AlternativeDistributionDomainsResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternativeDistributionDomain'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - self
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -365,62 +395,32 @@ components:
             - detail
             - status
             - title
-    ErrorSourceParameter:
+    AlternativeDistributionDomainCreateRequest:
       type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AlternativeDistributionDomainResponse:
-      type: object
-      title: AlternativeDistributionDomainResponse
+      title: AlternativeDistributionDomainCreateRequest
       properties:
         data:
-          $ref: '#/components/schemas/AlternativeDistributionDomain'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AlternativeDistributionDomainsResponse:
-      type: object
-      title: AlternativeDistributionDomainsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlternativeDistributionDomain'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
           type: object
           properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
+            type:
               type: string
+              enum:
+              - alternativeDistributionDomains
+            attributes:
+              type: object
+              properties:
+                domain:
+                  type: string
+                referenceName:
+                  type: string
+              required:
+              - domain
+              - referenceName
           required:
-          - limit
+          - attributes
+          - type
       required:
-      - paging
+      - data
   securitySchemes:
     itc-bearer-token:
       type: http

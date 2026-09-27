@@ -230,14 +230,127 @@ paths:
       summary: Update in App Purchase Offer Code Custom Codes
 components:
   schemas:
-    ErrorSourcePointer:
+    ErrorSourceParameter:
       type: object
-      title: JsonPointer
+      title: Parameter
       properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    InAppPurchaseOfferCodeCustomCodeUpdateRequest:
+      type: object
+      title: InAppPurchaseOfferCodeCustomCodeUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - inAppPurchaseOfferCodeCustomCodes
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                active:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    InAppPurchaseOfferCodeCustomCodeCreateRequest:
+      type: object
+      title: InAppPurchaseOfferCodeCustomCodeCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - inAppPurchaseOfferCodeCustomCodes
+            attributes:
+              type: object
+              properties:
+                customCode:
+                  type: string
+                numberOfCodes:
+                  type: integer
+                expirationDate:
+                  type:
+                  - string
+                  - 'null'
+                  format: date
+              required:
+              - numberOfCodes
+              - customCode
+            relationships:
+              type: object
+              properties:
+                offerCode:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - inAppPurchaseOfferCodes
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - offerCode
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
     InAppPurchaseOfferCodeCustomCode:
       type: object
       title: InAppPurchaseOfferCodeCustomCode
@@ -301,59 +414,46 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
       type: object
       properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
+        errors:
+          type: array
+          items:
+            type: object
             properties:
-              href:
+              id:
                 type: string
-                format: uri-reference
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
               meta:
                 type: object
-                properties:
-                  source:
-                    type: string
-    InAppPurchaseOfferCodeCustomCodeUpdateRequest:
-      type: object
-      title: InAppPurchaseOfferCodeCustomCodeUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - inAppPurchaseOfferCodeCustomCodes
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                active:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     Actor:
       type: object
       title: Actor
@@ -387,46 +487,6 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     InAppPurchaseOfferCodeCustomCodeResponse:
       type: object
       title: InAppPurchaseOfferCodeCustomCodeResponse
@@ -442,66 +502,6 @@ components:
       required:
       - data
       - links
-    InAppPurchaseOfferCodeCustomCodeCreateRequest:
-      type: object
-      title: InAppPurchaseOfferCodeCustomCodeCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - inAppPurchaseOfferCodeCustomCodes
-            attributes:
-              type: object
-              properties:
-                customCode:
-                  type: string
-                numberOfCodes:
-                  type: integer
-                expirationDate:
-                  type:
-                  - string
-                  - 'null'
-                  format: date
-              required:
-              - numberOfCodes
-              - customCode
-            relationships:
-              type: object
-              properties:
-                offerCode:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - inAppPurchaseOfferCodes
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - offerCode
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -589,47 +589,86 @@ paths:
       summary: Get Related Certificates / Pass Type ID
 components:
   schemas:
-    ErrorLinks:
+    CertificatePassTypeIdLinkageResponse:
       type: object
       properties:
-        about:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - passTypeIds
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    CertificateType:
-      type: string
-      enum:
-      - APPLE_PAY
-      - APPLE_PAY_MERCHANT_IDENTITY
-      - APPLE_PAY_PSP_IDENTITY
-      - APPLE_PAY_RSA
-      - DEVELOPER_ID_KEXT
-      - DEVELOPER_ID_KEXT_G2
-      - DEVELOPER_ID_APPLICATION
-      - DEVELOPER_ID_APPLICATION_G2
-      - DEVELOPMENT
-      - DISTRIBUTION
-      - IDENTITY_ACCESS
-      - IOS_DEVELOPMENT
-      - IOS_DISTRIBUTION
-      - MAC_APP_DISTRIBUTION
-      - MAC_INSTALLER_DISTRIBUTION
-      - MAC_APP_DEVELOPMENT
-      - PASS_TYPE_ID
-      - PASS_TYPE_ID_WITH_NFC
+    CertificateResponse:
+      type: object
+      title: CertificateResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Certificate'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassTypeId'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    PassTypeIdResponse:
+      type: object
+      title: PassTypeIdResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/PassTypeId'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     Certificate:
       type: object
       title: Certificate
@@ -685,14 +724,6 @@ components:
       required:
       - id
       - type
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     PagingInformation:
       type: object
       properties:
@@ -709,14 +740,74 @@ components:
           - limit
       required:
       - paging
-    ErrorSourcePointer:
+    CertificateType:
+      type: string
+      enum:
+      - APPLE_PAY
+      - APPLE_PAY_MERCHANT_IDENTITY
+      - APPLE_PAY_PSP_IDENTITY
+      - APPLE_PAY_RSA
+      - DEVELOPER_ID_KEXT
+      - DEVELOPER_ID_KEXT_G2
+      - DEVELOPER_ID_APPLICATION
+      - DEVELOPER_ID_APPLICATION_G2
+      - DEVELOPMENT
+      - DISTRIBUTION
+      - IDENTITY_ACCESS
+      - IOS_DEVELOPMENT
+      - IOS_DISTRIBUTION
+      - MAC_APP_DISTRIBUTION
+      - MAC_INSTALLER_DISTRIBUTION
+      - MAC_APP_DEVELOPMENT
+      - PASS_TYPE_ID
+      - PASS_TYPE_ID_WITH_NFC
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
+    RelationshipLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     PassTypeId:
       type: object
       title: PassTypeId
@@ -777,59 +868,25 @@ components:
           format: uri-reference
       required:
       - self
-    BundleIdPlatform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - UNIVERSAL
-    PassTypeIdResponse:
+    CertificatesResponse:
       type: object
-      title: PassTypeIdResponse
+      title: CertificatesResponse
       properties:
         data:
-          $ref: '#/components/schemas/PassTypeId'
-        included:
           type: array
           items:
             $ref: '#/components/schemas/Certificate'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassTypeId'
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     CertificateUpdateRequest:
       type: object
       title: CertificateUpdateRequest
@@ -855,69 +912,26 @@ components:
           - type
       required:
       - data
-    CertificatePassTypeIdLinkageResponse:
+    ErrorLinks:
       type: object
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - passTypeIds
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    CertificatesResponse:
-      type: object
-      title: CertificatesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Certificate'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/PassTypeId'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    CertificateResponse:
-      type: object
-      title: CertificateResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Certificate'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/PassTypeId'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
+        about:
           type: string
           format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     CertificateCreateRequest:
       type: object
       title: CertificateCreateRequest
@@ -977,20 +991,6 @@ components:
           - type
       required:
       - data
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

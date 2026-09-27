@@ -178,118 +178,29 @@ paths:
       summary: Delete Subscription Introductory Offers
 components:
   schemas:
-    ErrorSourcePointer:
+    RelationshipLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
-    SubscriptionIntroductoryOffer:
+      - parameter
+    ResourceLinks:
       type: object
-      title: SubscriptionIntroductoryOffer
       properties:
-        type:
+        self:
           type: string
-          enum:
-          - subscriptionIntroductoryOffers
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            startDate:
-              type: string
-              format: date
-            endDate:
-              type: string
-              format: date
-            duration:
-              $ref: '#/components/schemas/SubscriptionOfferDuration'
-            offerMode:
-              $ref: '#/components/schemas/SubscriptionOfferMode'
-            numberOfPeriods:
-              type: integer
-        relationships:
-          type: object
-          properties:
-            subscription:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            subscriptionPricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionPricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionIntroductoryOfferUpdateRequest:
-      type: object
-      title: SubscriptionIntroductoryOfferUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionIntroductoryOffers
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                endDate:
-                  type:
-                  - string
-                  - 'null'
-                  format: date
-          required:
-          - id
-          - type
-      required:
-      - data
+          format: uri-reference
     SubscriptionOfferMode:
       type: string
       enum:
@@ -392,15 +303,307 @@ components:
             $ref: '#/components/schemas/SubscriptionPricePointInlineCreate'
       required:
       - data
-    RelationshipLinks:
+    SubscriptionPricePointInlineCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionPricePoints
+        id:
+          type: string
+      required:
+      - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
+      required:
+      - self
+    SubscriptionPricePoint:
+      type: object
+      title: SubscriptionPricePoint
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionPricePoints
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            customerPrice:
+              type: string
+            proceeds:
+              type: string
+            proceedsYear2:
+              type: string
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            equalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    SubscriptionOfferDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - ONE_WEEK
+      - TWO_WEEKS
+      - ONE_MONTH
+      - TWO_MONTHS
+      - THREE_MONTHS
+      - SIX_MONTHS
+      - ONE_YEAR
+    SubscriptionIntroductoryOfferUpdateRequest:
+      type: object
+      title: SubscriptionIntroductoryOfferUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionIntroductoryOffers
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                endDate:
+                  type:
+                  - string
+                  - 'null'
+                  format: date
+          required:
+          - id
+          - type
+      required:
+      - data
+    SubscriptionIntroductoryOfferResponse:
+      type: object
+      title: SubscriptionIntroductoryOfferResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionIntroductoryOffer'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionPricePoint'
+            - $ref: '#/components/schemas/Subscription'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                subscriptions: '#/components/schemas/Subscription'
+                territories: '#/components/schemas/Territory'
+                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
           type: string
           format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    SubscriptionIntroductoryOffer:
+      type: object
+      title: SubscriptionIntroductoryOffer
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionIntroductoryOffers
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            duration:
+              $ref: '#/components/schemas/SubscriptionOfferDuration'
+            offerMode:
+              $ref: '#/components/schemas/SubscriptionOfferMode'
+            numberOfPeriods:
+              type: integer
+        relationships:
+          type: object
+          properties:
+            subscription:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            subscriptionPricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionPricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    Territory:
+      type: object
+      title: Territory
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            currency:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     Subscription:
       type: object
       title: Subscription
@@ -672,209 +875,6 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    SubscriptionIntroductoryOfferResponse:
-      type: object
-      title: SubscriptionIntroductoryOfferResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionIntroductoryOffer'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionPricePoint'
-            - $ref: '#/components/schemas/Subscription'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                subscriptions: '#/components/schemas/Subscription'
-                territories: '#/components/schemas/Territory'
-                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    SubscriptionOfferDuration:
-      type: string
-      enum:
-      - THREE_DAYS
-      - ONE_WEEK
-      - TWO_WEEKS
-      - ONE_MONTH
-      - TWO_MONTHS
-      - THREE_MONTHS
-      - SIX_MONTHS
-      - ONE_YEAR
-    SubscriptionPricePoint:
-      type: object
-      title: SubscriptionPricePoint
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionPricePoints
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            customerPrice:
-              type: string
-            proceeds:
-              type: string
-            proceedsYear2:
-              type: string
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            equalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionPricePointInlineCreate:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionPricePoints
-        id:
-          type: string
-      required:
-      - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

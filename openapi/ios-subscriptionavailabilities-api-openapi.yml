@@ -296,14 +296,6 @@ paths:
       summary: List Related Subscription Availabilities / Available Territories
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     PagedDocumentLinks:
       type: object
       properties:
@@ -318,6 +310,14 @@ components:
           format: uri-reference
       required:
       - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     SubscriptionAvailability:
       type: object
       title: SubscriptionAvailability
@@ -362,21 +362,12 @@ components:
       required:
       - id
       - type
-    SubscriptionAvailabilityResponse:
+    ResourceLinks:
       type: object
-      title: SubscriptionAvailabilityResponse
       properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionAvailability'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+        self:
+          type: string
+          format: uri-reference
     RelationshipLinks:
       type: object
       properties:
@@ -386,26 +377,30 @@ components:
         related:
           type: string
           format: uri-reference
-    ErrorLinks:
+    DocumentLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+      required:
+      - self
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     SubscriptionAvailabilityAvailableTerritoriesLinkagesResponse:
       type: object
       properties:
@@ -430,46 +425,6 @@ components:
       required:
       - data
       - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     TerritoriesResponse:
       type: object
       title: TerritoriesResponse
@@ -485,14 +440,26 @@ components:
       required:
       - data
       - links
-    ErrorSourceParameter:
+    ErrorLinks:
       type: object
-      title: Parameter
       properties:
-        parameter:
+        about:
           type: string
-      required:
-      - parameter
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     SubscriptionAvailabilityCreateRequest:
       type: object
       title: SubscriptionAvailabilityCreateRequest
@@ -559,6 +526,61 @@ components:
           - type
       required:
       - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionAvailabilityResponse:
+      type: object
+      title: SubscriptionAvailabilityResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionAvailability'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Territory'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     Territory:
       type: object
       title: Territory
@@ -579,28 +601,6 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

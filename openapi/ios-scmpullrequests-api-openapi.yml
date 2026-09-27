@@ -121,14 +121,29 @@ paths:
       summary: Get Scm Pull Requests
 components:
   schemas:
-    ErrorSourcePointer:
+    RelationshipLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     ScmRepository:
       type: object
       title: ScmRepository
@@ -203,15 +218,14 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+      required:
+      - self
     ErrorLinks:
       type: object
       properties:
@@ -232,14 +246,29 @@ components:
                 properties:
                   source:
                     type: string
-    DocumentLinks:
+    ScmPullRequestResponse:
       type: object
+      title: ScmPullRequestResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/ScmPullRequest'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmRepository'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - self
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -272,14 +301,6 @@ components:
             - detail
             - status
             - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     ScmPullRequest:
       type: object
       title: ScmPullRequest
@@ -339,27 +360,6 @@ components:
       required:
       - id
       - type
-    ScmPullRequestResponse:
-      type: object
-      title: ScmPullRequestResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/ScmPullRequest'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScmRepository'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -282,14 +282,102 @@ paths:
       summary: List Related Subscription Price Points / Equalizations
 components:
   schemas:
-    ErrorSourcePointer:
+    PagedDocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    Territory:
+      type: object
+      title: Territory
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            currency:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    SubscriptionPricePointResponse:
+      type: object
+      title: SubscriptionPricePointResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionPricePoint'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Territory'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     SubscriptionPricePointsResponse:
       type: object
       title: SubscriptionPricePointsResponse
@@ -309,44 +397,6 @@ components:
       required:
       - data
       - links
-    SubscriptionPricePointResponse:
-      type: object
-      title: SubscriptionPricePointResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionPricePoint'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     ErrorLinks:
       type: object
       properties:
@@ -367,6 +417,16 @@ components:
                 properties:
                   source:
                     type: string
+    csv:
+      type: string
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -399,50 +459,30 @@ components:
             - detail
             - status
             - title
-    ResourceLinks:
+    SubscriptionPricePointEqualizationsLinkagesResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-    csv:
-      type: string
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - subscriptionPricePoints
+              id:
+                type: string
+            required:
+            - id
+            - type
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - id
-      - type
+      - data
+      - links
     SubscriptionPricePoint:
       type: object
       title: SubscriptionPricePoint
@@ -490,46 +530,6 @@ components:
       required:
       - id
       - type
-    SubscriptionPricePointEqualizationsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - subscriptionPricePoints
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

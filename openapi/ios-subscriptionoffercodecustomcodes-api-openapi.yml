@@ -238,14 +238,63 @@ paths:
       summary: Update Subscription Offer Code Custom Codes
 components:
   schemas:
-    ErrorSourcePointer:
+    RelationshipLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    SubscriptionOfferEligibility:
+      type: string
+      enum:
+      - STACK_WITH_INTRO_OFFERS
+      - REPLACE_INTRO_OFFERS
+    SubscriptionOfferCodeCustomCodeResponse:
+      type: object
+      title: SubscriptionOfferCodeCustomCodeResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionOfferCodeCustomCode'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionOfferCode'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    SubscriptionOfferMode:
+      type: string
+      enum:
+      - PAY_AS_YOU_GO
+      - PAY_UP_FRONT
+      - FREE_TRIAL
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     SubscriptionOfferCodeCustomCodeUpdateRequest:
       type: object
       title: SubscriptionOfferCodeCustomCodeUpdateRequest
@@ -271,6 +320,147 @@ components:
           - type
       required:
       - data
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    SubscriptionCustomerEligibility:
+      type: string
+      enum:
+      - NEW
+      - EXISTING
+      - EXPIRED
+    SubscriptionOfferCodeCustomCode:
+      type: object
+      title: SubscriptionOfferCodeCustomCode
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionOfferCodeCustomCodes
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            customCode:
+              type: string
+            numberOfCodes:
+              type: integer
+            createdDate:
+              type: string
+              format: date-time
+            expirationDate:
+              type: string
+              format: date
+            active:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            offerCode:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionOfferCodes
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    SubscriptionOfferDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - ONE_WEEK
+      - TWO_WEEKS
+      - ONE_MONTH
+      - TWO_MONTHS
+      - THREE_MONTHS
+      - SIX_MONTHS
+      - ONE_YEAR
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     SubscriptionOfferCode:
       type: object
       title: SubscriptionOfferCode
@@ -394,168 +584,6 @@ components:
       required:
       - id
       - type
-    SubscriptionOfferMode:
-      type: string
-      enum:
-      - PAY_AS_YOU_GO
-      - PAY_UP_FRONT
-      - FREE_TRIAL
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    SubscriptionOfferCodeCustomCodeResponse:
-      type: object
-      title: SubscriptionOfferCodeCustomCodeResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionOfferCodeCustomCode'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionOfferCode'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    SubscriptionOfferCodeCustomCode:
-      type: object
-      title: SubscriptionOfferCodeCustomCode
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionOfferCodeCustomCodes
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            customCode:
-              type: string
-            numberOfCodes:
-              type: integer
-            createdDate:
-              type: string
-              format: date-time
-            expirationDate:
-              type: string
-              format: date
-            active:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            offerCode:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionOfferCodes
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionOfferEligibility:
-      type: string
-      enum:
-      - STACK_WITH_INTRO_OFFERS
-      - REPLACE_INTRO_OFFERS
-    SubscriptionOfferDuration:
-      type: string
-      enum:
-      - THREE_DAYS
-      - ONE_WEEK
-      - TWO_WEEKS
-      - ONE_MONTH
-      - TWO_MONTHS
-      - THREE_MONTHS
-      - SIX_MONTHS
-      - ONE_YEAR
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     SubscriptionOfferCodeCustomCodeCreateRequest:
       type: object
       title: SubscriptionOfferCodeCustomCodeCreateRequest
@@ -610,34 +638,6 @@ components:
           - type
       required:
       - data
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    SubscriptionCustomerEligibility:
-      type: string
-      enum:
-      - NEW
-      - EXISTING
-      - EXPIRED
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

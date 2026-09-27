@@ -1165,144 +1165,37 @@ paths:
       summary: List Related App Store Version Localizations / Search Keywords
 components:
   schemas:
-    AppVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - READY_FOR_REVIEW
-      - REJECTED
-      - REPLACED_WITH_NEW_VERSION
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-    AppCustomProductPageLocalization:
+    ErrorSourceParameter:
       type: object
-      title: AppCustomProductPageLocalization
+      title: Parameter
       properties:
-        type:
+        parameter:
           type: string
-          enum:
-          - appCustomProductPageLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-            promotionalText:
-              type: string
-        relationships:
-          type: object
-          properties:
-            appCustomProductPageVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCustomProductPageVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appScreenshotSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appScreenshotSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appPreviewSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appPreviewSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            searchKeywords:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appKeywords
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
-      - type
-    AppStoreVersionLocalizationSearchKeywordsLinkagesResponse:
+      - parameter
+    AppPreviewSetsResponse:
       type: object
+      title: AppPreviewSetsResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appKeywords
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/AppPreviewSet'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
+            - $ref: '#/components/schemas/AppPreview'
+            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
+            - $ref: '#/components/schemas/AppStoreVersionLocalization'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersionLocalizations: '#/components/schemas/AppStoreVersionLocalization'
+                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
+                appStoreVersionExperimentTreatmentLocalizations: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
+                appPreviews: '#/components/schemas/AppPreview'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1310,56 +1203,74 @@ components:
       required:
       - data
       - links
-    PreviewFrameImage:
+    ResourceLinks:
       type: object
       properties:
-        image:
-          $ref: '#/components/schemas/ImageAsset'
-        state:
-          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
-    AppStoreVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_CONTRACT
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PREORDER_READY_FOR_SALE
-      - PROCESSING_FOR_APP_STORE
-      - READY_FOR_REVIEW
-      - READY_FOR_SALE
-      - REJECTED
-      - REMOVED_FROM_SALE
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-      - REPLACED_WITH_NEW_VERSION
-      - NOT_APPLICABLE
-    ErrorLinks:
-      type: object
-      properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+    ScreenshotDisplayType:
+      type: string
+      enum:
+      - APP_IPHONE_67
+      - APP_IPHONE_61
+      - APP_IPHONE_65
+      - APP_IPHONE_58
+      - APP_IPHONE_55
+      - APP_IPHONE_47
+      - APP_IPHONE_40
+      - APP_IPHONE_35
+      - APP_IPAD_PRO_3GEN_129
+      - APP_IPAD_PRO_3GEN_11
+      - APP_IPAD_PRO_129
+      - APP_IPAD_105
+      - APP_IPAD_97
+      - APP_DESKTOP
+      - APP_WATCH_ULTRA
+      - APP_WATCH_SERIES_10
+      - APP_WATCH_SERIES_7
+      - APP_WATCH_SERIES_4
+      - APP_WATCH_SERIES_3
+      - APP_APPLE_TV
+      - APP_APPLE_VISION_PRO
+      - IMESSAGE_APP_IPHONE_67
+      - IMESSAGE_APP_IPHONE_61
+      - IMESSAGE_APP_IPHONE_65
+      - IMESSAGE_APP_IPHONE_58
+      - IMESSAGE_APP_IPHONE_55
+      - IMESSAGE_APP_IPHONE_47
+      - IMESSAGE_APP_IPHONE_40
+      - IMESSAGE_APP_IPAD_PRO_3GEN_129
+      - IMESSAGE_APP_IPAD_PRO_3GEN_11
+      - IMESSAGE_APP_IPAD_PRO_129
+      - IMESSAGE_APP_IPAD_105
+      - IMESSAGE_APP_IPAD_97
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    PreviewType:
+      type: string
+      enum:
+      - IPHONE_67
+      - IPHONE_61
+      - IPHONE_65
+      - IPHONE_58
+      - IPHONE_55
+      - IPHONE_47
+      - IPHONE_40
+      - IPHONE_35
+      - IPAD_PRO_3GEN_129
+      - IPAD_PRO_3GEN_11
+      - IPAD_PRO_129
+      - IPAD_105
+      - IPAD_97
+      - DESKTOP
+      - APPLE_TV
+      - APPLE_VISION_PRO
     DocumentLinks:
       type: object
       properties:
@@ -1368,23 +1279,29 @@ components:
           format: uri-reference
       required:
       - self
-    AppStoreVersionLocalizationAppPreviewSetsLinkagesResponse:
+    AppScreenshotSetsResponse:
       type: object
+      title: AppScreenshotSetsResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appPreviewSets
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/AppScreenshotSet'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
+            - $ref: '#/components/schemas/AppScreenshot'
+            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
+            - $ref: '#/components/schemas/AppStoreVersionLocalization'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersionLocalizations: '#/components/schemas/AppStoreVersionLocalization'
+                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
+                appStoreVersionExperimentTreatmentLocalizations: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
+                appScreenshots: '#/components/schemas/AppScreenshot'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1392,6 +1309,14 @@ components:
       required:
       - data
       - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     AppMediaPreviewFrameImageState:
       type: object
       properties:
@@ -1409,6 +1334,41 @@ components:
           - PROCESSING
           - COMPLETE
           - FAILED
+    AppStoreVersionLocalizationSearchKeywordsLinkagesRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appKeywords
+              id:
+                type: string
+            required:
+            - id
+            - type
+      required:
+      - data
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     AppStoreVersionExperimentTreatmentLocalization:
       type: object
       title: AppStoreVersionExperimentTreatmentLocalization
@@ -1479,513 +1439,6 @@ components:
                         type: string
                         enum:
                         - appPreviewSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppPreviewSetsResponse:
-      type: object
-      title: AppPreviewSetsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppPreviewSet'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
-            - $ref: '#/components/schemas/AppPreview'
-            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
-            - $ref: '#/components/schemas/AppStoreVersionLocalization'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersionLocalizations: '#/components/schemas/AppStoreVersionLocalization'
-                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
-                appStoreVersionExperimentTreatmentLocalizations: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
-                appPreviews: '#/components/schemas/AppPreview'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    AppStoreVersionLocalizationUpdateRequest:
-      type: object
-      title: AppStoreVersionLocalizationUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersionLocalizations
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                description:
-                  type:
-                  - string
-                  - 'null'
-                keywords:
-                  type:
-                  - string
-                  - 'null'
-                marketingUrl:
-                  type:
-                  - string
-                  - 'null'
-                  format: uri
-                promotionalText:
-                  type:
-                  - string
-                  - 'null'
-                supportUrl:
-                  type:
-                  - string
-                  - 'null'
-                  format: uri
-                whatsNew:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    AppStoreVersionLocalizationResponse:
-      type: object
-      title: AppStoreVersionLocalizationResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersionLocalization'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppKeyword'
-            - $ref: '#/components/schemas/AppPreviewSet'
-            - $ref: '#/components/schemas/AppScreenshotSet'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                appScreenshotSets: '#/components/schemas/AppScreenshotSet'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                appKeywords: '#/components/schemas/AppKeyword'
-                appPreviewSets: '#/components/schemas/AppPreviewSet'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppStoreVersionLocalizationAppScreenshotSetsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appScreenshotSets
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppPreviewSet:
-      type: object
-      title: AppPreviewSet
-      properties:
-        type:
-          type: string
-          enum:
-          - appPreviewSets
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            previewType:
-              $ref: '#/components/schemas/PreviewType'
-        relationships:
-          type: object
-          properties:
-            appStoreVersionLocalization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appCustomProductPageLocalization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appCustomProductPageLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentTreatmentLocalization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionExperimentTreatmentLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appPreviews:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appPreviews
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppKeywordsResponse:
-      type: object
-      title: AppKeywordsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppKeyword'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppPreview:
-      type: object
-      title: AppPreview
-      properties:
-        type:
-          type: string
-          enum:
-          - appPreviews
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            sourceFileChecksum:
-              type: string
-            previewFrameTimeCode:
-              type: string
-            mimeType:
-              type: string
-            videoUrl:
-              type: string
-            previewFrameImage:
-              $ref: '#/components/schemas/PreviewFrameImage'
-            previewImage:
-              deprecated: true
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              deprecated: true
-              $ref: '#/components/schemas/AppMediaAssetState'
-            videoDeliveryState:
-              $ref: '#/components/schemas/AppMediaVideoState'
-        relationships:
-          type: object
-          properties:
-            appPreviewSet:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appPreviewSets
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AppStoreVersionLocalization:
-      type: object
-      title: AppStoreVersionLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            description:
-              type: string
-            locale:
-              type: string
-            keywords:
-              type: string
-            marketingUrl:
-              type: string
-              format: uri
-            promotionalText:
-              type: string
-            supportUrl:
-              type: string
-              format: uri
-            whatsNew:
-              type: string
-        relationships:
-          type: object
-          properties:
-            appStoreVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appScreenshotSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appScreenshotSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appPreviewSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appPreviewSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            searchKeywords:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appKeywords
                       id:
                         type: string
                     required:
@@ -2269,61 +1722,6 @@ components:
       required:
       - id
       - type
-    PreviewType:
-      type: string
-      enum:
-      - IPHONE_67
-      - IPHONE_61
-      - IPHONE_65
-      - IPHONE_58
-      - IPHONE_55
-      - IPHONE_47
-      - IPHONE_40
-      - IPHONE_35
-      - IPAD_PRO_3GEN_129
-      - IPAD_PRO_3GEN_11
-      - IPAD_PRO_129
-      - IPAD_105
-      - IPAD_97
-      - DESKTOP
-      - APPLE_TV
-      - APPLE_VISION_PRO
-    ScreenshotDisplayType:
-      type: string
-      enum:
-      - APP_IPHONE_67
-      - APP_IPHONE_61
-      - APP_IPHONE_65
-      - APP_IPHONE_58
-      - APP_IPHONE_55
-      - APP_IPHONE_47
-      - APP_IPHONE_40
-      - APP_IPHONE_35
-      - APP_IPAD_PRO_3GEN_129
-      - APP_IPAD_PRO_3GEN_11
-      - APP_IPAD_PRO_129
-      - APP_IPAD_105
-      - APP_IPAD_97
-      - APP_DESKTOP
-      - APP_WATCH_ULTRA
-      - APP_WATCH_SERIES_10
-      - APP_WATCH_SERIES_7
-      - APP_WATCH_SERIES_4
-      - APP_WATCH_SERIES_3
-      - APP_APPLE_TV
-      - APP_APPLE_VISION_PRO
-      - IMESSAGE_APP_IPHONE_67
-      - IMESSAGE_APP_IPHONE_61
-      - IMESSAGE_APP_IPHONE_65
-      - IMESSAGE_APP_IPHONE_58
-      - IMESSAGE_APP_IPHONE_55
-      - IMESSAGE_APP_IPHONE_47
-      - IMESSAGE_APP_IPHONE_40
-      - IMESSAGE_APP_IPAD_PRO_3GEN_129
-      - IMESSAGE_APP_IPAD_PRO_3GEN_11
-      - IMESSAGE_APP_IPAD_PRO_129
-      - IMESSAGE_APP_IPAD_105
-      - IMESSAGE_APP_IPAD_97
     Platform:
       type: string
       enum:
@@ -2331,15 +1729,137 @@ components:
       - MAC_OS
       - TV_OS
       - VISION_OS
-    ImageAsset:
+    AppVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - READY_FOR_REVIEW
+      - REJECTED
+      - REPLACED_WITH_NEW_VERSION
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+    AppStoreVersionLocalizationAppPreviewSetsLinkagesResponse:
       type: object
       properties:
-        templateUrl:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appPreviewSets
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppPreviewSet:
+      type: object
+      title: AppPreviewSet
+      properties:
+        type:
           type: string
-        width:
-          type: integer
-        height:
-          type: integer
+          enum:
+          - appPreviewSets
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            previewType:
+              $ref: '#/components/schemas/PreviewType'
+        relationships:
+          type: object
+          properties:
+            appStoreVersionLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appCustomProductPageLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCustomProductPageLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperimentTreatmentLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionExperimentTreatmentLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appPreviews:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appPreviews
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     AppMediaVideoState:
       type: object
       properties:
@@ -2359,36 +1879,72 @@ components:
           - PROCESSING
           - COMPLETE
           - FAILED
-    AppScreenshotSetsResponse:
+    UploadOperation:
       type: object
-      title: AppScreenshotSetsResponse
       properties:
-        data:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
           type: array
           items:
-            $ref: '#/components/schemas/AppScreenshotSet'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppCustomProductPageLocalization'
-            - $ref: '#/components/schemas/AppScreenshot'
-            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
-            - $ref: '#/components/schemas/AppStoreVersionLocalization'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersionLocalizations: '#/components/schemas/AppStoreVersionLocalization'
-                appCustomProductPageLocalizations: '#/components/schemas/AppCustomProductPageLocalization'
-                appStoreVersionExperimentTreatmentLocalizations: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
-                appScreenshots: '#/components/schemas/AppScreenshot'
+            $ref: '#/components/schemas/HttpHeader'
+    AppKeyword:
+      type: object
+      title: AppKeyword
+      properties:
+        type:
+          type: string
+          enum:
+          - appKeywords
+        id:
+          type: string
         links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
-      - links
+      - id
+      - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
     AppScreenshot:
       type: object
       title: AppScreenshot
@@ -2443,6 +1999,432 @@ components:
       required:
       - id
       - type
+    AppStoreVersionLocalizationResponse:
+      type: object
+      title: AppStoreVersionLocalizationResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreVersionLocalization'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppKeyword'
+            - $ref: '#/components/schemas/AppPreviewSet'
+            - $ref: '#/components/schemas/AppScreenshotSet'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appScreenshotSets: '#/components/schemas/AppScreenshotSet'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                appKeywords: '#/components/schemas/AppKeyword'
+                appPreviewSets: '#/components/schemas/AppPreviewSet'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppKeywordsResponse:
+      type: object
+      title: AppKeywordsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppKeyword'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppPreview:
+      type: object
+      title: AppPreview
+      properties:
+        type:
+          type: string
+          enum:
+          - appPreviews
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            sourceFileChecksum:
+              type: string
+            previewFrameTimeCode:
+              type: string
+            mimeType:
+              type: string
+            videoUrl:
+              type: string
+            previewFrameImage:
+              $ref: '#/components/schemas/PreviewFrameImage'
+            previewImage:
+              deprecated: true
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              deprecated: true
+              $ref: '#/components/schemas/AppMediaAssetState'
+            videoDeliveryState:
+              $ref: '#/components/schemas/AppMediaVideoState'
+        relationships:
+          type: object
+          properties:
+            appPreviewSet:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appPreviewSets
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionLocalizationUpdateRequest:
+      type: object
+      title: AppStoreVersionLocalizationUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersionLocalizations
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                description:
+                  type:
+                  - string
+                  - 'null'
+                keywords:
+                  type:
+                  - string
+                  - 'null'
+                marketingUrl:
+                  type:
+                  - string
+                  - 'null'
+                  format: uri
+                promotionalText:
+                  type:
+                  - string
+                  - 'null'
+                supportUrl:
+                  type:
+                  - string
+                  - 'null'
+                  format: uri
+                whatsNew:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    AppStoreVersionLocalizationCreateRequest:
+      type: object
+      title: AppStoreVersionLocalizationCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersionLocalizations
+            attributes:
+              type: object
+              properties:
+                description:
+                  type:
+                  - string
+                  - 'null'
+                locale:
+                  type: string
+                keywords:
+                  type:
+                  - string
+                  - 'null'
+                marketingUrl:
+                  type:
+                  - string
+                  - 'null'
+                  format: uri
+                promotionalText:
+                  type:
+                  - string
+                  - 'null'
+                supportUrl:
+                  type:
+                  - string
+                  - 'null'
+                  format: uri
+                whatsNew:
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - locale
+            relationships:
+              type: object
+              properties:
+                appStoreVersion:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appStoreVersions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appStoreVersion
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppCustomProductPageLocalization:
+      type: object
+      title: AppCustomProductPageLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - appCustomProductPageLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            promotionalText:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appCustomProductPageVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appCustomProductPageVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appScreenshotSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appScreenshotSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appPreviewSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appPreviewSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            searchKeywords:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appKeywords
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppStoreVersionLocalizationAppScreenshotSetsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appScreenshotSets
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppStoreVersionLocalizationSearchKeywordsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appKeywords
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     AppScreenshotSet:
       type: object
       title: AppScreenshotSet
@@ -2532,153 +2514,171 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    ErrorLinks:
       type: object
       properties:
-        self:
+        about:
           type: string
           format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    AppStoreVersionLocalizationSearchKeywordsLinkagesRequest:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
             properties:
-              type:
+              href:
                 type: string
-                enum:
-                - appKeywords
-              id:
-                type: string
-            required:
-            - id
-            - type
-      required:
-      - data
-    AppKeyword:
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AppStoreVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_CONTRACT
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PREORDER_READY_FOR_SALE
+      - PROCESSING_FOR_APP_STORE
+      - READY_FOR_REVIEW
+      - READY_FOR_SALE
+      - REJECTED
+      - REMOVED_FROM_SALE
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+      - REPLACED_WITH_NEW_VERSION
+      - NOT_APPLICABLE
+    PreviewFrameImage:
       type: object
-      title: AppKeyword
+      properties:
+        image:
+          $ref: '#/components/schemas/ImageAsset'
+        state:
+          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
+    AppStoreVersionLocalization:
+      type: object
+      title: AppStoreVersionLocalization
       properties:
         type:
           type: string
           enum:
-          - appKeywords
+          - appStoreVersionLocalizations
         id:
           type: string
+        attributes:
+          type: object
+          properties:
+            description:
+              type: string
+            locale:
+              type: string
+            keywords:
+              type: string
+            marketingUrl:
+              type: string
+              format: uri
+            promotionalText:
+              type: string
+            supportUrl:
+              type: string
+              format: uri
+            whatsNew:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appStoreVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appScreenshotSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appScreenshotSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appPreviewSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appPreviewSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            searchKeywords:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appKeywords
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    AppStoreVersionLocalizationCreateRequest:
-      type: object
-      title: AppStoreVersionLocalizationCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersionLocalizations
-            attributes:
-              type: object
-              properties:
-                description:
-                  type:
-                  - string
-                  - 'null'
-                locale:
-                  type: string
-                keywords:
-                  type:
-                  - string
-                  - 'null'
-                marketingUrl:
-                  type:
-                  - string
-                  - 'null'
-                  format: uri
-                promotionalText:
-                  type:
-                  - string
-                  - 'null'
-                supportUrl:
-                  type:
-                  - string
-                  - 'null'
-                  format: uri
-                whatsNew:
-                  type:
-                  - string
-                  - 'null'
-              required:
-              - locale
-            relationships:
-              type: object
-              properties:
-                appStoreVersion:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appStoreVersions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appStoreVersion
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

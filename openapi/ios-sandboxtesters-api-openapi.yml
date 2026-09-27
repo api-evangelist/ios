@@ -147,39 +147,6 @@ paths:
       summary: Update Sandbox Testers V2
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    SandboxTesterV2Response:
-      type: object
-      title: SandboxTesterV2Response
-      properties:
-        data:
-          $ref: '#/components/schemas/SandboxTesterV2'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     SandboxTestersV2Response:
       type: object
       title: SandboxTestersV2Response
@@ -195,6 +162,106 @@ components:
       required:
       - data
       - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    SandboxTesterV2Response:
+      type: object
+      title: SandboxTesterV2Response
+      properties:
+        data:
+          $ref: '#/components/schemas/SandboxTesterV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    SandboxTesterV2UpdateRequest:
+      type: object
+      title: SandboxTesterV2UpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - sandboxTesters
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                territory:
+                  $ref: '#/components/schemas/TerritoryCode'
+                interruptPurchases:
+                  type:
+                  - boolean
+                  - 'null'
+                subscriptionRenewalRate:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - MONTHLY_RENEWAL_EVERY_ONE_HOUR
+                  - MONTHLY_RENEWAL_EVERY_THIRTY_MINUTES
+                  - MONTHLY_RENEWAL_EVERY_FIFTEEN_MINUTES
+                  - MONTHLY_RENEWAL_EVERY_FIVE_MINUTES
+                  - MONTHLY_RENEWAL_EVERY_THREE_MINUTES
+          required:
+          - id
+          - type
+      required:
+      - data
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     ErrorLinks:
       type: object
       properties:
@@ -215,54 +282,6 @@ components:
                 properties:
                   source:
                     type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     SandboxTesterV2:
       type: object
       title: SandboxTesterV2
@@ -301,6 +320,14 @@ components:
       required:
       - id
       - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     TerritoryCode:
       type: string
       enum:
@@ -537,65 +564,38 @@ components:
       - ZAF
       - ZMB
       - ZWE
-    ResourceLinks:
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-    SandboxTesterV2UpdateRequest:
-      type: object
-      title: SandboxTesterV2UpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - sandboxTesters
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                territory:
-                  $ref: '#/components/schemas/TerritoryCode'
-                interruptPurchases:
-                  type:
-                  - boolean
-                  - 'null'
-                subscriptionRenewalRate:
-                  type:
-                  - string
-                  - 'null'
-                  enum:
-                  - MONTHLY_RENEWAL_EVERY_ONE_HOUR
-                  - MONTHLY_RENEWAL_EVERY_THIRTY_MINUTES
-                  - MONTHLY_RENEWAL_EVERY_FIFTEEN_MINUTES
-                  - MONTHLY_RENEWAL_EVERY_FIVE_MINUTES
-                  - MONTHLY_RENEWAL_EVERY_THREE_MINUTES
-          required:
-          - id
-          - type
-      required:
-      - data
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
   securitySchemes:
     itc-bearer-token:
       type: http

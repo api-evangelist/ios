@@ -373,50 +373,27 @@ paths:
       summary: List Related Game Center Achievement Versions V2 / Localizations
 components:
   schemas:
-    GameCenterAchievementVersionV2LocalizationsLinkagesResponse:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterAchievementLocalizations
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        parameter:
+          type: string
       required:
-      - data
-      - links
-    ErrorLinks:
+      - parameter
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
     DocumentLinks:
       type: object
       properties:
@@ -425,31 +402,43 @@ components:
           format: uri-reference
       required:
       - self
-    GameCenterAchievementLocalizationV2:
+    ErrorSourcePointer:
       type: object
-      title: GameCenterAchievementLocalizationV2
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    GameCenterAchievementImageV2:
+      type: object
+      title: GameCenterAchievementImageV2
       properties:
         type:
           type: string
           enum:
-          - gameCenterAchievementLocalizations
+          - gameCenterAchievementImages
         id:
           type: string
         attributes:
           type: object
           properties:
-            locale:
+            fileSize:
+              type: integer
+            fileName:
               type: string
-            name:
-              type: string
-            beforeEarnedDescription:
-              type: string
-            afterEarnedDescription:
-              type: string
+            imageAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
         relationships:
           type: object
           properties:
-            version:
+            localization:
               type: object
               properties:
                 data:
@@ -458,24 +447,7 @@ components:
                     type:
                       type: string
                       enum:
-                      - gameCenterAchievementVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            image:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAchievementImages
+                      - gameCenterAchievementLocalizations
                     id:
                       type: string
                   required:
@@ -486,6 +458,157 @@ components:
       required:
       - id
       - type
+    GameCenterAchievementVersionV2CreateRequest:
+      type: object
+      title: GameCenterAchievementVersionV2CreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterAchievementVersions
+            relationships:
+              type: object
+              properties:
+                achievement:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - gameCenterAchievements
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - achievement
+          required:
+          - relationships
+          - type
+      required:
+      - data
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    GameCenterVersionState:
+      type: string
+      enum:
+      - PREPARE_FOR_SUBMISSION
+      - READY_FOR_REVIEW
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_REJECTED
+      - REJECTED
+      - ACCEPTED
+      - PENDING_RELEASE
+      - LIVE
+      - REPLACED_WITH_NEW_VERSION
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    GameCenterAchievementLocalizationsV2Response:
+      type: object
+      title: GameCenterAchievementLocalizationsV2Response
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterAchievementLocalizationV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterAchievementImageV2'
+            - $ref: '#/components/schemas/GameCenterAchievementVersionV2'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterAchievementVersions: '#/components/schemas/GameCenterAchievementVersionV2'
+                gameCenterAchievementImages: '#/components/schemas/GameCenterAchievementImageV2'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     GameCenterAchievementV2:
       type: object
       title: GameCenterAchievementV2
@@ -589,147 +712,6 @@ components:
       required:
       - id
       - type
-    GameCenterAchievementLocalizationsV2Response:
-      type: object
-      title: GameCenterAchievementLocalizationsV2Response
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterAchievementLocalizationV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterAchievementImageV2'
-            - $ref: '#/components/schemas/GameCenterAchievementVersionV2'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterAchievementVersions: '#/components/schemas/GameCenterAchievementVersionV2'
-                gameCenterAchievementImages: '#/components/schemas/GameCenterAchievementImageV2'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    GameCenterAchievementImageV2:
-      type: object
-      title: GameCenterAchievementImageV2
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterAchievementImages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            imageAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        relationships:
-          type: object
-          properties:
-            localization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAchievementLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     ErrorResponse:
       type: object
       properties:
@@ -762,127 +744,125 @@ components:
             - detail
             - status
             - title
-    GameCenterVersionState:
-      type: string
-      enum:
-      - PREPARE_FOR_SUBMISSION
-      - READY_FOR_REVIEW
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_REJECTED
-      - REJECTED
-      - ACCEPTED
-      - PENDING_RELEASE
-      - LIVE
-      - REPLACED_WITH_NEW_VERSION
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    StringToStringMap:
-      type: object
-      additionalProperties:
-        type: string
-    GameCenterAchievementVersionV2CreateRequest:
-      type: object
-      title: GameCenterAchievementVersionV2CreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterAchievementVersions
-            relationships:
-              type: object
-              properties:
-                achievement:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - gameCenterAchievements
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - achievement
-          required:
-          - relationships
-          - type
-      required:
-      - data
-    RelationshipLinks:
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
+        first:
           type: string
           format: uri-reference
-    GameCenterAchievementVersionV2Response:
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    GameCenterAchievementVersionV2LocalizationsLinkagesResponse:
       type: object
-      title: GameCenterAchievementVersionV2Response
       properties:
         data:
-          $ref: '#/components/schemas/GameCenterAchievementVersionV2'
-        included:
           type: array
           items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterAchievementLocalizationV2'
-            - $ref: '#/components/schemas/GameCenterAchievementV2'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterAchievementLocalizations: '#/components/schemas/GameCenterAchievementLocalizationV2'
-                gameCenterAchievements: '#/components/schemas/GameCenterAchievementV2'
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - gameCenterAchievementLocalizations
+              id:
+                type: string
+            required:
+            - id
+            - type
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
-    ErrorSourceParameter:
+    GameCenterAchievementLocalizationV2:
       type: object
-      title: Parameter
+      title: GameCenterAchievementLocalizationV2
       properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
+        type:
           type: string
           enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
+          - gameCenterAchievementLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            name:
+              type: string
+            beforeEarnedDescription:
+              type: string
+            afterEarnedDescription:
+              type: string
+        relationships:
+          type: object
+          properties:
+            version:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAchievementVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            image:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAchievementImages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     GameCenterAchievementVersionV2:
       type: object
       title: GameCenterAchievementVersionV2
@@ -944,12 +924,32 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
+    StringToStringMap:
       type: object
+      additionalProperties:
+        type: string
+    GameCenterAchievementVersionV2Response:
+      type: object
+      title: GameCenterAchievementVersionV2Response
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/GameCenterAchievementVersionV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterAchievementLocalizationV2'
+            - $ref: '#/components/schemas/GameCenterAchievementV2'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterAchievementLocalizations: '#/components/schemas/GameCenterAchievementLocalizationV2'
+                gameCenterAchievements: '#/components/schemas/GameCenterAchievementV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
   securitySchemes:
     itc-bearer-token:
       type: http

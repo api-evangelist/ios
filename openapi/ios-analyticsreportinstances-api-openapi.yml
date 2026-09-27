@@ -211,6 +211,43 @@ paths:
       summary: List Related Analytics Report Instances / Segments
 components:
   schemas:
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     AnalyticsReportSegment:
       type: object
       title: AnalyticsReportSegment
@@ -236,14 +273,30 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
+    AnalyticsReportInstanceSegmentsLinkagesResponse:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
-          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - analyticsReportSegments
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - pointer
+      - data
+      - links
     AnalyticsReportInstance:
       type: object
       title: AnalyticsReportInstance
@@ -279,68 +332,30 @@ components:
       required:
       - id
       - type
-    AnalyticsReportSegmentsResponse:
-      type: object
-      title: AnalyticsReportSegmentsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnalyticsReportSegment'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    PagedDocumentLinks:
+    DocumentLinks:
       type: object
       properties:
         self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
           type: string
           format: uri-reference
       required:
       - self
-    AnalyticsReportInstanceSegmentsLinkagesResponse:
+    PagingInformation:
       type: object
       properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - analyticsReportSegments
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
       required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+      - paging
     ErrorLinks:
       type: object
       properties:
@@ -361,6 +376,29 @@ components:
                 properties:
                   source:
                     type: string
+    AnalyticsReportSegmentsResponse:
+      type: object
+      title: AnalyticsReportSegmentsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalyticsReportSegment'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     AnalyticsReportInstanceResponse:
       type: object
       title: AnalyticsReportInstanceResponse
@@ -372,14 +410,6 @@ components:
       required:
       - data
       - links
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     ErrorResponse:
       type: object
       properties:
@@ -412,36 +442,6 @@ components:
             - detail
             - status
             - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

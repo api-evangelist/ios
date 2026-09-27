@@ -238,26 +238,34 @@ paths:
       summary: Delete Marketplace Webhooks
 components:
   schemas:
-    ErrorSourcePointer:
+    PagedDocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
-    MarketplaceWebhookResponse:
+      - parameter
+    ResourceLinks:
       type: object
-      title: MarketplaceWebhookResponse
       properties:
-        data:
-          $ref: '#/components/schemas/MarketplaceWebhook'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
+        self:
+          type: string
+          format: uri-reference
     MarketplaceWebhooksResponse:
       type: object
       title: MarketplaceWebhooksResponse
@@ -274,6 +282,81 @@ components:
       - data
       - links
       deprecated: true
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    MarketplaceWebhookUpdateRequest:
+      type: object
+      title: MarketplaceWebhookUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - marketplaceWebhooks
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                endpointUrl:
+                  type:
+                  - string
+                  - 'null'
+                  format: uri
+                secret:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+      deprecated: true
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     MarketplaceWebhookCreateRequest:
       type: object
       title: MarketplaceWebhookCreateRequest
@@ -302,40 +385,26 @@ components:
       required:
       - data
       deprecated: true
-    PagedDocumentLinks:
+    MarketplaceWebhookResponse:
       type: object
+      title: MarketplaceWebhookResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/MarketplaceWebhook'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - self
-    ErrorLinks:
+      - data
+      - links
+      deprecated: true
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        about:
+        pointer:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+      required:
+      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -368,14 +437,6 @@ components:
             - detail
             - status
             - title
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     MarketplaceWebhook:
       type: object
       title: MarketplaceWebhook
@@ -398,67 +459,6 @@ components:
       - id
       - type
       deprecated: true
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    MarketplaceWebhookUpdateRequest:
-      type: object
-      title: MarketplaceWebhookUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - marketplaceWebhooks
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                endpointUrl:
-                  type:
-                  - string
-                  - 'null'
-                  format: uri
-                secret:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-      deprecated: true
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
   securitySchemes:
     itc-bearer-token:
       type: http

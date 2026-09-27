@@ -269,26 +269,63 @@ paths:
       summary: Delete App Screenshots
 components:
   schemas:
-    ErrorLinks:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+    ScreenshotDisplayType:
+      type: string
+      enum:
+      - APP_IPHONE_67
+      - APP_IPHONE_61
+      - APP_IPHONE_65
+      - APP_IPHONE_58
+      - APP_IPHONE_55
+      - APP_IPHONE_47
+      - APP_IPHONE_40
+      - APP_IPHONE_35
+      - APP_IPAD_PRO_3GEN_129
+      - APP_IPAD_PRO_3GEN_11
+      - APP_IPAD_PRO_129
+      - APP_IPAD_105
+      - APP_IPAD_97
+      - APP_DESKTOP
+      - APP_WATCH_ULTRA
+      - APP_WATCH_SERIES_10
+      - APP_WATCH_SERIES_7
+      - APP_WATCH_SERIES_4
+      - APP_WATCH_SERIES_3
+      - APP_APPLE_TV
+      - APP_APPLE_VISION_PRO
+      - IMESSAGE_APP_IPHONE_67
+      - IMESSAGE_APP_IPHONE_61
+      - IMESSAGE_APP_IPHONE_65
+      - IMESSAGE_APP_IPHONE_58
+      - IMESSAGE_APP_IPHONE_55
+      - IMESSAGE_APP_IPHONE_47
+      - IMESSAGE_APP_IPHONE_40
+      - IMESSAGE_APP_IPAD_PRO_3GEN_129
+      - IMESSAGE_APP_IPAD_PRO_3GEN_11
+      - IMESSAGE_APP_IPAD_PRO_129
+      - IMESSAGE_APP_IPAD_105
+      - IMESSAGE_APP_IPAD_97
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
     DocumentLinks:
       type: object
       properties:
@@ -297,6 +334,14 @@ components:
           format: uri-reference
       required:
       - self
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     AppScreenshotCreateRequest:
       type: object
       title: AppScreenshotCreateRequest
@@ -362,28 +407,35 @@ components:
           - limit
       required:
       - paging
-    ErrorSourcePointer:
+    AppScreenshotUpdateRequest:
       type: object
-      title: JsonPointer
+      title: AppScreenshotUpdateRequest
       properties:
-        pointer:
-          type: string
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appScreenshots
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
       required:
-      - pointer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
+      - data
     UploadOperation:
       type: object
       properties:
@@ -399,53 +451,33 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
-    AppScreenshotResponse:
+    RelationshipLinks:
       type: object
-      title: AppScreenshotResponse
       properties:
-        data:
-          $ref: '#/components/schemas/AppScreenshot'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppScreenshotSet'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppMediaAssetState:
       type: object
       properties:
         errors:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
     ImageAsset:
       type: object
       properties:
@@ -455,42 +487,6 @@ components:
           type: integer
         height:
           type: integer
-    ScreenshotDisplayType:
-      type: string
-      enum:
-      - APP_IPHONE_67
-      - APP_IPHONE_61
-      - APP_IPHONE_65
-      - APP_IPHONE_58
-      - APP_IPHONE_55
-      - APP_IPHONE_47
-      - APP_IPHONE_40
-      - APP_IPHONE_35
-      - APP_IPAD_PRO_3GEN_129
-      - APP_IPAD_PRO_3GEN_11
-      - APP_IPAD_PRO_129
-      - APP_IPAD_105
-      - APP_IPAD_97
-      - APP_DESKTOP
-      - APP_WATCH_ULTRA
-      - APP_WATCH_SERIES_10
-      - APP_WATCH_SERIES_7
-      - APP_WATCH_SERIES_4
-      - APP_WATCH_SERIES_3
-      - APP_APPLE_TV
-      - APP_APPLE_VISION_PRO
-      - IMESSAGE_APP_IPHONE_67
-      - IMESSAGE_APP_IPHONE_61
-      - IMESSAGE_APP_IPHONE_65
-      - IMESSAGE_APP_IPHONE_58
-      - IMESSAGE_APP_IPHONE_55
-      - IMESSAGE_APP_IPHONE_47
-      - IMESSAGE_APP_IPHONE_40
-      - IMESSAGE_APP_IPAD_PRO_3GEN_129
-      - IMESSAGE_APP_IPAD_PRO_3GEN_11
-      - IMESSAGE_APP_IPAD_PRO_129
-      - IMESSAGE_APP_IPAD_105
-      - IMESSAGE_APP_IPAD_97
     AppScreenshot:
       type: object
       title: AppScreenshot
@@ -545,6 +541,45 @@ components:
       required:
       - id
       - type
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     AppScreenshotSet:
       type: object
       title: AppScreenshotSet
@@ -634,76 +669,41 @@ components:
       required:
       - id
       - type
-    AppScreenshotUpdateRequest:
+    ErrorLinks:
       type: object
-      title: AppScreenshotUpdateRequest
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AppScreenshotResponse:
+      type: object
+      title: AppScreenshotResponse
       properties:
         data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appScreenshots
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
+          $ref: '#/components/schemas/AppScreenshot'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppScreenshotSet'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+      - links
   securitySchemes:
     itc-bearer-token:
       type: http

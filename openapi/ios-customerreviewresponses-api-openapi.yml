@@ -206,14 +206,29 @@ paths:
       summary: Delete Customer Review Responses
 components:
   schemas:
-    ErrorSourcePointer:
+    CustomerReviewResponseV1Response:
       type: object
-      title: JsonPointer
+      title: CustomerReviewResponseV1Response
       properties:
-        pointer:
+        data:
+          $ref: '#/components/schemas/CustomerReviewResponseV1'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerReview'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
     CustomerReview:
       type: object
       title: CustomerReview
@@ -282,52 +297,21 @@ components:
       required:
       - id
       - type
-    CustomerReviewResponseV1CreateRequest:
+    ResourceLinks:
       type: object
-      title: CustomerReviewResponseV1CreateRequest
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - customerReviewResponses
-            attributes:
-              type: object
-              properties:
-                responseBody:
-                  type: string
-              required:
-              - responseBody
-            relationships:
-              type: object
-              properties:
-                review:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - customerReviews
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - review
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
+        self:
+          type: string
+          format: uri-reference
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
     CustomerReviewResponseV1:
       type: object
       title: CustomerReviewResponseV1
@@ -374,35 +358,6 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
     DocumentLinks:
       type: object
       properties:
@@ -411,61 +366,6 @@ components:
           format: uri-reference
       required:
       - self
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    CustomerReviewResponseV1Response:
-      type: object
-      title: CustomerReviewResponseV1Response
-      properties:
-        data:
-          $ref: '#/components/schemas/CustomerReviewResponseV1'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomerReview'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     TerritoryCode:
       type: string
       enum:
@@ -702,12 +602,112 @@ components:
       - ZAF
       - ZMB
       - ZWE
-    ResourceLinks:
+    CustomerReviewResponseV1CreateRequest:
+      type: object
+      title: CustomerReviewResponseV1CreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - customerReviewResponses
+            attributes:
+              type: object
+              properties:
+                responseBody:
+                  type: string
+              required:
+              - responseBody
+            relationships:
+              type: object
+              properties:
+                review:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - customerReviews
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - review
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    ErrorLinks:
       type: object
       properties:
-        self:
+        about:
           type: string
           format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
   securitySchemes:
     itc-bearer-token:
       type: http

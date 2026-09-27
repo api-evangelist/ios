@@ -114,14 +114,49 @@ paths:
       summary: Get Scm Git References
 components:
   schemas:
-    ErrorSourcePointer:
+    RelationshipLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    CiGitRefKind:
+      type: string
+      enum:
+      - BRANCH
+      - TAG
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    ScmGitReferenceResponse:
+      type: object
+      title: ScmGitReferenceResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/ScmGitReference'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmRepository'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     ScmRepository:
       type: object
       title: ScmRepository
@@ -196,55 +231,6 @@ components:
       required:
       - id
       - type
-    ScmGitReferenceResponse:
-      type: object
-      title: ScmGitReferenceResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/ScmGitReference'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScmRepository'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    CiGitRefKind:
-      type: string
-      enum:
-      - BRANCH
-      - TAG
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
     DocumentLinks:
       type: object
       properties:
@@ -297,6 +283,34 @@ components:
       required:
       - id
       - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -329,20 +343,6 @@ components:
             - detail
             - status
             - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

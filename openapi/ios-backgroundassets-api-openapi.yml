@@ -633,6 +633,111 @@ paths:
       summary: List Related Background Assets / Versions
 components:
   schemas:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    BackgroundAssetVersionAppStoreReleaseState:
+      type: string
+      enum:
+      - PREPARE_FOR_SUBMISSION
+      - READY_FOR_REVIEW
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - ACCEPTED
+      - REJECTED
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - SUPERSEDED
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    BackgroundAssetResponse:
+      type: object
+      title: BackgroundAssetResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BackgroundAsset'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/BackgroundAssetVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                backgroundAssetVersions: '#/components/schemas/BackgroundAssetVersion'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    BackgroundAssetVersionsResponse:
+      type: object
+      title: BackgroundAssetVersionsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackgroundAssetVersion'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/BackgroundAssetUploadFile'
+            - $ref: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
+            - $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
+            - $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
+            - $ref: '#/components/schemas/BackgroundAsset'
+            discriminator:
+              propertyName: type
+              mapping:
+                backgroundAssetVersionAppStoreReleases: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
+                backgroundAssetVersionInternalBetaReleases: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
+                backgroundAssets: '#/components/schemas/BackgroundAsset'
+                backgroundAssetUploadFiles: '#/components/schemas/BackgroundAssetUploadFile'
+                backgroundAssetVersionExternalBetaReleases: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    BackgroundAssetVersionExternalBetaReleaseState:
+      type: string
+      enum:
+      - READY_FOR_BETA_SUBMISSION
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - REJECTED
+      - PROCESSING_FOR_TESTING
+      - READY_FOR_TESTING
+      - SUPERSEDED
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     BackgroundAssetVersionAppStoreRelease:
       type: object
       title: BackgroundAssetVersionAppStoreRelease
@@ -671,34 +776,506 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
+    BackgroundAssetVersionState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
+    DeliveryFileUploadOperation:
       type: object
       properties:
-        about:
+        method:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
+        url:
+          type: string
+        length:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        offset:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 0
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+        expiration:
+          type: string
+          format: date-time
+        partNumber:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        entityTag:
+          type: string
+    BackgroundAssetCreateRequest:
+      type: object
+      title: BackgroundAssetCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - backgroundAssets
+            attributes:
+              type: object
+              properties:
+                assetPackIdentifier:
+                  type: string
+              required:
+              - assetPackIdentifier
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    Checksums:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    BackgroundAsset:
+      type: object
+      title: BackgroundAsset
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssets
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            archived:
+              type: boolean
+            assetPackIdentifier:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            usedBytes:
+              type: integer
+              format: int64
+              maximum: 9007199254740991
+              minimum: 0
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            versions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            appStoreVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            internalBetaVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            externalBetaVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BackgroundAssetVersionInternalBetaRelease:
+      type: object
+      title: BackgroundAssetVersionInternalBetaRelease
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetVersionInternalBetaReleases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            state:
+              type: string
+              enum:
+              - READY_FOR_TESTING
+              - SUPERSEDED
+        relationships:
+          type: object
+          properties:
+            backgroundAssetVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    StateDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    BackgroundAssetVersionsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - backgroundAssetVersions
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    BackgroundAssetVersionExternalBetaRelease:
+      type: object
+      title: BackgroundAssetVersionExternalBetaRelease
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetVersionExternalBetaReleases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            state:
+              $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaReleaseState'
+        relationships:
+          type: object
+          properties:
+            backgroundAssetVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    BackgroundAssetUploadFile:
+      type: object
+      title: BackgroundAssetUploadFile
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetUploadFiles
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+            assetToken:
+              type: string
+            assetType:
+              type: string
+              enum:
+              - ASSET
+              - MANIFEST
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+              format: int64
+              maximum: 9007199254740991
+              minimum: 1
+            sourceFileChecksum:
+              type: string
+              deprecated: true
+            sourceFileChecksums:
+              $ref: '#/components/schemas/Checksums'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeliveryFileUploadOperation'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
       - self
+    BackgroundAssetUpdateRequest:
+      type: object
+      title: BackgroundAssetUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - backgroundAssets
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                archived:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
     App:
       type: object
       title: App
@@ -1336,514 +1913,26 @@ components:
       required:
       - id
       - type
-    BackgroundAssetVersionExternalBetaRelease:
-      type: object
-      title: BackgroundAssetVersionExternalBetaRelease
-      properties:
-        type:
-          type: string
-          enum:
-          - backgroundAssetVersionExternalBetaReleases
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            state:
-              $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaReleaseState'
-        relationships:
-          type: object
-          properties:
-            backgroundAssetVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - backgroundAssetVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
+    ErrorLinks:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    Checksums:
-      type: object
-      properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    BackgroundAssetVersionExternalBetaReleaseState:
-      type: string
-      enum:
-      - READY_FOR_BETA_SUBMISSION
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - REJECTED
-      - PROCESSING_FOR_TESTING
-      - READY_FOR_TESTING
-      - SUPERSEDED
-    BackgroundAssetResponse:
-      type: object
-      title: BackgroundAssetResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BackgroundAsset'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/BackgroundAssetVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                backgroundAssetVersions: '#/components/schemas/BackgroundAssetVersion'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
+        about:
           type: string
           format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    BackgroundAsset:
-      type: object
-      title: BackgroundAsset
-      properties:
-        type:
-          type: string
-          enum:
-          - backgroundAssets
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            archived:
-              type: boolean
-            assetPackIdentifier:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            usedBytes:
-              type: integer
-              format: int64
-              maximum: 9007199254740991
-              minimum: 0
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            versions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            appStoreVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - backgroundAssetVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            internalBetaVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - backgroundAssetVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            externalBetaVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - backgroundAssetVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BackgroundAssetVersionAppStoreReleaseState:
-      type: string
-      enum:
-      - PREPARE_FOR_SUBMISSION
-      - READY_FOR_REVIEW
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - ACCEPTED
-      - REJECTED
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - SUPERSEDED
-    BackgroundAssetVersionsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
             properties:
-              type:
+              href:
                 type: string
-                enum:
-                - backgroundAssetVersions
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BackgroundAssetVersionInternalBetaRelease:
-      type: object
-      title: BackgroundAssetVersionInternalBetaRelease
-      properties:
-        type:
-          type: string
-          enum:
-          - backgroundAssetVersionInternalBetaReleases
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            state:
-              type: string
-              enum:
-              - READY_FOR_TESTING
-              - SUPERSEDED
-        relationships:
-          type: object
-          properties:
-            backgroundAssetVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - backgroundAssetVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    DeliveryFileUploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        offset:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 0
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-        expiration:
-          type: string
-          format: date-time
-        partNumber:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        entityTag:
-          type: string
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
+                format: uri-reference
               meta:
                 type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    BackgroundAssetCreateRequest:
-      type: object
-      title: BackgroundAssetCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - backgroundAssets
-            attributes:
-              type: object
-              properties:
-                assetPackIdentifier:
-                  type: string
-              required:
-              - assetPackIdentifier
-            relationships:
-              type: object
-              properties:
-                app:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    StateDetail:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    BackgroundAssetVersionState:
-      type: string
-      enum:
-      - AWAITING_UPLOAD
-      - PROCESSING
-      - FAILED
-      - COMPLETE
-    BackgroundAssetVersionsResponse:
-      type: object
-      title: BackgroundAssetVersionsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BackgroundAssetVersion'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/BackgroundAssetUploadFile'
-            - $ref: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
-            - $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
-            - $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
-            - $ref: '#/components/schemas/BackgroundAsset'
-            discriminator:
-              propertyName: type
-              mapping:
-                backgroundAssetVersionAppStoreReleases: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
-                backgroundAssetVersionInternalBetaReleases: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
-                backgroundAssets: '#/components/schemas/BackgroundAsset'
-                backgroundAssetUploadFiles: '#/components/schemas/BackgroundAssetUploadFile'
-                backgroundAssetVersionExternalBetaReleases: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    BackgroundAssetUpdateRequest:
-      type: object
-      title: BackgroundAssetUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - backgroundAssets
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                archived:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
+                properties:
+                  source:
+                    type: string
     BackgroundAssetVersion:
       type: object
       title: BackgroundAssetVersion
@@ -1986,95 +2075,6 @@ components:
       required:
       - id
       - type
-    BackgroundAssetUploadFile:
-      type: object
-      title: BackgroundAssetUploadFile
-      properties:
-        type:
-          type: string
-          enum:
-          - backgroundAssetUploadFiles
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-            assetToken:
-              type: string
-            assetType:
-              type: string
-              enum:
-              - ASSET
-              - MANIFEST
-            fileName:
-              type: string
-            fileSize:
-              type: integer
-              format: int64
-              maximum: 9007199254740991
-              minimum: 1
-            sourceFileChecksum:
-              type: string
-              deprecated: true
-            sourceFileChecksums:
-              $ref: '#/components/schemas/Checksums'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/DeliveryFileUploadOperation'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

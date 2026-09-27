@@ -280,41 +280,27 @@ paths:
       summary: Delete in App Purchase App Store Review Screenshots
 components:
   schemas:
-    InAppPurchaseAppStoreReviewScreenshotResponse:
+    ErrorSourceParameter:
       type: object
-      title: InAppPurchaseAppStoreReviewScreenshotResponse
+      title: Parameter
       properties:
-        data:
-          $ref: '#/components/schemas/InAppPurchaseAppStoreReviewScreenshot'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchaseV2'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        parameter:
+          type: string
       required:
-      - data
-      - links
-    ErrorLinks:
+      - parameter
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
     DocumentLinks:
       type: object
       properties:
@@ -323,59 +309,6 @@ components:
           format: uri-reference
       required:
       - self
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
     InAppPurchaseAppStoreReviewScreenshotUpdateRequest:
       type: object
       title: InAppPurchaseAppStoreReviewScreenshotUpdateRequest
@@ -405,6 +338,60 @@ components:
           - type
       required:
       - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    InAppPurchaseState:
+      type: string
+      enum:
+      - MISSING_METADATA
+      - WAITING_FOR_UPLOAD
+      - PROCESSING_CONTENT
+      - READY_TO_SUBMIT
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_ACTION_NEEDED
+      - PENDING_BINARY_APPROVAL
+      - APPROVED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - REMOVED_FROM_SALE
+      - REJECTED
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
     InAppPurchaseV2:
       type: object
       title: InAppPurchaseV2
@@ -609,6 +596,49 @@ components:
       required:
       - id
       - type
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     InAppPurchaseAppStoreReviewScreenshotCreateRequest:
       type: object
       title: InAppPurchaseAppStoreReviewScreenshotCreateRequest
@@ -658,21 +688,6 @@ components:
           - type
       required:
       - data
-    InAppPurchaseState:
-      type: string
-      enum:
-      - MISSING_METADATA
-      - WAITING_FOR_UPLOAD
-      - PROCESSING_CONTENT
-      - READY_TO_SUBMIT
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_ACTION_NEEDED
-      - PENDING_BINARY_APPROVAL
-      - APPROVED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - REMOVED_FROM_SALE
-      - REJECTED
     ErrorResponse:
       type: object
       properties:
@@ -705,15 +720,21 @@ components:
             - detail
             - status
             - title
-    ImageAsset:
+    InAppPurchaseAppStoreReviewScreenshotResponse:
       type: object
+      title: InAppPurchaseAppStoreReviewScreenshotResponse
       properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
+        data:
+          $ref: '#/components/schemas/InAppPurchaseAppStoreReviewScreenshot'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/InAppPurchaseV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     InAppPurchaseAppStoreReviewScreenshot:
       type: object
       title: InAppPurchaseAppStoreReviewScreenshot
@@ -768,53 +789,32 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    ErrorLinks:
       type: object
       properties:
-        self:
+        about:
           type: string
           format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     InAppPurchaseType:
       type: string
       enum:
       - CONSUMABLE
       - NON_CONSUMABLE
       - NON_RENEWING_SUBSCRIPTION
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

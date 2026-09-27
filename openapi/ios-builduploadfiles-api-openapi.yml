@@ -202,47 +202,6 @@ paths:
       summary: Update Build Upload Files
 components:
   schemas:
-    Checksums:
-      type: object
-      properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
     BuildUploadFileCreateRequest:
       type: object
       title: BuildUploadFileCreateRequest
@@ -311,31 +270,71 @@ components:
           - type
       required:
       - data
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
-    ErrorLinks:
+    AppMediaAssetState:
       type: object
       properties:
-        about:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+    BuildUploadFileResponse:
+      type: object
+      title: BuildUploadFileResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BuildUploadFile'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     DeliveryFileUploadOperation:
       type: object
       properties:
@@ -367,14 +366,80 @@ components:
           minimum: 1
         entityTag:
           type: string
-    DocumentLinks:
+    ErrorLinks:
       type: object
       properties:
-        self:
+        about:
           type: string
           format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    BuildUploadFileUpdateRequest:
+      type: object
+      title: BuildUploadFileUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - buildUploadFiles
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksums:
+                  $ref: '#/components/schemas/Checksums'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
       required:
-      - self
+      - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    Checksums:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
     ErrorResponse:
       type: object
       properties:
@@ -407,32 +472,11 @@ components:
             - detail
             - status
             - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
     BuildUploadFile:
       type: object
       title: BuildUploadFile
@@ -482,50 +526,6 @@ components:
       required:
       - id
       - type
-    BuildUploadFileUpdateRequest:
-      type: object
-      title: BuildUploadFileUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - buildUploadFiles
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksums:
-                  $ref: '#/components/schemas/Checksums'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    BuildUploadFileResponse:
-      type: object
-      title: BuildUploadFileResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BuildUploadFile'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

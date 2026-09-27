@@ -907,8 +907,30 @@ paths:
       summary: Add Related App Encryption Declarations / Builds
 components:
   schemas:
-    AppEncryptionDeclarationAppLinkageResponse:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    AppEncryptionDeclarationCreateRequest:
+      type: object
+      title: AppEncryptionDeclarationCreateRequest
       properties:
         data:
           type: object
@@ -916,17 +938,79 @@ components:
             type:
               type: string
               enum:
-              - apps
-            id:
-              type: string
+              - appEncryptionDeclarations
+            attributes:
+              type: object
+              properties:
+                appDescription:
+                  type: string
+                containsProprietaryCryptography:
+                  type: boolean
+                containsThirdPartyCryptography:
+                  type: boolean
+                availableOnFrenchStore:
+                  type: boolean
+              required:
+              - availableOnFrenchStore
+              - appDescription
+              - containsThirdPartyCryptography
+              - containsProprietaryCryptography
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+                  deprecated: true
+              required:
+              - app
           required:
-          - id
+          - relationships
+          - attributes
           - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
-      - links
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppEncryptionDeclarationBuildsLinkagesRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - builds
+              id:
+                type: string
+            required:
+            - id
+            - type
+      required:
+      - data
       deprecated: true
     AppEncryptionDeclarationsResponse:
       type: object
@@ -956,6 +1040,25 @@ components:
       required:
       - data
       - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AppWithoutIncludesResponse:
+      type: object
+      title: AppWithoutIncludesResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppEncryptionDeclarationState:
       type: string
       enum:
@@ -965,6 +1068,75 @@ components:
       - REJECTED
       - INVALID
       - EXPIRED
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppEncryptionDeclarationDocument:
+      type: object
+      title: AppEncryptionDeclarationDocument
+      properties:
+        type:
+          type: string
+          enum:
+          - appEncryptionDeclarationDocuments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            assetToken:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+            sourceFileChecksum:
+              type: string
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    AppEncryptionDeclarationDocumentResponse:
+      type: object
+      title: AppEncryptionDeclarationDocumentResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppEncryptionDeclarationDocument'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     Build:
       type: object
       title: Build
@@ -1247,30 +1419,161 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
+    AppEncryptionDeclarationResponse:
+      type: object
+      title: AppEncryptionDeclarationResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppEncryptionDeclaration'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppEncryptionDeclarationDocument'
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/Build'
+            discriminator:
+              propertyName: type
+              mapping:
+                builds: '#/components/schemas/Build'
+                appEncryptionDeclarationDocuments: '#/components/schemas/AppEncryptionDeclarationDocument'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    UploadOperation:
       type: object
       properties:
-        about:
+        method:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    BuildAudienceType:
+      type: string
+      enum:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    RelationshipLinks:
       type: object
       properties:
         self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppEncryptionDeclarationAppLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - apps
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
           type: string
           format: uri-reference
       required:
@@ -1912,92 +2215,46 @@ components:
       required:
       - id
       - type
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    PagingInformation:
+    ErrorLinks:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        about:
           type: string
-      required:
-      - pointer
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    HttpHeader:
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AppEncryptionDeclarationAppEncryptionDeclarationDocumentLinkageResponse:
       type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppEncryptionDeclarationResponse:
-      type: object
-      title: AppEncryptionDeclarationResponse
       properties:
         data:
-          $ref: '#/components/schemas/AppEncryptionDeclaration'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppEncryptionDeclarationDocument'
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/Build'
-            discriminator:
-              propertyName: type
-              mapping:
-                builds: '#/components/schemas/Build'
-                appEncryptionDeclarationDocuments: '#/components/schemas/AppEncryptionDeclarationDocument'
-                apps: '#/components/schemas/App'
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appEncryptionDeclarationDocuments
+            id:
+              type: string
+          required:
+          - id
+          - type
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
     AppEncryptionDeclaration:
       type: object
       title: AppEncryptionDeclaration
@@ -2112,263 +2369,6 @@ components:
       required:
       - id
       - type
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    AppEncryptionDeclarationBuildsLinkagesRequest:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - builds
-              id:
-                type: string
-            required:
-            - id
-            - type
-      required:
-      - data
-      deprecated: true
-    AppWithoutIncludesResponse:
-      type: object
-      title: AppWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppEncryptionDeclarationDocument:
-      type: object
-      title: AppEncryptionDeclarationDocument
-      properties:
-        type:
-          type: string
-          enum:
-          - appEncryptionDeclarationDocuments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            assetToken:
-              type: string
-            downloadUrl:
-              type: string
-              format: uri
-            sourceFileChecksum:
-              type: string
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AppEncryptionDeclarationDocumentResponse:
-      type: object
-      title: AppEncryptionDeclarationDocumentResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppEncryptionDeclarationDocument'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppEncryptionDeclarationCreateRequest:
-      type: object
-      title: AppEncryptionDeclarationCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appEncryptionDeclarations
-            attributes:
-              type: object
-              properties:
-                appDescription:
-                  type: string
-                containsProprietaryCryptography:
-                  type: boolean
-                containsThirdPartyCryptography:
-                  type: boolean
-                availableOnFrenchStore:
-                  type: boolean
-              required:
-              - availableOnFrenchStore
-              - appDescription
-              - containsThirdPartyCryptography
-              - containsProprietaryCryptography
-            relationships:
-              type: object
-              properties:
-                app:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-                  deprecated: true
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    AppEncryptionDeclarationAppEncryptionDeclarationDocumentLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appEncryptionDeclarationDocuments
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

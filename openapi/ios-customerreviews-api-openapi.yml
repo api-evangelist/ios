@@ -272,36 +272,112 @@ paths:
       summary: Get Related Customer Reviews / Response
 components:
   schemas:
-    ErrorSourcePointer:
+    CustomerReviewResponseV1Response:
       type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    CustomerReviewResponse:
-      type: object
-      title: CustomerReviewResponse
+      title: CustomerReviewResponseV1Response
       properties:
         data:
-          $ref: '#/components/schemas/CustomerReview'
+          $ref: '#/components/schemas/CustomerReviewResponseV1'
         included:
           type: array
           items:
-            oneOf:
-            - $ref: '#/components/schemas/CustomerReviewResponseV1'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                customerReviewResponses: '#/components/schemas/CustomerReviewResponseV1'
+            $ref: '#/components/schemas/CustomerReview'
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    CustomerReview:
+      type: object
+      title: CustomerReview
+      properties:
+        type:
+          type: string
+          enum:
+          - customerReviews
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            rating:
+              type: integer
+              maximum: 5
+              minimum: 1
+            title:
+              type: string
+            body:
+              type: string
+            reviewerNickname:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            territory:
+              $ref: '#/components/schemas/TerritoryCode'
+        relationships:
+          type: object
+          properties:
+            response:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - customerReviewResponses
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            reviewTerritory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     CustomerReviewResponseV1:
       type: object
       title: CustomerReviewResponseV1
@@ -348,15 +424,44 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
+      required:
+      - self
+    CustomerReviewResponse:
+      type: object
+      title: CustomerReviewResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/CustomerReview'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CustomerReviewResponseV1'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                customerReviewResponses: '#/components/schemas/CustomerReviewResponseV1'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
           type: string
-          format: uri-reference
+      required:
+      - pointer
     ErrorLinks:
       type: object
       properties:
@@ -397,95 +502,6 @@ components:
       required:
       - data
       - links
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    CustomerReviewResponseV1Response:
-      type: object
-      title: CustomerReviewResponseV1Response
-      properties:
-        data:
-          $ref: '#/components/schemas/CustomerReviewResponseV1'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomerReview'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     TerritoryCode:
       type: string
       enum:
@@ -722,69 +738,53 @@ components:
       - ZAF
       - ZMB
       - ZWE
-    CustomerReview:
+    ErrorResponse:
       type: object
-      title: CustomerReview
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    Territory:
+      type: object
+      title: Territory
       properties:
         type:
           type: string
           enum:
-          - customerReviews
+          - territories
         id:
           type: string
         attributes:
           type: object
           properties:
-            rating:
-              type: integer
-              maximum: 5
-              minimum: 1
-            title:
+            currency:
               type: string
-            body:
-              type: string
-            reviewerNickname:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            territory:
-              $ref: '#/components/schemas/TerritoryCode'
-        relationships:
-          type: object
-          properties:
-            response:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - customerReviewResponses
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            reviewTerritory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:

@@ -117,14 +117,29 @@ paths:
       summary: Delete Subscription Prices
 components:
   schemas:
-    ErrorSourcePointer:
+    RelationshipLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     SubscriptionPriceCreateRequest:
       type: object
       title: SubscriptionPriceCreateRequest
@@ -208,6 +223,83 @@ components:
           - type
       required:
       - data
+    SubscriptionPricePoint:
+      type: object
+      title: SubscriptionPricePoint
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionPricePoints
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            customerPrice:
+              type: string
+            proceeds:
+              type: string
+            proceedsYear2:
+              type: string
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            equalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    SubscriptionPriceResponse:
+      type: object
+      title: SubscriptionPriceResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionPrice'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionPricePoint'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     SubscriptionPrice:
       type: object
       title: SubscriptionPrice
@@ -264,15 +356,6 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     ErrorLinks:
       type: object
       properties:
@@ -293,14 +376,14 @@ components:
                 properties:
                   source:
                     type: string
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
+      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -333,61 +416,6 @@ components:
             - detail
             - status
             - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    SubscriptionPricePoint:
-      type: object
-      title: SubscriptionPricePoint
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionPricePoints
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            customerPrice:
-              type: string
-            proceeds:
-              type: string
-            proceedsYear2:
-              type: string
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            equalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     Territory:
       type: object
       title: Territory
@@ -408,34 +436,6 @@ components:
       required:
       - id
       - type
-    SubscriptionPriceResponse:
-      type: object
-      title: SubscriptionPriceResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionPrice'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionPricePoint'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

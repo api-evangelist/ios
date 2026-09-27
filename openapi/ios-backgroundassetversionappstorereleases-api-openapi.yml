@@ -114,6 +114,56 @@ paths:
       summary: Get Background Asset Version App Store Releases
 components:
   schemas:
+    BackgroundAssetVersionAppStoreReleaseState:
+      type: string
+      enum:
+      - PREPARE_FOR_SUBMISSION
+      - READY_FOR_REVIEW
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - ACCEPTED
+      - REJECTED
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - SUPERSEDED
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    StateDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
     Platform:
       type: string
       enum:
@@ -121,29 +171,6 @@ components:
       - MAC_OS
       - TV_OS
       - VISION_OS
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    BackgroundAssetVersionAppStoreReleaseResponse:
-      type: object
-      title: BackgroundAssetVersionAppStoreReleaseResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/BackgroundAssetVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     BackgroundAssetVersionAppStoreRelease:
       type: object
       title: BackgroundAssetVersionAppStoreRelease
@@ -182,6 +209,88 @@ components:
       required:
       - id
       - type
+    BackgroundAssetVersionState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    BackgroundAssetVersionAppStoreReleaseResponse:
+      type: object
+      title: BackgroundAssetVersionAppStoreReleaseResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackgroundAssetVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     BackgroundAssetVersion:
       type: object
       title: BackgroundAssetVersion
@@ -324,115 +433,6 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    StateDetail:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    BackgroundAssetVersionAppStoreReleaseState:
-      type: string
-      enum:
-      - PREPARE_FOR_SUBMISSION
-      - READY_FOR_REVIEW
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - ACCEPTED
-      - REJECTED
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - SUPERSEDED
-    BackgroundAssetVersionState:
-      type: string
-      enum:
-      - AWAITING_UPLOAD
-      - PROCESSING
-      - FAILED
-      - COMPLETE
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

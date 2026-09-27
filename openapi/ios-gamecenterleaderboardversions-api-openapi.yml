@@ -385,73 +385,75 @@ paths:
       summary: List Related Game Center Leaderboard Versions V2 / Localizations
 components:
   schemas:
-    GameCenterLeaderboardLocalizationsV2Response:
+    ErrorSourceParameter:
       type: object
-      title: GameCenterLeaderboardLocalizationsV2Response
+      title: Parameter
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterLeaderboardImageV2'
-            - $ref: '#/components/schemas/GameCenterLeaderboardVersionV2'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterLeaderboardImages: '#/components/schemas/GameCenterLeaderboardImageV2'
-                gameCenterLeaderboardVersions: '#/components/schemas/GameCenterLeaderboardVersionV2'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        parameter:
+          type: string
       required:
-      - data
-      - links
-    GameCenterLeaderboardFormatter:
-      type: string
-      enum:
-      - INTEGER
-      - DECIMAL_POINT_1_PLACE
-      - DECIMAL_POINT_2_PLACE
-      - DECIMAL_POINT_3_PLACE
-      - ELAPSED_TIME_CENTISECOND
-      - ELAPSED_TIME_MINUTE
-      - ELAPSED_TIME_SECOND
-      - MONEY_POUND_DECIMAL
-      - MONEY_POUND
-      - MONEY_DOLLAR_DECIMAL
-      - MONEY_DOLLAR
-      - MONEY_EURO_DECIMAL
-      - MONEY_EURO
-      - MONEY_FRANC_DECIMAL
-      - MONEY_FRANC
-      - MONEY_KRONER_DECIMAL
-      - MONEY_KRONER
-      - MONEY_YEN
-    ErrorLinks:
+      - parameter
+    GameCenterLeaderboardImageV2:
+      type: object
+      title: GameCenterLeaderboardImageV2
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterLeaderboardImages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            imageAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        relationships:
+          type: object
+          properties:
+            localization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboardLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
     DocumentLinks:
       type: object
       properties:
@@ -460,6 +462,208 @@ components:
           format: uri-reference
       required:
       - self
+    GameCenterLeaderboardVersionV2:
+      type: object
+      title: GameCenterLeaderboardVersionV2
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterLeaderboardVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            version:
+              type: integer
+            state:
+              $ref: '#/components/schemas/GameCenterVersionState'
+        relationships:
+          type: object
+          properties:
+            leaderboard:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboards
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            localizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboardLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    GameCenterLeaderboardLocalizationV2:
+      type: object
+      title: GameCenterLeaderboardLocalizationV2
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterLeaderboardLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            name:
+              type: string
+            formatterOverride:
+              $ref: '#/components/schemas/GameCenterLeaderboardFormatter'
+            formatterSuffix:
+              type: string
+            formatterSuffixSingular:
+              type: string
+            description:
+              type: string
+        relationships:
+          type: object
+          properties:
+            version:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboardVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            image:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboardImages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    GameCenterLeaderboardVersionV2LocalizationsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - gameCenterLeaderboardLocalizations
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    GameCenterVersionState:
+      type: string
+      enum:
+      - PREPARE_FOR_SUBMISSION
+      - READY_FOR_REVIEW
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_REJECTED
+      - REJECTED
+      - ACCEPTED
+      - PENDING_RELEASE
+      - LIVE
+      - REPLACED_WITH_NEW_VERSION
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
     GameCenterLeaderboardV2:
       type: object
       title: GameCenterLeaderboardV2
@@ -624,143 +828,85 @@ components:
       required:
       - id
       - type
-    GameCenterLeaderboardLocalizationV2:
+    RelationshipLinks:
       type: object
-      title: GameCenterLeaderboardLocalizationV2
       properties:
-        type:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
           enum:
-          - gameCenterLeaderboardLocalizations
-        id:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    GameCenterLeaderboardFormatter:
+      type: string
+      enum:
+      - INTEGER
+      - DECIMAL_POINT_1_PLACE
+      - DECIMAL_POINT_2_PLACE
+      - DECIMAL_POINT_3_PLACE
+      - ELAPSED_TIME_CENTISECOND
+      - ELAPSED_TIME_MINUTE
+      - ELAPSED_TIME_SECOND
+      - MONEY_POUND_DECIMAL
+      - MONEY_POUND
+      - MONEY_DOLLAR_DECIMAL
+      - MONEY_DOLLAR
+      - MONEY_EURO_DECIMAL
+      - MONEY_EURO
+      - MONEY_FRANC_DECIMAL
+      - MONEY_FRANC
+      - MONEY_KRONER_DECIMAL
+      - MONEY_KRONER
+      - MONEY_YEN
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
           type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-            name:
-              type: string
-            formatterOverride:
-              $ref: '#/components/schemas/GameCenterLeaderboardFormatter'
-            formatterSuffix:
-              type: string
-            formatterSuffixSingular:
-              type: string
-            description:
-              type: string
-        relationships:
-          type: object
-          properties:
-            version:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboardVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            image:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboardImages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
+        width:
+          type: integer
+        height:
+          type: integer
+    GameCenterLeaderboardVersionV2Response:
+      type: object
+      title: GameCenterLeaderboardVersionV2Response
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterLeaderboardVersionV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
+            - $ref: '#/components/schemas/GameCenterLeaderboardV2'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterLeaderboardLocalizations: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
+                gameCenterLeaderboards: '#/components/schemas/GameCenterLeaderboardV2'
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    GameCenterLeaderboardImageV2:
-      type: object
-      title: GameCenterLeaderboardImageV2
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterLeaderboardImages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            imageAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        relationships:
-          type: object
-          properties:
-            localization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboardLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
+      - data
+      - links
     HttpHeader:
       type: object
       properties:
@@ -768,44 +914,25 @@ components:
           type: string
         value:
           type: string
-    PagedDocumentLinks:
+    GameCenterLeaderboardLocalizationsV2Response:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    GameCenterLeaderboardVersionV2LocalizationsLinkagesResponse:
-      type: object
+      title: GameCenterLeaderboardLocalizationsV2Response
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterLeaderboardLocalizations
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterLeaderboardImageV2'
+            - $ref: '#/components/schemas/GameCenterLeaderboardVersionV2'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterLeaderboardImages: '#/components/schemas/GameCenterLeaderboardImageV2'
+                gameCenterLeaderboardVersions: '#/components/schemas/GameCenterLeaderboardVersionV2'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -813,82 +940,38 @@ components:
       required:
       - data
       - links
-    UploadOperation:
+    ErrorResponse:
       type: object
       properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
+        errors:
           type: array
           items:
-            $ref: '#/components/schemas/HttpHeader'
-    GameCenterLeaderboardVersionV2:
-      type: object
-      title: GameCenterLeaderboardVersionV2
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterLeaderboardVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            version:
-              type: integer
-            state:
-              $ref: '#/components/schemas/GameCenterVersionState'
-        relationships:
-          type: object
-          properties:
-            leaderboard:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboards
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            localizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboardLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     GameCenterLeaderboardVersionV2CreateRequest:
       type: object
       title: GameCenterLeaderboardVersionV2CreateRequest
@@ -927,127 +1010,44 @@ components:
           - type
       required:
       - data
-    ErrorResponse:
+    PagedDocumentLinks:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
             properties:
-              id:
+              href:
                 type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
+                format: uri-reference
               meta:
                 type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    GameCenterVersionState:
-      type: string
-      enum:
-      - PREPARE_FOR_SUBMISSION
-      - READY_FOR_REVIEW
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_REJECTED
-      - REJECTED
-      - ACCEPTED
-      - PENDING_RELEASE
-      - LIVE
-      - REPLACED_WITH_NEW_VERSION
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
+                properties:
+                  source:
+                    type: string
     StringToStringMap:
       type: object
       additionalProperties:
         type: string
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    GameCenterLeaderboardVersionV2Response:
-      type: object
-      title: GameCenterLeaderboardVersionV2Response
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterLeaderboardVersionV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
-            - $ref: '#/components/schemas/GameCenterLeaderboardV2'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterLeaderboardLocalizations: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
-                gameCenterLeaderboards: '#/components/schemas/GameCenterLeaderboardV2'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

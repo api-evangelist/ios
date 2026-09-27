@@ -457,9 +457,88 @@ paths:
       summary: Get Related Beta App Review Submissions / Build
 components:
   schemas:
-    BetaAppReviewSubmissionCreateRequest:
+    BetaAppReviewSubmissionResponse:
       type: object
-      title: BetaAppReviewSubmissionCreateRequest
+      title: BetaAppReviewSubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BetaAppReviewSubmission'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Build'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BetaAppReviewSubmission:
+      type: object
+      title: BetaAppReviewSubmission
+      properties:
+        type:
+          type: string
+          enum:
+          - betaAppReviewSubmissions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            betaReviewState:
+              $ref: '#/components/schemas/BetaReviewState'
+            submittedDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            build:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - builds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BetaAppReviewSubmissionBuildLinkageResponse:
+      type: object
       properties:
         data:
           type: object
@@ -467,34 +546,48 @@ components:
             type:
               type: string
               enum:
-              - betaAppReviewSubmissions
-            relationships:
-              type: object
-              properties:
-                build:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - builds
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - build
+              - builds
+            id:
+              type: string
           required:
-          - relationships
+          - id
           - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    BetaReviewState:
+      type: string
+      enum:
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - REJECTED
+      - APPROVED
     Build:
       type: object
       title: Build
@@ -796,112 +889,32 @@ components:
       required:
       - data
       - links
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BuildWithoutIncludesResponse:
-      type: object
-      title: BuildWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     BuildAudienceType:
       type: string
       enum:
       - INTERNAL_ONLY
       - APP_STORE_ELIGIBLE
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    BetaAppReviewSubmissionResponse:
-      type: object
-      title: BetaAppReviewSubmissionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BetaAppReviewSubmission'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    PagedDocumentLinks:
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+        related:
           type: string
           format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BetaReviewState:
-      type: string
-      enum:
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - REJECTED
-      - APPROVED
-    BetaAppReviewSubmissionBuildLinkageResponse:
+    ImageAsset:
       type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    BetaAppReviewSubmissionCreateRequest:
+      type: object
+      title: BetaAppReviewSubmissionCreateRequest
       properties:
         data:
           type: object
@@ -909,12 +922,40 @@ components:
             type:
               type: string
               enum:
-              - builds
-            id:
-              type: string
+              - betaAppReviewSubmissions
+            relationships:
+              type: object
+              properties:
+                build:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - builds
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - build
           required:
-          - id
+          - relationships
           - type
+      required:
+      - data
+    BuildWithoutIncludesResponse:
+      type: object
+      title: BuildWithoutIncludesResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Build'
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
@@ -952,81 +993,40 @@ components:
             - detail
             - status
             - title
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    RelationshipLinks:
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
+        first:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    BetaAppReviewSubmission:
-      type: object
-      title: BetaAppReviewSubmission
-      properties:
-        type:
-          type: string
-          enum:
-          - betaAppReviewSubmissions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            betaReviewState:
-              $ref: '#/components/schemas/BetaReviewState'
-            submittedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            build:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - builds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
+        next:
           type: string
           format: uri-reference
+      required:
+      - self
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -376,6 +376,57 @@ paths:
       summary: List Related Background Asset Versions / Background Asset Upload Files
 components:
   schemas:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    BackgroundAssetVersionAppStoreReleaseState:
+      type: string
+      enum:
+      - PREPARE_FOR_SUBMISSION
+      - READY_FOR_REVIEW
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - ACCEPTED
+      - REJECTED
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - SUPERSEDED
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    BackgroundAssetVersionExternalBetaReleaseState:
+      type: string
+      enum:
+      - READY_FOR_BETA_SUBMISSION
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - REJECTED
+      - PROCESSING_FOR_TESTING
+      - READY_FOR_TESTING
+      - SUPERSEDED
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     BackgroundAssetVersionAppStoreRelease:
       type: object
       title: BackgroundAssetVersionAppStoreRelease
@@ -414,116 +465,52 @@ components:
       required:
       - id
       - type
-    BackgroundAssetVersionResponse:
+    BackgroundAssetVersionState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
+    DeliveryFileUploadOperation:
       type: object
-      title: BackgroundAssetVersionResponse
       properties:
-        data:
-          $ref: '#/components/schemas/BackgroundAssetVersion'
-        included:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        offset:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 0
+        requestHeaders:
           type: array
           items:
-            oneOf:
-            - $ref: '#/components/schemas/BackgroundAssetUploadFile'
-            - $ref: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
-            - $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
-            - $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
-            - $ref: '#/components/schemas/BackgroundAsset'
-            discriminator:
-              propertyName: type
-              mapping:
-                backgroundAssetVersionAppStoreReleases: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
-                backgroundAssetVersionInternalBetaReleases: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
-                backgroundAssets: '#/components/schemas/BackgroundAsset'
-                backgroundAssetUploadFiles: '#/components/schemas/BackgroundAssetUploadFile'
-                backgroundAssetVersionExternalBetaReleases: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorLinks:
-      type: object
-      properties:
-        about:
+            $ref: '#/components/schemas/HttpHeader'
+        expiration:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
+          format: date-time
+        partNumber:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        entityTag:
           type: string
-          format: uri-reference
-      required:
-      - self
-    BackgroundAssetVersionExternalBetaRelease:
+    ErrorSourcePointer:
       type: object
-      title: BackgroundAssetVersionExternalBetaRelease
+      title: JsonPointer
       properties:
-        type:
+        pointer:
           type: string
-          enum:
-          - backgroundAssetVersionExternalBetaReleases
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            state:
-              $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaReleaseState'
-        relationships:
-          type: object
-          properties:
-            backgroundAssetVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - backgroundAssetVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
+      - pointer
     Checksums:
       type: object
       properties:
@@ -543,52 +530,6 @@ components:
               type: string
               enum:
               - MD5
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    BackgroundAssetVersionExternalBetaReleaseState:
-      type: string
-      enum:
-      - READY_FOR_BETA_SUBMISSION
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - REJECTED
-      - PROCESSING_FOR_TESTING
-      - READY_FOR_TESTING
-      - SUPERSEDED
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
     BackgroundAsset:
       type: object
       title: BackgroundAsset
@@ -687,57 +628,6 @@ components:
       required:
       - id
       - type
-    BackgroundAssetVersionBackgroundAssetUploadFilesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - backgroundAssetUploadFiles
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BackgroundAssetUploadFilesResponse:
-      type: object
-      title: BackgroundAssetUploadFilesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BackgroundAssetUploadFile'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BackgroundAssetVersionAppStoreReleaseState:
-      type: string
-      enum:
-      - PREPARE_FOR_SUBMISSION
-      - READY_FOR_REVIEW
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - ACCEPTED
-      - REJECTED
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - SUPERSEDED
     BackgroundAssetVersionInternalBetaRelease:
       type: object
       title: BackgroundAssetVersionInternalBetaRelease
@@ -779,37 +669,160 @@ components:
       required:
       - id
       - type
-    DeliveryFileUploadOperation:
+    PagingInformation:
       type: object
       properties:
-        method:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    StateDetail:
+      type: object
+      properties:
+        code:
           type: string
-        url:
+        description:
           type: string
-        length:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        offset:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 0
-        requestHeaders:
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    BackgroundAssetVersionBackgroundAssetUploadFilesLinkagesResponse:
+      type: object
+      properties:
+        data:
           type: array
           items:
-            $ref: '#/components/schemas/HttpHeader'
-        expiration:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - backgroundAssetUploadFiles
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    BackgroundAssetVersionResponse:
+      type: object
+      title: BackgroundAssetVersionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BackgroundAssetVersion'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/BackgroundAssetUploadFile'
+            - $ref: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
+            - $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
+            - $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
+            - $ref: '#/components/schemas/BackgroundAsset'
+            discriminator:
+              propertyName: type
+              mapping:
+                backgroundAssetVersionAppStoreReleases: '#/components/schemas/BackgroundAssetVersionAppStoreRelease'
+                backgroundAssetVersionInternalBetaReleases: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
+                backgroundAssets: '#/components/schemas/BackgroundAsset'
+                backgroundAssetUploadFiles: '#/components/schemas/BackgroundAssetUploadFile'
+                backgroundAssetVersionExternalBetaReleases: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
           type: string
-          format: date-time
-        partNumber:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        entityTag:
+          format: uri-reference
+        related:
           type: string
+          format: uri-reference
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    BackgroundAssetVersionExternalBetaRelease:
+      type: object
+      title: BackgroundAssetVersionExternalBetaRelease
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetVersionExternalBetaReleases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            state:
+              $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaReleaseState'
+        relationships:
+          type: object
+          properties:
+            backgroundAssetVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     ErrorResponse:
       type: object
       properties:
@@ -842,20 +855,6 @@ components:
             - detail
             - status
             - title
-    StateDetail:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    BackgroundAssetVersionState:
-      type: string
-      enum:
-      - AWAITING_UPLOAD
-      - PROCESSING
-      - FAILED
-      - COMPLETE
     BackgroundAssetVersionCreateRequest:
       type: object
       title: BackgroundAssetVersionCreateRequest
@@ -894,13 +893,103 @@ components:
           - type
       required:
       - data
-    Platform:
+    BackgroundAssetUploadFile:
+      type: object
+      title: BackgroundAssetUploadFile
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetUploadFiles
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+            assetToken:
+              type: string
+            assetType:
+              type: string
+              enum:
+              - ASSET
+              - MANIFEST
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+              format: int64
+              maximum: 9007199254740991
+              minimum: 1
+            sourceFileChecksum:
+              type: string
+              deprecated: true
+            sourceFileChecksums:
+              $ref: '#/components/schemas/Checksums'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeliveryFileUploadOperation'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ChecksumAlgorithm:
       type: string
       enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
+      - MD5
+      - SHA_256
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BackgroundAssetUploadFilesResponse:
+      type: object
+      title: BackgroundAssetUploadFilesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackgroundAssetUploadFile'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     BackgroundAssetVersion:
       type: object
       title: BackgroundAssetVersion
@@ -1043,95 +1132,6 @@ components:
       required:
       - id
       - type
-    BackgroundAssetUploadFile:
-      type: object
-      title: BackgroundAssetUploadFile
-      properties:
-        type:
-          type: string
-          enum:
-          - backgroundAssetUploadFiles
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-            assetToken:
-              type: string
-            assetType:
-              type: string
-              enum:
-              - ASSET
-              - MANIFEST
-            fileName:
-              type: string
-            fileSize:
-              type: integer
-              format: int64
-              maximum: 9007199254740991
-              minimum: 1
-            sourceFileChecksum:
-              type: string
-              deprecated: true
-            sourceFileChecksums:
-              $ref: '#/components/schemas/Checksums'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/DeliveryFileUploadOperation'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
   securitySchemes:
     itc-bearer-token:
       type: http

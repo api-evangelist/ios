@@ -923,96 +923,43 @@ paths:
       summary: List Related Subscription Groups / Subscriptions
 components:
   schemas:
-    SubscriptionPromotionalOffer:
+    SubscriptionsResponse:
       type: object
-      title: SubscriptionPromotionalOffer
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionPromotionalOffers
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            duration:
-              $ref: '#/components/schemas/SubscriptionOfferDuration'
-            name:
-              type: string
-            numberOfPeriods:
-              type: integer
-            offerCode:
-              type: string
-            offerMode:
-              $ref: '#/components/schemas/SubscriptionOfferMode'
-        relationships:
-          type: object
-          properties:
-            subscription:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            prices:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptionPromotionalOfferPrices
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionOfferMode:
-      type: string
-      enum:
-      - PAY_AS_YOU_GO
-      - PAY_UP_FRONT
-      - FREE_TRIAL
-    SubscriptionGroupSubscriptionsLinkagesResponse:
-      type: object
+      title: SubscriptionsResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - subscriptions
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/Subscription'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/PromotedPurchase'
+            - $ref: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
+            - $ref: '#/components/schemas/SubscriptionAvailability'
+            - $ref: '#/components/schemas/SubscriptionGroup'
+            - $ref: '#/components/schemas/SubscriptionImage'
+            - $ref: '#/components/schemas/SubscriptionIntroductoryOffer'
+            - $ref: '#/components/schemas/SubscriptionLocalization'
+            - $ref: '#/components/schemas/SubscriptionOfferCode'
+            - $ref: '#/components/schemas/SubscriptionPrice'
+            - $ref: '#/components/schemas/SubscriptionPromotionalOffer'
+            - $ref: '#/components/schemas/WinBackOffer'
+            discriminator:
+              propertyName: type
+              mapping:
+                subscriptionAppStoreReviewScreenshots: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
+                promotedPurchases: '#/components/schemas/PromotedPurchase'
+                subscriptionGroups: '#/components/schemas/SubscriptionGroup'
+                subscriptionImages: '#/components/schemas/SubscriptionImage'
+                subscriptionPrices: '#/components/schemas/SubscriptionPrice'
+                winBackOffers: '#/components/schemas/WinBackOffer'
+                subscriptionIntroductoryOffers: '#/components/schemas/SubscriptionIntroductoryOffer'
+                subscriptionOfferCodes: '#/components/schemas/SubscriptionOfferCode'
+                subscriptionPromotionalOffers: '#/components/schemas/SubscriptionPromotionalOffer'
+                subscriptionLocalizations: '#/components/schemas/SubscriptionLocalization'
+                subscriptionAvailabilities: '#/components/schemas/SubscriptionAvailability'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1020,26 +967,27 @@ components:
       required:
       - data
       - links
-    ErrorLinks:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
     DocumentLinks:
       type: object
       properties:
@@ -1048,53 +996,39 @@ components:
           format: uri-reference
       required:
       - self
-    SubscriptionGroupUpdateRequest:
+    SubscriptionImage:
       type: object
-      title: SubscriptionGroupUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionGroups
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                referenceName:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    SubscriptionLocalization:
-      type: object
-      title: SubscriptionLocalization
+      title: SubscriptionImage
       properties:
         type:
           type: string
           enum:
-          - subscriptionLocalizations
+          - subscriptionImages
         id:
           type: string
         attributes:
           type: object
           properties:
-            name:
+            fileSize:
+              type: integer
+            fileName:
               type: string
-            locale:
+            sourceFileChecksum:
               type: string
-            description:
+            assetToken:
               type: string
+            imageAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
             state:
               type: string
               enum:
+              - AWAITING_UPLOAD
+              - UPLOAD_COMPLETE
+              - FAILED
               - PREPARE_FOR_SUBMISSION
               - WAITING_FOR_REVIEW
               - APPROVED
@@ -1176,6 +1110,501 @@ components:
       required:
       - id
       - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionPromotionalOffer:
+      type: object
+      title: SubscriptionPromotionalOffer
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionPromotionalOffers
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            duration:
+              $ref: '#/components/schemas/SubscriptionOfferDuration'
+            name:
+              type: string
+            numberOfPeriods:
+              type: integer
+            offerCode:
+              type: string
+            offerMode:
+              $ref: '#/components/schemas/SubscriptionOfferMode'
+        relationships:
+          type: object
+          properties:
+            subscription:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            prices:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptionPromotionalOfferPrices
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    WinBackOffer:
+      type: object
+      title: WinBackOffer
+      properties:
+        type:
+          type: string
+          enum:
+          - winBackOffers
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            offerId:
+              type: string
+            duration:
+              $ref: '#/components/schemas/SubscriptionOfferDuration'
+            offerMode:
+              $ref: '#/components/schemas/SubscriptionOfferMode'
+            periodCount:
+              type: integer
+            customerEligibilityPaidSubscriptionDurationInMonths:
+              type: integer
+            customerEligibilityTimeSinceLastSubscribedInMonths:
+              $ref: '#/components/schemas/IntegerRange'
+            customerEligibilityWaitBetweenOffersInMonths:
+              type: integer
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            priority:
+              type: string
+              enum:
+              - HIGH
+              - NORMAL
+            promotionIntent:
+              type: string
+              enum:
+              - NOT_PROMOTED
+              - USE_AUTO_GENERATED_ASSETS
+        relationships:
+          type: object
+          properties:
+            prices:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - winBackOfferPrices
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    SubscriptionOfferMode:
+      type: string
+      enum:
+      - PAY_AS_YOU_GO
+      - PAY_UP_FRONT
+      - FREE_TRIAL
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    SubscriptionCustomerEligibility:
+      type: string
+      enum:
+      - NEW
+      - EXISTING
+      - EXPIRED
+    SubscriptionGroupResponse:
+      type: object
+      title: SubscriptionGroupResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionGroup'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionGroupLocalization'
+            - $ref: '#/components/schemas/Subscription'
+            discriminator:
+              propertyName: type
+              mapping:
+                subscriptions: '#/components/schemas/Subscription'
+                subscriptionGroupLocalizations: '#/components/schemas/SubscriptionGroupLocalization'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    SubscriptionPrice:
+      type: object
+      title: SubscriptionPrice
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionPrices
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+            preserved:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            subscriptionPricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionPricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    SubscriptionAvailability:
+      type: object
+      title: SubscriptionAvailability
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionAvailabilities
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            availableInNewTerritories:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            availableTerritories:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - territories
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    SubscriptionLocalization:
+      type: object
+      title: SubscriptionLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            locale:
+              type: string
+            description:
+              type: string
+            state:
+              type: string
+              enum:
+              - PREPARE_FOR_SUBMISSION
+              - WAITING_FOR_REVIEW
+              - APPROVED
+              - REJECTED
+        relationships:
+          type: object
+          properties:
+            subscription:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    SubscriptionOfferDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - ONE_WEEK
+      - TWO_WEEKS
+      - ONE_MONTH
+      - TWO_MONTHS
+      - THREE_MONTHS
+      - SIX_MONTHS
+      - ONE_YEAR
+    SubscriptionIntroductoryOffer:
+      type: object
+      title: SubscriptionIntroductoryOffer
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionIntroductoryOffers
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            duration:
+              $ref: '#/components/schemas/SubscriptionOfferDuration'
+            offerMode:
+              $ref: '#/components/schemas/SubscriptionOfferMode'
+            numberOfPeriods:
+              type: integer
+        relationships:
+          type: object
+          properties:
+            subscription:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            subscriptionPricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionPricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     SubscriptionGroupSubscriptionGroupLocalizationsLinkagesResponse:
       type: object
       properties:
@@ -1200,6 +1629,340 @@ components:
       required:
       - data
       - links
+    SubscriptionGroupUpdateRequest:
+      type: object
+      title: SubscriptionGroupUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionGroups
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                referenceName:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    SubscriptionOfferCode:
+      type: object
+      title: SubscriptionOfferCode
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionOfferCodes
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            customerEligibilities:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubscriptionCustomerEligibility'
+            offerEligibility:
+              $ref: '#/components/schemas/SubscriptionOfferEligibility'
+            duration:
+              $ref: '#/components/schemas/SubscriptionOfferDuration'
+            offerMode:
+              $ref: '#/components/schemas/SubscriptionOfferMode'
+            numberOfPeriods:
+              type: integer
+            totalNumberOfCodes:
+              type: integer
+            productionCodeCount:
+              type: integer
+            sandboxCodeCount:
+              type: integer
+            active:
+              type: boolean
+            autoRenewEnabled:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            subscription:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            oneTimeUseCodes:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptionOfferCodeOneTimeUseCodes
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            customCodes:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptionOfferCodeCustomCodes
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            prices:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptionOfferCodePrices
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    SubscriptionOfferEligibility:
+      type: string
+      enum:
+      - STACK_WITH_INTRO_OFFERS
+      - REPLACE_INTRO_OFFERS
+    SubscriptionGroupCreateRequest:
+      type: object
+      title: SubscriptionGroupCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionGroups
+            attributes:
+              type: object
+              properties:
+                referenceName:
+                  type: string
+              required:
+              - referenceName
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    SubscriptionGroupSubscriptionsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - subscriptions
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    SubscriptionGroup:
+      type: object
+      title: SubscriptionGroup
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionGroups
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+        relationships:
+          type: object
+          properties:
+            subscriptions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            subscriptionGroupLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptionGroupLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     PromotedPurchase:
       type: object
       title: PromotedPurchase
@@ -1262,43 +2025,38 @@ components:
       required:
       - id
       - type
-    SubscriptionsResponse:
+    ErrorLinks:
       type: object
-      title: SubscriptionsResponse
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    SubscriptionGroupLocalizationsResponse:
+      type: object
+      title: SubscriptionGroupLocalizationsResponse
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Subscription'
+            $ref: '#/components/schemas/SubscriptionGroupLocalization'
         included:
           type: array
           items:
-            oneOf:
-            - $ref: '#/components/schemas/PromotedPurchase'
-            - $ref: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
-            - $ref: '#/components/schemas/SubscriptionAvailability'
-            - $ref: '#/components/schemas/SubscriptionGroup'
-            - $ref: '#/components/schemas/SubscriptionImage'
-            - $ref: '#/components/schemas/SubscriptionIntroductoryOffer'
-            - $ref: '#/components/schemas/SubscriptionLocalization'
-            - $ref: '#/components/schemas/SubscriptionOfferCode'
-            - $ref: '#/components/schemas/SubscriptionPrice'
-            - $ref: '#/components/schemas/SubscriptionPromotionalOffer'
-            - $ref: '#/components/schemas/WinBackOffer'
-            discriminator:
-              propertyName: type
-              mapping:
-                subscriptionAppStoreReviewScreenshots: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
-                promotedPurchases: '#/components/schemas/PromotedPurchase'
-                subscriptionGroups: '#/components/schemas/SubscriptionGroup'
-                subscriptionImages: '#/components/schemas/SubscriptionImage'
-                subscriptionPrices: '#/components/schemas/SubscriptionPrice'
-                winBackOffers: '#/components/schemas/WinBackOffer'
-                subscriptionIntroductoryOffers: '#/components/schemas/SubscriptionIntroductoryOffer'
-                subscriptionOfferCodes: '#/components/schemas/SubscriptionOfferCode'
-                subscriptionPromotionalOffers: '#/components/schemas/SubscriptionPromotionalOffer'
-                subscriptionLocalizations: '#/components/schemas/SubscriptionLocalization'
-                subscriptionAvailabilities: '#/components/schemas/SubscriptionAvailability'
+            $ref: '#/components/schemas/SubscriptionGroup'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1306,124 +2064,62 @@ components:
       required:
       - data
       - links
-    PagingInformation:
+    SubscriptionGroupLocalization:
       type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    SubscriptionGroupResponse:
-      type: object
-      title: SubscriptionGroupResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionGroup'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionGroupLocalization'
-            - $ref: '#/components/schemas/Subscription'
-            discriminator:
-              propertyName: type
-              mapping:
-                subscriptions: '#/components/schemas/Subscription'
-                subscriptionGroupLocalizations: '#/components/schemas/SubscriptionGroupLocalization'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    SubscriptionAvailability:
-      type: object
-      title: SubscriptionAvailability
+      title: SubscriptionGroupLocalization
       properties:
         type:
           type: string
           enum:
-          - subscriptionAvailabilities
+          - subscriptionGroupLocalizations
         id:
           type: string
         attributes:
           type: object
           properties:
-            availableInNewTerritories:
-              type: boolean
+            name:
+              type: string
+            customAppName:
+              type: string
+            locale:
+              type: string
+            state:
+              type: string
+              enum:
+              - PREPARE_FOR_SUBMISSION
+              - WAITING_FOR_REVIEW
+              - APPROVED
+              - REJECTED
         relationships:
           type: object
           properties:
-            availableTerritories:
+            subscriptionGroup:
               type: object
               properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
                 data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - territories
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionGroups
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
+    IntegerRange:
+      type: object
+      properties:
+        minimum:
+          type: integer
+        maximum:
+          type: integer
     Subscription:
       type: object
       title: Subscription
@@ -1695,702 +2391,6 @@ components:
       required:
       - id
       - type
-    SubscriptionGroupCreateRequest:
-      type: object
-      title: SubscriptionGroupCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionGroups
-            attributes:
-              type: object
-              properties:
-                referenceName:
-                  type: string
-              required:
-              - referenceName
-            relationships:
-              type: object
-              properties:
-                app:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    SubscriptionOfferDuration:
-      type: string
-      enum:
-      - THREE_DAYS
-      - ONE_WEEK
-      - TWO_WEEKS
-      - ONE_MONTH
-      - TWO_MONTHS
-      - THREE_MONTHS
-      - SIX_MONTHS
-      - ONE_YEAR
-    SubscriptionOfferEligibility:
-      type: string
-      enum:
-      - STACK_WITH_INTRO_OFFERS
-      - REPLACE_INTRO_OFFERS
-    SubscriptionGroupLocalizationsResponse:
-      type: object
-      title: SubscriptionGroupLocalizationsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionGroupLocalization'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionGroup'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    SubscriptionGroup:
-      type: object
-      title: SubscriptionGroup
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionGroups
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-        relationships:
-          type: object
-          properties:
-            subscriptions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            subscriptionGroupLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptionGroupLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    SubscriptionIntroductoryOffer:
-      type: object
-      title: SubscriptionIntroductoryOffer
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionIntroductoryOffers
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            startDate:
-              type: string
-              format: date
-            endDate:
-              type: string
-              format: date
-            duration:
-              $ref: '#/components/schemas/SubscriptionOfferDuration'
-            offerMode:
-              $ref: '#/components/schemas/SubscriptionOfferMode'
-            numberOfPeriods:
-              type: integer
-        relationships:
-          type: object
-          properties:
-            subscription:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            subscriptionPricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionPricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionOfferCode:
-      type: object
-      title: SubscriptionOfferCode
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionOfferCodes
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            customerEligibilities:
-              type: array
-              items:
-                $ref: '#/components/schemas/SubscriptionCustomerEligibility'
-            offerEligibility:
-              $ref: '#/components/schemas/SubscriptionOfferEligibility'
-            duration:
-              $ref: '#/components/schemas/SubscriptionOfferDuration'
-            offerMode:
-              $ref: '#/components/schemas/SubscriptionOfferMode'
-            numberOfPeriods:
-              type: integer
-            totalNumberOfCodes:
-              type: integer
-            productionCodeCount:
-              type: integer
-            sandboxCodeCount:
-              type: integer
-            active:
-              type: boolean
-            autoRenewEnabled:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            subscription:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            oneTimeUseCodes:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptionOfferCodeOneTimeUseCodes
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            customCodes:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptionOfferCodeCustomCodes
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            prices:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptionOfferCodePrices
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionImage:
-      type: object
-      title: SubscriptionImage
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionImages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            sourceFileChecksum:
-              type: string
-            assetToken:
-              type: string
-            imageAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            state:
-              type: string
-              enum:
-              - AWAITING_UPLOAD
-              - UPLOAD_COMPLETE
-              - FAILED
-              - PREPARE_FOR_SUBMISSION
-              - WAITING_FOR_REVIEW
-              - APPROVED
-              - REJECTED
-        relationships:
-          type: object
-          properties:
-            subscription:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionPrice:
-      type: object
-      title: SubscriptionPrice
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionPrices
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            startDate:
-              type: string
-              format: date
-            preserved:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            subscriptionPricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionPricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    SubscriptionGroupLocalization:
-      type: object
-      title: SubscriptionGroupLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionGroupLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            customAppName:
-              type: string
-            locale:
-              type: string
-            state:
-              type: string
-              enum:
-              - PREPARE_FOR_SUBMISSION
-              - WAITING_FOR_REVIEW
-              - APPROVED
-              - REJECTED
-        relationships:
-          type: object
-          properties:
-            subscriptionGroup:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionGroups
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    WinBackOffer:
-      type: object
-      title: WinBackOffer
-      properties:
-        type:
-          type: string
-          enum:
-          - winBackOffers
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-            offerId:
-              type: string
-            duration:
-              $ref: '#/components/schemas/SubscriptionOfferDuration'
-            offerMode:
-              $ref: '#/components/schemas/SubscriptionOfferMode'
-            periodCount:
-              type: integer
-            customerEligibilityPaidSubscriptionDurationInMonths:
-              type: integer
-            customerEligibilityTimeSinceLastSubscribedInMonths:
-              $ref: '#/components/schemas/IntegerRange'
-            customerEligibilityWaitBetweenOffersInMonths:
-              type: integer
-            startDate:
-              type: string
-              format: date
-            endDate:
-              type: string
-              format: date
-            priority:
-              type: string
-              enum:
-              - HIGH
-              - NORMAL
-            promotionIntent:
-              type: string
-              enum:
-              - NOT_PROMOTED
-              - USE_AUTO_GENERATED_ASSETS
-        relationships:
-          type: object
-          properties:
-            prices:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - winBackOfferPrices
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    IntegerRange:
-      type: object
-      properties:
-        minimum:
-          type: integer
-        maximum:
-          type: integer
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    SubscriptionCustomerEligibility:
-      type: string
-      enum:
-      - NEW
-      - EXISTING
-      - EXPIRED
   securitySchemes:
     itc-bearer-token:
       type: http

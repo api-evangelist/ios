@@ -921,6 +921,159 @@ paths:
       summary: Get Metrics Game Center Matchmaking Queues / Matchmaking Sessions
 components:
   schemas:
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    GameCenterMatchmakingRuleSet:
+      type: object
+      title: GameCenterMatchmakingRuleSet
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterMatchmakingRuleSets
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            ruleLanguageVersion:
+              type: integer
+            minPlayers:
+              type: integer
+            maxPlayers:
+              type: integer
+        relationships:
+          type: object
+          properties:
+            teams:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterMatchmakingTeams
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            rules:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterMatchmakingRules
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            matchmakingQueues:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterMatchmakingQueues
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     GameCenterMatchmakingSessionsV1MetricResponse:
       type: object
       properties:
@@ -1024,14 +1177,14 @@ components:
           - type
       required:
       - data
-    GameCenterMatchmakingRuleSet:
+    GameCenterMatchmakingQueue:
       type: object
-      title: GameCenterMatchmakingRuleSet
+      title: GameCenterMatchmakingQueue
       properties:
         type:
           type: string
           enum:
-          - gameCenterMatchmakingRuleSets
+          - gameCenterMatchmakingQueues
         id:
           type: string
         attributes:
@@ -1039,83 +1192,130 @@ components:
           properties:
             referenceName:
               type: string
-            ruleLanguageVersion:
-              type: integer
-            minPlayers:
-              type: integer
-            maxPlayers:
-              type: integer
+            classicMatchmakingBundleIds:
+              type: array
+              items:
+                type: string
         relationships:
           type: object
           properties:
-            teams:
+            ruleSet:
               type: object
               properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
                 data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterMatchmakingTeams
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            rules:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterMatchmakingRuleSets
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            experimentRuleSet:
               type: object
               properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
                 data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterMatchmakingRules
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            matchmakingQueues:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterMatchmakingQueues
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterMatchmakingRuleSets
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    GameCenterMatchmakingQueuesResponse:
+      type: object
+      title: GameCenterMatchmakingQueuesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterMatchmakingQueue'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    GameCenterMatchmakingQueueSizesV1MetricResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              dataPoints:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    start:
+                      type: string
+                      format: date-time
+                    end:
+                      type: string
+                      format: date-time
+                    values:
+                      type: object
+                      properties:
+                        count:
+                          type: integer
+                        averageNumberOfRequests:
+                          type: number
+                        p50NumberOfRequests:
+                          type: number
+                        p95NumberOfRequests:
+                          type: number
+              granularity:
+                type: string
+                enum:
+                - P1D
+                - PT1H
+                - PT15M
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -1124,36 +1324,6 @@ components:
           type: string
       required:
       - pointer
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
     GameCenterMatchmakingQueueRequestsV1MetricResponse:
       type: object
       properties:
@@ -1229,62 +1399,6 @@ components:
       required:
       - data
       - links
-    GameCenterMatchmakingQueuesResponse:
-      type: object
-      title: GameCenterMatchmakingQueuesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterMatchmakingQueue'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     ErrorResponse:
       type: object
       properties:
@@ -1317,72 +1431,6 @@ components:
             - detail
             - status
             - title
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    GameCenterMatchmakingQueueSizesV1MetricResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              dataPoints:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    start:
-                      type: string
-                      format: date-time
-                    end:
-                      type: string
-                      format: date-time
-                    values:
-                      type: object
-                      properties:
-                        count:
-                          type: integer
-                        averageNumberOfRequests:
-                          type: number
-                        p50NumberOfRequests:
-                          type: number
-                        p95NumberOfRequests:
-                          type: number
-              granularity:
-                type: string
-                enum:
-                - P1D
-                - PT1H
-                - PT15M
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    GameCenterMatchmakingQueueResponse:
-      type: object
-      title: GameCenterMatchmakingQueueResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterMatchmakingQueue'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     GameCenterMatchmakingQueueCreateRequest:
       type: object
       title: GameCenterMatchmakingQueueCreateRequest
@@ -1450,69 +1498,21 @@ components:
           - type
       required:
       - data
-    ResourceLinks:
+    GameCenterMatchmakingQueueResponse:
       type: object
+      title: GameCenterMatchmakingQueueResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-    GameCenterMatchmakingQueue:
-      type: object
-      title: GameCenterMatchmakingQueue
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterMatchmakingQueues
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-            classicMatchmakingBundleIds:
-              type: array
-              items:
-                type: string
-        relationships:
-          type: object
-          properties:
-            ruleSet:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterMatchmakingRuleSets
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            experimentRuleSet:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterMatchmakingRuleSets
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
+        data:
+          $ref: '#/components/schemas/GameCenterMatchmakingQueue'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - id
-      - type
+      - data
+      - links
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -273,58 +273,56 @@ paths:
       summary: Delete App Event Video Clips
 components:
   schemas:
-    PreviewFrameImage:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        image:
-          $ref: '#/components/schemas/ImageAsset'
-        state:
-          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
-    ErrorLinks:
-      type: object
-      properties:
-        about:
+        parameter:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
+      required:
+      - parameter
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
+    AppEventVideoClipUpdateRequest:
+      type: object
+      title: AppEventVideoClipUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appEventVideoClips
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                previewFrameTimeCode:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
       required:
-      - self
-    AppMediaPreviewFrameImageState:
+      - data
+    AppMediaStateError:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
+        code:
           type: string
-          enum:
-          - PROCESSING
-          - COMPLETE
-          - FAILED
+        description:
+          type: string
     AppEventVideoClip:
       type: object
       title: AppEventVideoClip
@@ -385,6 +383,95 @@ components:
       required:
       - id
       - type
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppEventVideoClipCreateRequest:
+      type: object
+      title: AppEventVideoClipCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appEventVideoClips
+            attributes:
+              type: object
+              properties:
+                fileSize:
+                  type: integer
+                fileName:
+                  type: string
+                previewFrameTimeCode:
+                  type:
+                  - string
+                  - 'null'
+                appEventAssetType:
+                  $ref: '#/components/schemas/AppEventAssetType'
+              required:
+              - fileName
+              - appEventAssetType
+              - fileSize
+            relationships:
+              type: object
+              properties:
+                appEventLocalization:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appEventLocalizations
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appEventLocalization
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AppMediaPreviewFrameImageState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - PROCESSING
+          - COMPLETE
+          - FAILED
     PagingInformation:
       type: object
       properties:
@@ -401,33 +488,30 @@ components:
           - limit
       required:
       - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    HttpHeader:
+    AppMediaVideoState:
       type: object
       properties:
-        name:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
-        value:
-          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - PROCESSING
+          - COMPLETE
+          - FAILED
     AppEventAssetType:
       type: string
       enum:
       - EVENT_CARD
       - EVENT_DETAILS_PAGE
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
     UploadOperation:
       type: object
       properties:
@@ -443,6 +527,49 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     AppEventVideoClipResponse:
       type: object
       title: AppEventVideoClipResponse
@@ -544,62 +671,6 @@ components:
       required:
       - id
       - type
-    AppEventVideoClipCreateRequest:
-      type: object
-      title: AppEventVideoClipCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appEventVideoClips
-            attributes:
-              type: object
-              properties:
-                fileSize:
-                  type: integer
-                fileName:
-                  type: string
-                previewFrameTimeCode:
-                  type:
-                  - string
-                  - 'null'
-                appEventAssetType:
-                  $ref: '#/components/schemas/AppEventAssetType'
-              required:
-              - fileName
-              - appEventAssetType
-              - fileSize
-            relationships:
-              type: object
-              properties:
-                appEventLocalization:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appEventLocalizations
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appEventLocalization
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
     ErrorResponse:
       type: object
       properties:
@@ -632,104 +703,33 @@ components:
             - detail
             - status
             - title
-    ImageAsset:
+    ErrorLinks:
       type: object
       properties:
-        templateUrl:
+        about:
           type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    AppMediaVideoState:
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    PreviewFrameImage:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
+        image:
+          $ref: '#/components/schemas/ImageAsset'
         state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - PROCESSING
-          - COMPLETE
-          - FAILED
-    AppEventVideoClipUpdateRequest:
-      type: object
-      title: AppEventVideoClipUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appEventVideoClips
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                previewFrameTimeCode:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
   securitySchemes:
     itc-bearer-token:
       type: http
