@@ -121,6 +121,29 @@ paths:
       summary: Get Scm Pull Requests
 components:
   schemas:
+    ScmPullRequestResponse:
+      type: object
+      title: ScmPullRequestResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/ScmPullRequest'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmRepository'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     RelationshipLinks:
       type: object
       properties:
@@ -130,20 +153,38 @@ components:
         related:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     ScmRepository:
       type: object
       title: ScmRepository
@@ -218,14 +259,6 @@ components:
       required:
       - id
       - type
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     ErrorLinks:
       type: object
       properties:
@@ -246,61 +279,6 @@ components:
                 properties:
                   source:
                     type: string
-    ScmPullRequestResponse:
-      type: object
-      title: ScmPullRequestResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/ScmPullRequest'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScmRepository'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     ScmPullRequest:
       type: object
       title: ScmPullRequest
@@ -360,6 +338,28 @@ components:
       required:
       - id
       - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

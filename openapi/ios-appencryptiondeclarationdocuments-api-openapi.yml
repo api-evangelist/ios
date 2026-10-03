@@ -201,6 +201,50 @@ paths:
       summary: Update App Encryption Declaration Documents
 components:
   schemas:
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppEncryptionDeclarationDocumentUpdateRequest:
+      type: object
+      title: AppEncryptionDeclarationDocumentUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appEncryptionDeclarationDocuments
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     AppMediaAssetState:
       type: object
       properties:
@@ -219,20 +263,6 @@ components:
           - UPLOAD_COMPLETE
           - COMPLETE
           - FAILED
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     AppEncryptionDeclarationDocumentCreateRequest:
       type: object
       title: AppEncryptionDeclarationDocumentCreateRequest
@@ -282,6 +312,38 @@ components:
           - type
       required:
       - data
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     AppMediaStateError:
       type: object
       properties:
@@ -289,85 +351,6 @@ components:
           type: string
         description:
           type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppEncryptionDeclarationDocument:
-      type: object
-      title: AppEncryptionDeclarationDocument
-      properties:
-        type:
-          type: string
-          enum:
-          - appEncryptionDeclarationDocuments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            assetToken:
-              type: string
-            downloadUrl:
-              type: string
-              format: uri
-            sourceFileChecksum:
-              type: string
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppEncryptionDeclarationDocumentUpdateRequest:
-      type: object
-      title: AppEncryptionDeclarationDocumentUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appEncryptionDeclarationDocuments
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
     AppEncryptionDeclarationDocumentResponse:
       type: object
       title: AppEncryptionDeclarationDocumentResponse
@@ -414,46 +397,63 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppEncryptionDeclarationDocument:
+      type: object
+      title: AppEncryptionDeclarationDocument
+      properties:
+        type:
+          type: string
+          enum:
+          - appEncryptionDeclarationDocuments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            assetToken:
+              type: string
+            downloadUrl:
+              type: string
+              format: uri
+            sourceFileChecksum:
+              type: string
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

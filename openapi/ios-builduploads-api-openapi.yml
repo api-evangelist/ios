@@ -389,66 +389,6 @@ paths:
       summary: List Related Build Uploads / Build Upload Files
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    DeliveryFileUploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        offset:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 0
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-        expiration:
-          type: string
-          format: date-time
-        partNumber:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        entityTag:
-          type: string
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -457,25 +397,73 @@ components:
           type: string
       required:
       - pointer
-    Checksums:
+    BuildUploadCreateRequest:
       type: object
+      title: BuildUploadCreateRequest
       properties:
-        file:
+        data:
           type: object
           properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
+            type:
               type: string
               enum:
-              - MD5
+              - buildUploads
+            attributes:
+              type: object
+              properties:
+                cfBundleShortVersionString:
+                  type: string
+                cfBundleVersion:
+                  type: string
+                platform:
+                  $ref: '#/components/schemas/Platform'
+              required:
+              - cfBundleVersion
+              - cfBundleShortVersionString
+              - platform
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    BuildUploadFilesResponse:
+      type: object
+      title: BuildUploadFilesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildUploadFile'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     BuildUploadBuildUploadFilesLinkagesResponse:
       type: object
       properties:
@@ -500,51 +488,178 @@ components:
       required:
       - data
       - links
-    BuildUploadFilesResponse:
+    ResourceLinks:
       type: object
-      title: BuildUploadFilesResponse
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    BuildUploadState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    BuildAudienceType:
+      type: string
+      enum:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    BuildUpload:
+      type: object
+      title: BuildUpload
+      properties:
+        type:
+          type: string
+          enum:
+          - buildUploads
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            cfBundleShortVersionString:
+              type: string
+            cfBundleVersion:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            state:
+              type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                warnings:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                infos:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                state:
+                  $ref: '#/components/schemas/BuildUploadState'
+            platform:
+              $ref: '#/components/schemas/Platform'
+            uploadedDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            build:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - builds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            assetFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - buildUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            assetDescriptionFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - buildUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            assetSpiFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - buildUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            buildUploadFiles:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BuildUploadResponse:
+      type: object
+      title: BuildUploadResponse
       properties:
         data:
+          $ref: '#/components/schemas/BuildUpload'
+        included:
           type: array
           items:
-            $ref: '#/components/schemas/BuildUploadFile'
+            oneOf:
+            - $ref: '#/components/schemas/BuildUploadFile'
+            - $ref: '#/components/schemas/Build'
+            discriminator:
+              propertyName: type
+              mapping:
+                buildUploadFiles: '#/components/schemas/BuildUploadFile'
+                builds: '#/components/schemas/Build'
         links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    StateDetail:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
     Build:
       type: object
       title: Build
@@ -827,280 +942,6 @@ components:
       required:
       - id
       - type
-    BuildUpload:
-      type: object
-      title: BuildUpload
-      properties:
-        type:
-          type: string
-          enum:
-          - buildUploads
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            cfBundleShortVersionString:
-              type: string
-            cfBundleVersion:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            state:
-              type: object
-              properties:
-                errors:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/StateDetail'
-                warnings:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/StateDetail'
-                infos:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/StateDetail'
-                state:
-                  $ref: '#/components/schemas/BuildUploadState'
-            platform:
-              $ref: '#/components/schemas/Platform'
-            uploadedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            build:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - builds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            assetFile:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - buildUploadFiles
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            assetDescriptionFile:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - buildUploadFiles
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            assetSpiFile:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - buildUploadFiles
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            buildUploadFiles:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    BuildUploadCreateRequest:
-      type: object
-      title: BuildUploadCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - buildUploads
-            attributes:
-              type: object
-              properties:
-                cfBundleShortVersionString:
-                  type: string
-                cfBundleVersion:
-                  type: string
-                platform:
-                  $ref: '#/components/schemas/Platform'
-              required:
-              - cfBundleVersion
-              - cfBundleShortVersionString
-              - platform
-            relationships:
-              type: object
-              properties:
-                app:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    BuildUploadResponse:
-      type: object
-      title: BuildUploadResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BuildUpload'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/BuildUploadFile'
-            - $ref: '#/components/schemas/Build'
-            discriminator:
-              propertyName: type
-              mapping:
-                buildUploadFiles: '#/components/schemas/BuildUploadFile'
-                builds: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
     BuildUploadFile:
       type: object
       title: BuildUploadFile
@@ -1150,27 +991,85 @@ components:
       required:
       - id
       - type
-    PagedDocumentLinks:
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    DeliveryFileUploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        offset:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 0
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+        expiration:
+          type: string
+          format: date-time
+        partNumber:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        entityTag:
+          type: string
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+        related:
           type: string
           format: uri-reference
-        next:
+    StateDetail:
+      type: object
+      properties:
+        code:
           type: string
-          format: uri-reference
-      required:
-      - self
-    BuildUploadState:
-      type: string
-      enum:
-      - AWAITING_UPLOAD
-      - PROCESSING
-      - FAILED
-      - COMPLETE
+        description:
+          type: string
     ErrorLinks:
       type: object
       properties:
@@ -1191,6 +1090,107 @@ components:
                 properties:
                   source:
                     type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    Checksums:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
   securitySchemes:
     itc-bearer-token:
       type: http

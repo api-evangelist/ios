@@ -70,14 +70,6 @@ paths:
       summary: Create Subscription Group Submissions
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     SubscriptionGroupSubmission:
       type: object
       title: SubscriptionGroupSubmission
@@ -93,12 +85,57 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionGroupSubmissionResponse:
+      type: object
+      title: SubscriptionGroupSubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionGroupSubmission'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     SubscriptionGroupSubmissionCreateRequest:
       type: object
       title: SubscriptionGroupSubmissionCreateRequest
@@ -137,25 +174,6 @@ components:
           - type
       required:
       - data
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    SubscriptionGroupSubmissionResponse:
-      type: object
-      title: SubscriptionGroupSubmissionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionGroupSubmission'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     ErrorLinks:
       type: object
       properties:
@@ -176,46 +194,28 @@ components:
                 properties:
                   source:
                     type: string
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

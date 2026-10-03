@@ -273,6 +273,47 @@ paths:
       summary: Delete App Event Video Clips
 components:
   schemas:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    PreviewFrameImage:
+      type: object
+      properties:
+        image:
+          $ref: '#/components/schemas/ImageAsset'
+        state:
+          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
+    AppEventAssetType:
+      type: string
+      enum:
+      - EVENT_CARD
+      - EVENT_DETAILS_PAGE
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     ErrorSourceParameter:
       type: object
       title: Parameter
@@ -281,12 +322,6 @@ components:
           type: string
       required:
       - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     AppEventVideoClipUpdateRequest:
       type: object
       title: AppEventVideoClipUpdateRequest
@@ -316,13 +351,32 @@ components:
           - type
       required:
       - data
-    AppMediaStateError:
+    ImageAsset:
       type: object
       properties:
-        code:
+        templateUrl:
           type: string
-        description:
+        width:
+          type: integer
+        height:
+          type: integer
+    AppMediaPreviewFrameImageState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
+          enum:
+          - PROCESSING
+          - COMPLETE
+          - FAILED
     AppEventVideoClip:
       type: object
       title: AppEventVideoClip
@@ -383,6 +437,67 @@ components:
       required:
       - id
       - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     DocumentLinks:
       type: object
       properties:
@@ -447,129 +562,6 @@ components:
           - type
       required:
       - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    AppMediaPreviewFrameImageState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - PROCESSING
-          - COMPLETE
-          - FAILED
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    AppMediaVideoState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - PROCESSING
-          - COMPLETE
-          - FAILED
-    AppEventAssetType:
-      type: string
-      enum:
-      - EVENT_CARD
-      - EVENT_DETAILS_PAGE
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
     AppEventVideoClipResponse:
       type: object
       title: AppEventVideoClipResponse
@@ -671,65 +663,73 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppMediaAssetState:
       type: object
       properties:
         errors:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    PreviewFrameImage:
-      type: object
-      properties:
-        image:
-          $ref: '#/components/schemas/ImageAsset'
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
         state:
-          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    AppMediaVideoState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - PROCESSING
+          - COMPLETE
+          - FAILED
   securitySchemes:
     itc-bearer-token:
       type: http

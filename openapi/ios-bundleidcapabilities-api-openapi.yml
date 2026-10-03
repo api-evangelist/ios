@@ -178,20 +178,69 @@ paths:
       summary: Delete Bundle ID Capabilities
 components:
   schemas:
-    ErrorSourceParameter:
+    BundleIdCapability:
       type: object
-      title: Parameter
+      title: BundleIdCapability
       properties:
-        parameter:
+        type:
+          type: string
+          enum:
+          - bundleIdCapabilities
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            capabilityType:
+              $ref: '#/components/schemas/CapabilityType'
+            settings:
+              type: array
+              items:
+                $ref: '#/components/schemas/CapabilitySetting'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
           type: string
       required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+      - pointer
+    CapabilityType:
+      type: string
+      enum:
+      - ICLOUD
+      - IN_APP_PURCHASE
+      - GAME_CENTER
+      - PUSH_NOTIFICATIONS
+      - WALLET
+      - INTER_APP_AUDIO
+      - MAPS
+      - ASSOCIATED_DOMAINS
+      - PERSONAL_VPN
+      - APP_GROUPS
+      - HEALTHKIT
+      - HOMEKIT
+      - WIRELESS_ACCESSORY_CONFIGURATION
+      - APPLE_PAY
+      - DATA_PROTECTION
+      - SIRIKIT
+      - NETWORK_EXTENSIONS
+      - MULTIPATH
+      - HOT_SPOT
+      - NFC_TAG_READING
+      - CLASSKIT
+      - AUTOFILL_CREDENTIAL_PROVIDER
+      - ACCESS_WIFI_INFORMATION
+      - NETWORK_CUSTOM_PROTOCOL
+      - COREMEDIA_HLS_LOW_LATENCY
+      - SYSTEM_EXTENSION_INSTALL
+      - USER_MANAGEMENT
+      - APPLE_ID_AUTH
     BundleIdCapabilityCreateRequest:
       type: object
       title: BundleIdCapabilityCreateRequest
@@ -244,69 +293,67 @@ components:
           - type
       required:
       - data
-    CapabilityType:
-      type: string
-      enum:
-      - ICLOUD
-      - IN_APP_PURCHASE
-      - GAME_CENTER
-      - PUSH_NOTIFICATIONS
-      - WALLET
-      - INTER_APP_AUDIO
-      - MAPS
-      - ASSOCIATED_DOMAINS
-      - PERSONAL_VPN
-      - APP_GROUPS
-      - HEALTHKIT
-      - HOMEKIT
-      - WIRELESS_ACCESSORY_CONFIGURATION
-      - APPLE_PAY
-      - DATA_PROTECTION
-      - SIRIKIT
-      - NETWORK_EXTENSIONS
-      - MULTIPATH
-      - HOT_SPOT
-      - NFC_TAG_READING
-      - CLASSKIT
-      - AUTOFILL_CREDENTIAL_PROVIDER
-      - ACCESS_WIFI_INFORMATION
-      - NETWORK_CUSTOM_PROTOCOL
-      - COREMEDIA_HLS_LOW_LATENCY
-      - SYSTEM_EXTENSION_INSTALL
-      - USER_MANAGEMENT
-      - APPLE_ID_AUTH
-    DocumentLinks:
+    CapabilitySetting:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BundleIdCapability:
-      type: object
-      title: BundleIdCapability
-      properties:
-        type:
+        key:
           type: string
           enum:
-          - bundleIdCapabilities
-        id:
+          - ICLOUD_VERSION
+          - DATA_PROTECTION_PERMISSION_LEVEL
+          - APPLE_ID_AUTH_APP_CONSENT
+        name:
           type: string
-        attributes:
-          type: object
-          properties:
-            capabilityType:
-              $ref: '#/components/schemas/CapabilityType'
-            settings:
-              type: array
-              items:
-                $ref: '#/components/schemas/CapabilitySetting'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
+        description:
+          type: string
+        enabledByDefault:
+          type: boolean
+        visible:
+          type: boolean
+        allowedInstances:
+          type: string
+          enum:
+          - ENTRY
+          - SINGLE
+          - MULTIPLE
+        minInstances:
+          type: integer
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityOption'
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     BundleIdCapabilityResponse:
       type: object
       title: BundleIdCapabilityResponse
@@ -340,34 +387,6 @@ components:
           type: boolean
         supportsWildcard:
           type: boolean
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     BundleIdCapabilityUpdateRequest:
       type: object
       title: BundleIdCapabilityUpdateRequest
@@ -397,67 +416,48 @@ components:
           - type
       required:
       - data
-    ErrorResponse:
+    ErrorLinks:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
             properties:
-              id:
+              href:
                 type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
+                format: uri-reference
               meta:
                 type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    CapabilitySetting:
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
       type: object
       properties:
-        key:
+        self:
           type: string
-          enum:
-          - ICLOUD_VERSION
-          - DATA_PROTECTION_PERMISSION_LEVEL
-          - APPLE_ID_AUTH_APP_CONSENT
-        name:
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
-        description:
+      required:
+      - parameter
+    DocumentLinks:
+      type: object
+      properties:
+        self:
           type: string
-        enabledByDefault:
-          type: boolean
-        visible:
-          type: boolean
-        allowedInstances:
-          type: string
-          enum:
-          - ENTRY
-          - SINGLE
-          - MULTIPLE
-        minInstances:
-          type: integer
-        options:
-          type: array
-          items:
-            $ref: '#/components/schemas/CapabilityOption'
+          format: uri-reference
+      required:
+      - self
   securitySchemes:
     itc-bearer-token:
       type: http

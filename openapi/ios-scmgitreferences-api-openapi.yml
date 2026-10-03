@@ -114,6 +114,63 @@ paths:
       summary: Get Scm Git References
 components:
   schemas:
+    CiGitRefKind:
+      type: string
+      enum:
+      - BRANCH
+      - TAG
+    ScmGitReference:
+      type: object
+      title: ScmGitReference
+      properties:
+        type:
+          type: string
+          enum:
+          - scmGitReferences
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            canonicalName:
+              type: string
+            isDeleted:
+              type: boolean
+            kind:
+              $ref: '#/components/schemas/CiGitRefKind'
+        relationships:
+          type: object
+          properties:
+            repository:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmRepositories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     RelationshipLinks:
       type: object
       properties:
@@ -123,40 +180,38 @@ components:
         related:
           type: string
           format: uri-reference
-    CiGitRefKind:
-      type: string
-      enum:
-      - BRANCH
-      - TAG
-    ResourceLinks:
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ScmGitReferenceResponse:
-      type: object
-      title: ScmGitReferenceResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/ScmGitReference'
-        included:
+        errors:
           type: array
           items:
-            $ref: '#/components/schemas/ScmRepository'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     ScmRepository:
       type: object
       title: ScmRepository
@@ -231,58 +286,6 @@ components:
       required:
       - id
       - type
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ScmGitReference:
-      type: object
-      title: ScmGitReference
-      properties:
-        type:
-          type: string
-          enum:
-          - scmGitReferences
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            canonicalName:
-              type: string
-            isDeleted:
-              type: boolean
-            kind:
-              $ref: '#/components/schemas/CiGitRefKind'
-        relationships:
-          type: object
-          properties:
-            repository:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmRepositories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     ErrorLinks:
       type: object
       properties:
@@ -303,46 +306,43 @@ components:
                 properties:
                   source:
                     type: string
-    ErrorSourcePointer:
+    ScmGitReferenceResponse:
       type: object
-      title: JsonPointer
+      title: ScmGitReferenceResponse
       properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
+        data:
+          $ref: '#/components/schemas/ScmGitReference'
+        included:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+            $ref: '#/components/schemas/ScmRepository'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

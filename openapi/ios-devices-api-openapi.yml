@@ -341,20 +341,27 @@ paths:
       summary: Update Devices
 components:
   schemas:
-    PagedDocumentLinks:
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
+    DevicesResponse:
       type: object
+      title: DevicesResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - self
+      - data
+      - links
     Device:
       type: object
       title: Device
@@ -399,107 +406,6 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    DeviceResponse:
-      type: object
-      title: DeviceResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Device'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    DeviceUpdateRequest:
-      type: object
-      title: DeviceUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - devices
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                name:
-                  type:
-                  - string
-                  - 'null'
-                status:
-                  type:
-                  - string
-                  - 'null'
-                  enum:
-                  - ENABLED
-                  - DISABLED
-          required:
-          - id
-          - type
-      required:
-      - data
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -508,35 +414,6 @@ components:
           type: string
       required:
       - pointer
-    DeviceCreateRequest:
-      type: object
-      title: DeviceCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - devices
-            attributes:
-              type: object
-              properties:
-                name:
-                  type: string
-                platform:
-                  $ref: '#/components/schemas/BundleIdPlatform'
-                udid:
-                  type: string
-              required:
-              - name
-              - udid
-              - platform
-          required:
-          - attributes
-          - type
-      required:
-      - data
     ErrorResponse:
       type: object
       properties:
@@ -569,27 +446,150 @@ components:
             - detail
             - status
             - title
-    BundleIdPlatform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - UNIVERSAL
-    DevicesResponse:
+    PagingInformation:
       type: object
-      title: DevicesResponse
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DeviceResponse:
+      type: object
+      title: DeviceResponse
       properties:
         data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Device'
+          $ref: '#/components/schemas/Device'
         links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
+    DeviceCreateRequest:
+      type: object
+      title: DeviceCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - devices
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+                platform:
+                  $ref: '#/components/schemas/BundleIdPlatform'
+                udid:
+                  type: string
+              required:
+              - name
+              - udid
+              - platform
+          required:
+          - attributes
+          - type
+      required:
+      - data
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    DeviceUpdateRequest:
+      type: object
+      title: DeviceUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - devices
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                name:
+                  type:
+                  - string
+                  - 'null'
+                status:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - ENABLED
+                  - DISABLED
+          required:
+          - id
+          - type
+      required:
+      - data
   securitySchemes:
     itc-bearer-token:
       type: http

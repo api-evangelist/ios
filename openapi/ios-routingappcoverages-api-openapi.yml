@@ -285,35 +285,6 @@ paths:
       summary: Delete Routing App Coverages
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -322,6 +293,186 @@ components:
           type: string
       required:
       - pointer
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    AppStoreVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_CONTRACT
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PREORDER_READY_FOR_SALE
+      - PROCESSING_FOR_APP_STORE
+      - READY_FOR_REVIEW
+      - READY_FOR_SALE
+      - REJECTED
+      - REMOVED_FROM_SALE
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+      - REPLACED_WITH_NEW_VERSION
+      - NOT_APPLICABLE
+    RoutingAppCoverageCreateRequest:
+      type: object
+      title: RoutingAppCoverageCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - routingAppCoverages
+            attributes:
+              type: object
+              properties:
+                fileSize:
+                  type: integer
+                fileName:
+                  type: string
+              required:
+              - fileName
+              - fileSize
+            relationships:
+              type: object
+              properties:
+                appStoreVersion:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appStoreVersions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appStoreVersion
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    AppVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - READY_FOR_REVIEW
+      - REJECTED
+      - REPLACED_WITH_NEW_VERSION
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     RoutingAppCoverage:
       type: object
       title: RoutingAppCoverage
@@ -370,22 +521,29 @@ components:
       required:
       - id
       - type
-    PagingInformation:
+    DocumentLinks:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+        self:
+          type: string
+          format: uri-reference
       required:
-      - paging
+      - self
+    RoutingAppCoverageResponse:
+      type: object
+      title: RoutingAppCoverageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/RoutingAppCoverage'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppStoreVersion:
       type: object
       title: AppStoreVersion
@@ -659,119 +817,13 @@ components:
       required:
       - id
       - type
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    AppVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - READY_FOR_REVIEW
-      - REJECTED
-      - REPLACED_WITH_NEW_VERSION
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-    RoutingAppCoverageResponse:
-      type: object
-      title: RoutingAppCoverageResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/RoutingAppCoverage'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    RoutingAppCoverageCreateRequest:
-      type: object
-      title: RoutingAppCoverageCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - routingAppCoverages
-            attributes:
-              type: object
-              properties:
-                fileSize:
-                  type: integer
-                fileName:
-                  type: string
-              required:
-              - fileName
-              - fileSize
-            relationships:
-              type: object
-              properties:
-                appStoreVersion:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appStoreVersions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appStoreVersion
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    UploadOperation:
+    HttpHeader:
       type: object
       properties:
-        method:
+        name:
           type: string
-        url:
+        value:
           type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     AppMediaAssetState:
       type: object
       properties:
@@ -790,65 +842,36 @@ components:
           - UPLOAD_COMPLETE
           - COMPLETE
           - FAILED
-    HttpHeader:
+    PagingInformation:
       type: object
       properties:
-        name:
-          type: string
-        value:
-          type: string
-    ErrorResponse:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppMediaStateError:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
+        code:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+        description:
+          type: string
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
     RoutingAppCoverageUpdateRequest:
       type: object
       title: RoutingAppCoverageUpdateRequest
@@ -878,29 +901,6 @@ components:
           - type
       required:
       - data
-    AppStoreVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_CONTRACT
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PREORDER_READY_FOR_SALE
-      - PROCESSING_FOR_APP_STORE
-      - READY_FOR_REVIEW
-      - READY_FOR_SALE
-      - REJECTED
-      - REMOVED_FROM_SALE
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-      - REPLACED_WITH_NEW_VERSION
-      - NOT_APPLICABLE
   securitySchemes:
     itc-bearer-token:
       type: http

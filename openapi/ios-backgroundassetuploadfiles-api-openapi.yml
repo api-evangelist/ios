@@ -202,38 +202,32 @@ paths:
       summary: Update Background Asset Upload Files
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppMediaAssetState:
+    Checksums:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ResourceLinks:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    HttpHeader:
       type: object
       properties:
-        self:
+        name:
           type: string
-          format: uri-reference
+        value:
+          type: string
     BackgroundAssetUploadFileUpdateRequest:
       type: object
       title: BackgroundAssetUploadFileUpdateRequest
@@ -266,39 +260,64 @@ components:
           - type
       required:
       - data
-    AppMediaStateError:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        code:
+        pointer:
           type: string
-        description:
-          type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
       required:
-      - self
-    BackgroundAssetUploadFileResponse:
-      type: object
-      title: BackgroundAssetUploadFileResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BackgroundAssetUploadFile'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    HttpHeader:
+      - pointer
+    AppMediaAssetState:
       type: object
       properties:
-        name:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
-        value:
-          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     DeliveryFileUploadOperation:
       type: object
       properties:
@@ -330,26 +349,13 @@ components:
           minimum: 1
         entityTag:
           type: string
-    ErrorLinks:
+    AppMediaStateError:
       type: object
       properties:
-        about:
+        code:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+        description:
+          type: string
     BackgroundAssetUploadFileCreateRequest:
       type: object
       title: BackgroundAssetUploadFileCreateRequest
@@ -408,65 +414,17 @@ components:
           - type
       required:
       - data
-    ErrorSourcePointer:
+    BackgroundAssetUploadFileResponse:
       type: object
-      title: JsonPointer
+      title: BackgroundAssetUploadFileResponse
       properties:
-        pointer:
-          type: string
+        data:
+          $ref: '#/components/schemas/BackgroundAssetUploadFile'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - pointer
-    Checksums:
-      type: object
-      properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+      - data
+      - links
     BackgroundAssetUploadFile:
       type: object
       title: BackgroundAssetUploadFile
@@ -515,6 +473,48 @@ components:
       enum:
       - MD5
       - SHA_256
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

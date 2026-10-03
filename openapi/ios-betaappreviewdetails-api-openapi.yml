@@ -547,6 +547,148 @@ paths:
       summary: Get Related Beta App Review Details / App
 components:
   schemas:
+    BetaAppReviewDetailUpdateRequest:
+      type: object
+      title: BetaAppReviewDetailUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - betaAppReviewDetails
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                contactFirstName:
+                  type:
+                  - string
+                  - 'null'
+                contactLastName:
+                  type:
+                  - string
+                  - 'null'
+                contactPhone:
+                  type:
+                  - string
+                  - 'null'
+                contactEmail:
+                  type:
+                  - string
+                  - 'null'
+                demoAccountName:
+                  type:
+                  - string
+                  - 'null'
+                demoAccountPassword:
+                  type:
+                  - string
+                  - 'null'
+                demoAccountRequired:
+                  type:
+                  - boolean
+                  - 'null'
+                notes:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    BetaAppReviewDetailsResponse:
+      type: object
+      title: BetaAppReviewDetailsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetaAppReviewDetail'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     PagedDocumentLinks:
       type: object
       properties:
@@ -561,29 +703,26 @@ components:
           format: uri-reference
       required:
       - self
-    ErrorSourceParameter:
+    BetaAppReviewDetailAppLinkageResponse:
       type: object
-      title: Parameter
       properties:
-        parameter:
-          type: string
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - apps
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - parameter
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+      - data
+      - links
     App:
       type: object
       title: App
@@ -1221,6 +1360,58 @@ components:
       required:
       - id
       - type
+    AppWithoutIncludesResponse:
+      type: object
+      title: AppWithoutIncludesResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    BetaAppReviewDetailResponse:
+      type: object
+      title: BetaAppReviewDetailResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BetaAppReviewDetail'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     DocumentLinks:
       type: object
       properties:
@@ -1283,205 +1474,14 @@ components:
       required:
       - id
       - type
-    PagingInformation:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    BetaAppReviewDetailsResponse:
-      type: object
-      title: BetaAppReviewDetailsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BetaAppReviewDetail'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppWithoutIncludesResponse:
-      type: object
-      title: AppWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    BetaAppReviewDetailResponse:
-      type: object
-      title: BetaAppReviewDetailResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BetaAppReviewDetail'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    BetaAppReviewDetailUpdateRequest:
-      type: object
-      title: BetaAppReviewDetailUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - betaAppReviewDetails
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                contactFirstName:
-                  type:
-                  - string
-                  - 'null'
-                contactLastName:
-                  type:
-                  - string
-                  - 'null'
-                contactPhone:
-                  type:
-                  - string
-                  - 'null'
-                contactEmail:
-                  type:
-                  - string
-                  - 'null'
-                demoAccountName:
-                  type:
-                  - string
-                  - 'null'
-                demoAccountPassword:
-                  type:
-                  - string
-                  - 'null'
-                demoAccountRequired:
-                  type:
-                  - boolean
-                  - 'null'
-                notes:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    BetaAppReviewDetailAppLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - apps
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

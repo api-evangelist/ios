@@ -70,6 +70,69 @@ paths:
       summary: Create in App Purchase Submissions
 components:
   schemas:
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    InAppPurchaseSubmissionResponse:
+      type: object
+      title: InAppPurchaseSubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/InAppPurchaseSubmission'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/InAppPurchaseV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     InAppPurchaseV2:
       type: object
       title: InAppPurchaseV2
@@ -274,52 +337,39 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    InAppPurchaseSubmission:
       type: object
+      title: InAppPurchaseSubmission
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
-        related:
+          enum:
+          - inAppPurchaseSubmissions
+        id:
           type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    InAppPurchaseSubmissionResponse:
-      type: object
-      title: InAppPurchaseSubmissionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/InAppPurchaseSubmission'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchaseV2'
+        relationships:
+          type: object
+          properties:
+            inAppPurchaseV2:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - inAppPurchases
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+      - id
+      - type
     PagingInformation:
       type: object
       properties:
@@ -336,49 +386,6 @@ components:
           - limit
       required:
       - paging
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    InAppPurchaseState:
-      type: string
-      enum:
-      - MISSING_METADATA
-      - WAITING_FOR_UPLOAD
-      - PROCESSING_CONTENT
-      - READY_TO_SUBMIT
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_ACTION_NEEDED
-      - PENDING_BINARY_APPROVAL
-      - APPROVED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - REMOVED_FROM_SALE
-      - REJECTED
     InAppPurchaseSubmissionCreateRequest:
       type: object
       title: InAppPurchaseSubmissionCreateRequest
@@ -417,77 +424,70 @@ components:
           - type
       required:
       - data
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
     InAppPurchaseType:
       type: string
       enum:
       - CONSUMABLE
       - NON_CONSUMABLE
       - NON_RENEWING_SUBSCRIPTION
-    ErrorResponse:
+    ErrorLinks:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
             properties:
-              id:
+              href:
                 type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
+                format: uri-reference
               meta:
                 type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    InAppPurchaseSubmission:
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
       type: object
-      title: InAppPurchaseSubmission
       properties:
-        type:
+        self:
           type: string
-          enum:
-          - inAppPurchaseSubmissions
-        id:
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
-        relationships:
-          type: object
-          properties:
-            inAppPurchaseV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - inAppPurchases
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
-      - type
+      - parameter
+    InAppPurchaseState:
+      type: string
+      enum:
+      - MISSING_METADATA
+      - WAITING_FOR_UPLOAD
+      - PROCESSING_CONTENT
+      - READY_TO_SUBMIT
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_ACTION_NEEDED
+      - PENDING_BINARY_APPROVAL
+      - APPROVED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - REMOVED_FROM_SALE
+      - REJECTED
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -70,6 +70,61 @@ paths:
       summary: Create App Store Version Release Requests
 components:
   schemas:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppStoreVersionReleaseRequest:
+      type: object
+      title: AppStoreVersionReleaseRequest
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionReleaseRequests
+        id:
+          type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     AppStoreVersionReleaseRequestCreateRequest:
       type: object
       title: AppStoreVersionReleaseRequestCreateRequest
@@ -108,47 +163,6 @@ components:
           - type
       required:
       - data
-    AppStoreVersionReleaseRequestResponse:
-      type: object
-      title: AppStoreVersionReleaseRequestResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersionReleaseRequest'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     ErrorLinks:
       type: object
       properties:
@@ -169,53 +183,39 @@ components:
                 properties:
                   source:
                     type: string
-    AppStoreVersionReleaseRequest:
+    ResourceLinks:
       type: object
-      title: AppStoreVersionReleaseRequest
       properties:
-        type:
+        self:
           type: string
-          enum:
-          - appStoreVersionReleaseRequests
-        id:
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
           type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+          format: uri-reference
       required:
-      - id
-      - type
-    ErrorResponse:
+      - self
+    AppStoreVersionReleaseRequestResponse:
       type: object
+      title: AppStoreVersionReleaseRequestResponse
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+        data:
+          $ref: '#/components/schemas/AppStoreVersionReleaseRequest'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

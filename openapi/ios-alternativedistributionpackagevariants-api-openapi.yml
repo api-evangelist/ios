@@ -81,28 +81,57 @@ paths:
       summary: Get Alternative Distribution Package Variants
 components:
   schemas:
-    ErrorSourceParameter:
+    AlternativeDistributionPackageVariantResponse:
       type: object
-      title: Parameter
+      title: AlternativeDistributionPackageVariantResponse
       properties:
-        parameter:
+        data:
+          $ref: '#/components/schemas/AlternativeDistributionPackageVariant'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
           type: string
       required:
-      - parameter
-    ResourceLinks:
+      - pointer
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     AlternativeDistributionPackageVariant:
       type: object
       title: AlternativeDistributionPackageVariant
@@ -151,57 +180,28 @@ components:
                 properties:
                   source:
                     type: string
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AlternativeDistributionPackageVariantResponse:
-      type: object
-      title: AlternativeDistributionPackageVariantResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AlternativeDistributionPackageVariant'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -812,258 +812,11 @@ paths:
       summary: Get Related Ci Workflows / Repository
 components:
   schemas:
-    CiBranchPatterns:
-      type: object
-      properties:
-        isAllMatch:
-          type: boolean
-        patterns:
-          type: array
-          items:
-            type: object
-            properties:
-              pattern:
-                type: string
-              isPrefix:
-                type: boolean
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    CiIssueCounts:
-      type: object
-      properties:
-        analyzerWarnings:
-          type: integer
-        errors:
-          type: integer
-        testFailures:
-          type: integer
-        warnings:
-          type: integer
-    CiCompletionStatus:
+    CiGitRefKind:
       type: string
       enum:
-      - SUCCEEDED
-      - FAILED
-      - ERRORED
-      - CANCELED
-      - SKIPPED
-    CiProduct:
-      type: object
-      title: CiProduct
-      properties:
-        type:
-          type: string
-          enum:
-          - ciProducts
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            productType:
-              type: string
-              enum:
-              - APP
-              - FRAMEWORK
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            bundleId:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - bundleIds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            workflows:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            primaryRepositories:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - scmRepositories
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            additionalRepositories:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            buildRuns:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiWorkflowUpdateRequest:
-      type: object
-      title: CiWorkflowUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - ciWorkflows
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                name:
-                  type:
-                  - string
-                  - 'null'
-                description:
-                  type:
-                  - string
-                  - 'null'
-                branchStartCondition:
-                  $ref: '#/components/schemas/CiBranchStartCondition'
-                tagStartCondition:
-                  $ref: '#/components/schemas/CiTagStartCondition'
-                pullRequestStartCondition:
-                  $ref: '#/components/schemas/CiPullRequestStartCondition'
-                scheduledStartCondition:
-                  $ref: '#/components/schemas/CiScheduledStartCondition'
-                manualBranchStartCondition:
-                  $ref: '#/components/schemas/CiManualBranchStartCondition'
-                manualTagStartCondition:
-                  $ref: '#/components/schemas/CiManualTagStartCondition'
-                manualPullRequestStartCondition:
-                  $ref: '#/components/schemas/CiManualPullRequestStartCondition'
-                actions:
-                  type:
-                  - array
-                  - 'null'
-                  items:
-                    $ref: '#/components/schemas/CiAction'
-                isEnabled:
-                  type:
-                  - boolean
-                  - 'null'
-                isLockedForEditing:
-                  type:
-                  - boolean
-                  - 'null'
-                clean:
-                  type:
-                  - boolean
-                  - 'null'
-                containerFilePath:
-                  type:
-                  - string
-                  - 'null'
-            relationships:
-              type: object
-              properties:
-                xcodeVersion:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - ciXcodeVersions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                macOsVersion:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - ciMacOsVersions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-          required:
-          - id
-          - type
-      required:
-      - data
+      - BRANCH
+      - TAG
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -1072,14 +825,169 @@ components:
           type: string
       required:
       - pointer
-    CiMacOsVersion:
+    CiManualBranchStartCondition:
       type: object
-      title: CiMacOsVersion
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+    CiTestDestinationKind:
+      type: string
+      enum:
+      - SIMULATOR
+      - MAC
+    ScmPullRequest:
+      type: object
+      title: ScmPullRequest
       properties:
         type:
           type: string
           enum:
-          - ciMacOsVersions
+          - scmPullRequests
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            title:
+              type: string
+            number:
+              type: integer
+            webUrl:
+              type: string
+              format: uri
+            sourceRepositoryOwner:
+              type: string
+            sourceRepositoryName:
+              type: string
+            sourceBranchName:
+              type: string
+            destinationRepositoryOwner:
+              type: string
+            destinationRepositoryName:
+              type: string
+            destinationBranchName:
+              type: string
+            isClosed:
+              type: boolean
+            isCrossRepository:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            repository:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmRepositories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    CiScheduledStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        schedule:
+          type: object
+          properties:
+            frequency:
+              type: string
+              enum:
+              - WEEKLY
+              - DAILY
+              - HOURLY
+            days:
+              type: array
+              items:
+                type: string
+                enum:
+                - SUNDAY
+                - MONDAY
+                - TUESDAY
+                - WEDNESDAY
+                - THURSDAY
+                - FRIDAY
+                - SATURDAY
+            hour:
+              type: integer
+            minute:
+              type: integer
+            timezone:
+              type: string
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    BuildAudienceType:
+      type: string
+      enum:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    CiWorkflowResponse:
+      type: object
+      title: CiWorkflowResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/CiWorkflow'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CiMacOsVersion'
+            - $ref: '#/components/schemas/CiProduct'
+            - $ref: '#/components/schemas/CiXcodeVersion'
+            - $ref: '#/components/schemas/ScmRepository'
+            discriminator:
+              propertyName: type
+              mapping:
+                scmRepositories: '#/components/schemas/ScmRepository'
+                ciMacOsVersions: '#/components/schemas/CiMacOsVersion'
+                ciProducts: '#/components/schemas/CiProduct'
+                ciXcodeVersions: '#/components/schemas/CiXcodeVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CiXcodeVersion:
+      type: object
+      title: CiXcodeVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - ciXcodeVersions
         id:
           type: string
         attributes:
@@ -1089,10 +997,30 @@ components:
               type: string
             name:
               type: string
+            testDestinations:
+              type: array
+              items:
+                type: object
+                properties:
+                  deviceTypeName:
+                    type: string
+                  deviceTypeIdentifier:
+                    type: string
+                  availableRuntimes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        runtimeName:
+                          type: string
+                        runtimeIdentifier:
+                          type: string
+                  kind:
+                    $ref: '#/components/schemas/CiTestDestinationKind'
         relationships:
           type: object
           properties:
-            xcodeVersions:
+            macOsVersions:
               type: object
               properties:
                 links:
@@ -1107,7 +1035,7 @@ components:
                       type:
                         type: string
                         enum:
-                        - ciXcodeVersions
+                        - ciMacOsVersions
                       id:
                         type: string
                     required:
@@ -1118,230 +1046,31 @@ components:
       required:
       - id
       - type
-    PagingInformation:
+    CiBuildRunsResponse:
       type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    CiBuildRun:
-      type: object
-      title: CiBuildRun
-      properties:
-        type:
-          type: string
-          enum:
-          - ciBuildRuns
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            number:
-              type: integer
-            createdDate:
-              type: string
-              format: date-time
-            startedDate:
-              type: string
-              format: date-time
-            finishedDate:
-              type: string
-              format: date-time
-            sourceCommit:
-              type: object
-              properties:
-                commitSha:
-                  type: string
-                message:
-                  type: string
-                author:
-                  $ref: '#/components/schemas/CiGitUser'
-                committer:
-                  $ref: '#/components/schemas/CiGitUser'
-                webUrl:
-                  type: string
-                  format: uri
-            destinationCommit:
-              type: object
-              properties:
-                commitSha:
-                  type: string
-                message:
-                  type: string
-                author:
-                  $ref: '#/components/schemas/CiGitUser'
-                committer:
-                  $ref: '#/components/schemas/CiGitUser'
-                webUrl:
-                  type: string
-                  format: uri
-            isPullRequestBuild:
-              type: boolean
-            issueCounts:
-              $ref: '#/components/schemas/CiIssueCounts'
-            executionProgress:
-              $ref: '#/components/schemas/CiExecutionProgress'
-            completionStatus:
-              $ref: '#/components/schemas/CiCompletionStatus'
-            startReason:
-              type: string
-              enum:
-              - GIT_REF_CHANGE
-              - MANUAL
-              - MANUAL_REBUILD
-              - PULL_REQUEST_OPEN
-              - PULL_REQUEST_UPDATE
-              - SCHEDULE
-            cancelReason:
-              type: string
-              enum:
-              - AUTOMATICALLY_BY_NEWER_BUILD
-              - MANUALLY_BY_USER
-        relationships:
-          type: object
-          properties:
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            workflow:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciWorkflows
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            product:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciProducts
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            sourceBranchOrTag:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmGitReferences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            destinationBranch:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmGitReferences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            actions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            pullRequest:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmPullRequests
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiGitUser:
-      type: object
-      properties:
-        displayName:
-          type: string
-        avatarUrl:
-          type: string
-          format: uri
-    CiWorkflowBuildRunsLinkagesResponse:
-      type: object
+      title: CiBuildRunsResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - ciBuildRuns
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/CiBuildRun'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/Build'
+            - $ref: '#/components/schemas/CiProduct'
+            - $ref: '#/components/schemas/CiWorkflow'
+            - $ref: '#/components/schemas/ScmGitReference'
+            - $ref: '#/components/schemas/ScmPullRequest'
+            discriminator:
+              propertyName: type
+              mapping:
+                ciProducts: '#/components/schemas/CiProduct'
+                builds: '#/components/schemas/Build'
+                scmPullRequests: '#/components/schemas/ScmPullRequest'
+                ciWorkflows: '#/components/schemas/CiWorkflow'
+                scmGitReferences: '#/components/schemas/ScmGitReference'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1349,24 +1078,6 @@ components:
       required:
       - data
       - links
-    CiTestDestination:
-      type: object
-      properties:
-        deviceTypeName:
-          type: string
-        deviceTypeIdentifier:
-          type: string
-        runtimeName:
-          type: string
-        runtimeIdentifier:
-          type: string
-        kind:
-          $ref: '#/components/schemas/CiTestDestinationKind'
-    CiManualBranchStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
     Build:
       type: object
       title: Build
@@ -1649,69 +1360,127 @@ components:
       required:
       - id
       - type
-    CiScheduledStartCondition:
+    CiWorkflow:
       type: object
+      title: CiWorkflow
       properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        schedule:
+        type:
+          type: string
+          enum:
+          - ciWorkflows
+        id:
+          type: string
+        attributes:
           type: object
           properties:
-            frequency:
+            name:
               type: string
-              enum:
-              - WEEKLY
-              - DAILY
-              - HOURLY
-            days:
+            description:
+              type: string
+            branchStartCondition:
+              $ref: '#/components/schemas/CiBranchStartCondition'
+            tagStartCondition:
+              $ref: '#/components/schemas/CiTagStartCondition'
+            pullRequestStartCondition:
+              $ref: '#/components/schemas/CiPullRequestStartCondition'
+            scheduledStartCondition:
+              $ref: '#/components/schemas/CiScheduledStartCondition'
+            manualBranchStartCondition:
+              $ref: '#/components/schemas/CiManualBranchStartCondition'
+            manualTagStartCondition:
+              $ref: '#/components/schemas/CiManualTagStartCondition'
+            manualPullRequestStartCondition:
+              $ref: '#/components/schemas/CiManualPullRequestStartCondition'
+            actions:
               type: array
               items:
-                type: string
-                enum:
-                - SUNDAY
-                - MONDAY
-                - TUESDAY
-                - WEDNESDAY
-                - THURSDAY
-                - FRIDAY
-                - SATURDAY
-            hour:
-              type: integer
-            minute:
-              type: integer
-            timezone:
+                $ref: '#/components/schemas/CiAction'
+            isEnabled:
+              type: boolean
+            isLockedForEditing:
+              type: boolean
+            clean:
+              type: boolean
+            containerFilePath:
               type: string
-    CiWorkflowResponse:
-      type: object
-      title: CiWorkflowResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/CiWorkflow'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/CiMacOsVersion'
-            - $ref: '#/components/schemas/CiProduct'
-            - $ref: '#/components/schemas/CiXcodeVersion'
-            - $ref: '#/components/schemas/ScmRepository'
-            discriminator:
-              propertyName: type
-              mapping:
-                scmRepositories: '#/components/schemas/ScmRepository'
-                ciMacOsVersions: '#/components/schemas/CiMacOsVersion'
-                ciProducts: '#/components/schemas/CiProduct'
-                ciXcodeVersions: '#/components/schemas/CiXcodeVersion'
+            lastModifiedDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            product:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciProducts
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            repository:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmRepositories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            xcodeVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciXcodeVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            macOsVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciMacOsVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            buildRuns:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - data
-      - links
-    CiManualTagStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiTagPatterns'
+      - id
+      - type
     CiTagPatterns:
       type: object
       properties:
@@ -1726,51 +1495,192 @@ components:
                 type: string
               isPrefix:
                 type: boolean
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    ScmPullRequest:
+    CiGitUser:
       type: object
-      title: ScmPullRequest
+      properties:
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+    CiMacOsVersion:
+      type: object
+      title: CiMacOsVersion
       properties:
         type:
           type: string
           enum:
-          - scmPullRequests
+          - ciMacOsVersions
         id:
           type: string
         attributes:
           type: object
           properties:
-            title:
+            version:
               type: string
-            number:
-              type: integer
-            webUrl:
+            name:
               type: string
-              format: uri
-            sourceRepositoryOwner:
-              type: string
-            sourceRepositoryName:
-              type: string
-            sourceBranchName:
-              type: string
-            destinationRepositoryOwner:
-              type: string
-            destinationRepositoryName:
-              type: string
-            destinationBranchName:
-              type: string
-            isClosed:
-              type: boolean
-            isCrossRepository:
-              type: boolean
         relationships:
           type: object
           properties:
-            repository:
+            xcodeVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - ciXcodeVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ScmRepositoryResponse:
+      type: object
+      title: ScmRepositoryResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/ScmRepository'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ScmGitReference'
+            - $ref: '#/components/schemas/ScmProvider'
+            discriminator:
+              propertyName: type
+              mapping:
+                scmProviders: '#/components/schemas/ScmProvider'
+                scmGitReferences: '#/components/schemas/ScmGitReference'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CiIssueCounts:
+      type: object
+      properties:
+        analyzerWarnings:
+          type: integer
+        errors:
+          type: integer
+        testFailures:
+          type: integer
+        warnings:
+          type: integer
+    CiBuildRun:
+      type: object
+      title: CiBuildRun
+      properties:
+        type:
+          type: string
+          enum:
+          - ciBuildRuns
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            number:
+              type: integer
+            createdDate:
+              type: string
+              format: date-time
+            startedDate:
+              type: string
+              format: date-time
+            finishedDate:
+              type: string
+              format: date-time
+            sourceCommit:
+              type: object
+              properties:
+                commitSha:
+                  type: string
+                message:
+                  type: string
+                author:
+                  $ref: '#/components/schemas/CiGitUser'
+                committer:
+                  $ref: '#/components/schemas/CiGitUser'
+                webUrl:
+                  type: string
+                  format: uri
+            destinationCommit:
+              type: object
+              properties:
+                commitSha:
+                  type: string
+                message:
+                  type: string
+                author:
+                  $ref: '#/components/schemas/CiGitUser'
+                committer:
+                  $ref: '#/components/schemas/CiGitUser'
+                webUrl:
+                  type: string
+                  format: uri
+            isPullRequestBuild:
+              type: boolean
+            issueCounts:
+              $ref: '#/components/schemas/CiIssueCounts'
+            executionProgress:
+              $ref: '#/components/schemas/CiExecutionProgress'
+            completionStatus:
+              $ref: '#/components/schemas/CiCompletionStatus'
+            startReason:
+              type: string
+              enum:
+              - GIT_REF_CHANGE
+              - MANUAL
+              - MANUAL_REBUILD
+              - PULL_REQUEST_OPEN
+              - PULL_REQUEST_UPDATE
+              - SCHEDULE
+            cancelReason:
+              type: string
+              enum:
+              - AUTOMATICALLY_BY_NEWER_BUILD
+              - MANUALLY_BY_USER
+        relationships:
+          type: object
+          properties:
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            workflow:
               type: object
               properties:
                 data:
@@ -1779,7 +1689,72 @@ components:
                     type:
                       type: string
                       enum:
-                      - scmRepositories
+                      - ciWorkflows
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            product:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciProducts
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            sourceBranchOrTag:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmGitReferences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            destinationBranch:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmGitReferences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            actions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            pullRequest:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmPullRequests
                     id:
                       type: string
                   required:
@@ -1790,49 +1765,6 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    CiManualPullRequestStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        destination:
-          $ref: '#/components/schemas/CiBranchPatterns'
-    CiBranchStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        filesAndFoldersRule:
-          $ref: '#/components/schemas/CiFilesAndFoldersRule'
-        autoCancel:
-          type: boolean
-    CiStartConditionFileMatcher:
-      type: object
-      properties:
-        directory:
-          type: string
-        fileExtension:
-          type: string
-        fileName:
-          type: string
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
     ScmGitReference:
       type: object
       title: ScmGitReference
@@ -1877,58 +1809,36 @@ components:
       required:
       - id
       - type
-    CiExecutionProgress:
-      type: string
-      enum:
-      - PENDING
-      - RUNNING
-      - COMPLETE
-    CiTagStartCondition:
+    ScmProviderType:
       type: object
       properties:
-        source:
-          $ref: '#/components/schemas/CiTagPatterns'
-        filesAndFoldersRule:
-          $ref: '#/components/schemas/CiFilesAndFoldersRule'
-        autoCancel:
+        kind:
+          type: string
+          enum:
+          - BITBUCKET_CLOUD
+          - BITBUCKET_SERVER
+          - GITHUB_CLOUD
+          - GITHUB_ENTERPRISE
+          - GITLAB_CLOUD
+          - GITLAB_SELF_MANAGED
+        displayName:
+          type: string
+        isOnPremise:
           type: boolean
-    CiTestDestinationKind:
-      type: string
-      enum:
-      - SIMULATOR
-      - MAC
-    ErrorResponse:
+    CiBranchPatterns:
       type: object
       properties:
-        errors:
+        isAllMatch:
+          type: boolean
+        patterns:
           type: array
           items:
             type: object
             properties:
-              id:
+              pattern:
                 type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+              isPrefix:
+                type: boolean
     CiPullRequestStartCondition:
       type: object
       properties:
@@ -1971,25 +1881,371 @@ components:
       required:
       - id
       - type
-    PagedDocumentLinks:
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+        related:
           type: string
           format: uri-reference
-        next:
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ScmRepository:
+      type: object
+      title: ScmRepository
+      properties:
+        type:
+          type: string
+          enum:
+          - scmRepositories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            lastAccessedDate:
+              type: string
+              format: date-time
+            httpCloneUrl:
+              type: string
+              format: uri
+            sshCloneUrl:
+              type: string
+              format: uri
+            ownerName:
+              type: string
+            repositoryName:
+              type: string
+        relationships:
+          type: object
+          properties:
+            scmProvider:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmProviders
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            defaultBranch:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - scmGitReferences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gitReferences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            pullRequests:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiExecutionProgress:
+      type: string
+      enum:
+      - PENDING
+      - RUNNING
+      - COMPLETE
+    CiWorkflowRepositoryLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - scmRepositories
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CiAction:
+      type: object
+      properties:
+        name:
+          type: string
+        actionType:
+          $ref: '#/components/schemas/CiActionType'
+        destination:
+          type: string
+          enum:
+          - ANY_IOS_DEVICE
+          - ANY_IOS_SIMULATOR
+          - ANY_TVOS_DEVICE
+          - ANY_TVOS_SIMULATOR
+          - ANY_WATCHOS_DEVICE
+          - ANY_WATCHOS_SIMULATOR
+          - ANY_MAC
+          - ANY_MAC_CATALYST
+          - ANY_VISIONOS_DEVICE
+          - ANY_VISIONOS_SIMULATOR
+        buildDistributionAudience:
+          $ref: '#/components/schemas/BuildAudienceType'
+        testConfiguration:
+          type: object
+          properties:
+            kind:
+              type: string
+              enum:
+              - USE_SCHEME_SETTINGS
+              - SPECIFIC_TEST_PLANS
+            testPlanName:
+              type: string
+            testDestinations:
+              type: array
+              items:
+                $ref: '#/components/schemas/CiTestDestination'
+        scheme:
+          type: string
+        platform:
+          type: string
+          enum:
+          - MACOS
+          - IOS
+          - TVOS
+          - WATCHOS
+          - VISIONOS
+        isRequiredToPass:
+          type: boolean
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    CiProduct:
+      type: object
+      title: CiProduct
+      properties:
+        type:
+          type: string
+          enum:
+          - ciProducts
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            productType:
+              type: string
+              enum:
+              - APP
+              - FRAMEWORK
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            bundleId:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - bundleIds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            workflows:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            primaryRepositories:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - scmRepositories
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            additionalRepositories:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            buildRuns:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    DocumentLinks:
+      type: object
+      properties:
+        self:
           type: string
           format: uri-reference
       required:
       - self
-    CiGitRefKind:
-      type: string
-      enum:
-      - BRANCH
-      - TAG
+    CiTagStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiTagPatterns'
+        filesAndFoldersRule:
+          $ref: '#/components/schemas/CiFilesAndFoldersRule'
+        autoCancel:
+          type: boolean
+    CiWorkflowBuildRunsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - ciBuildRuns
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CiManualPullRequestStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        destination:
+          $ref: '#/components/schemas/CiBranchPatterns'
+    CiBranchStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        filesAndFoldersRule:
+          $ref: '#/components/schemas/CiFilesAndFoldersRule'
+        autoCancel:
+          type: boolean
     CiWorkflowCreateRequest:
       type: object
       title: CiWorkflowCreateRequest
@@ -2125,80 +2381,169 @@ components:
           - type
       required:
       - data
-    ScmRepository:
+    CiStartConditionFileMatcher:
       type: object
-      title: ScmRepository
       properties:
-        type:
+        directory:
           type: string
-          enum:
-          - scmRepositories
-        id:
+        fileExtension:
           type: string
-        attributes:
+        fileName:
+          type: string
+    CiWorkflowUpdateRequest:
+      type: object
+      title: CiWorkflowUpdateRequest
+      properties:
+        data:
           type: object
           properties:
-            lastAccessedDate:
+            type:
               type: string
-              format: date-time
-            httpCloneUrl:
+              enum:
+              - ciWorkflows
+            id:
               type: string
-              format: uri
-            sshCloneUrl:
-              type: string
-              format: uri
-            ownerName:
-              type: string
-            repositoryName:
-              type: string
-        relationships:
-          type: object
-          properties:
-            scmProvider:
+            attributes:
               type: object
               properties:
-                data:
+                name:
+                  type:
+                  - string
+                  - 'null'
+                description:
+                  type:
+                  - string
+                  - 'null'
+                branchStartCondition:
+                  $ref: '#/components/schemas/CiBranchStartCondition'
+                tagStartCondition:
+                  $ref: '#/components/schemas/CiTagStartCondition'
+                pullRequestStartCondition:
+                  $ref: '#/components/schemas/CiPullRequestStartCondition'
+                scheduledStartCondition:
+                  $ref: '#/components/schemas/CiScheduledStartCondition'
+                manualBranchStartCondition:
+                  $ref: '#/components/schemas/CiManualBranchStartCondition'
+                manualTagStartCondition:
+                  $ref: '#/components/schemas/CiManualTagStartCondition'
+                manualPullRequestStartCondition:
+                  $ref: '#/components/schemas/CiManualPullRequestStartCondition'
+                actions:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    $ref: '#/components/schemas/CiAction'
+                isEnabled:
+                  type:
+                  - boolean
+                  - 'null'
+                isLockedForEditing:
+                  type:
+                  - boolean
+                  - 'null'
+                clean:
+                  type:
+                  - boolean
+                  - 'null'
+                containerFilePath:
+                  type:
+                  - string
+                  - 'null'
+            relationships:
+              type: object
+              properties:
+                xcodeVersion:
                   type: object
                   properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmProviders
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            defaultBranch:
-              type: object
-              properties:
-                data:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - ciXcodeVersions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                macOsVersion:
                   type: object
                   properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmGitReferences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gitReferences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            pullRequests:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - ciMacOsVersions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+          required:
+          - id
+          - type
       required:
-      - id
-      - type
+      - data
+    CiTestDestination:
+      type: object
+      properties:
+        deviceTypeName:
+          type: string
+        deviceTypeIdentifier:
+          type: string
+        runtimeName:
+          type: string
+        runtimeIdentifier:
+          type: string
+        kind:
+          $ref: '#/components/schemas/CiTestDestinationKind'
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    CiCompletionStatus:
+      type: string
+      enum:
+      - SUCCEEDED
+      - FAILED
+      - ERRORED
+      - CANCELED
+      - SKIPPED
+    CiManualTagStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiTagPatterns'
     CiActionType:
       type: string
       enum:
@@ -2218,351 +2563,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CiStartConditionFileMatcher'
-    CiWorkflow:
-      type: object
-      title: CiWorkflow
-      properties:
-        type:
-          type: string
-          enum:
-          - ciWorkflows
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            description:
-              type: string
-            branchStartCondition:
-              $ref: '#/components/schemas/CiBranchStartCondition'
-            tagStartCondition:
-              $ref: '#/components/schemas/CiTagStartCondition'
-            pullRequestStartCondition:
-              $ref: '#/components/schemas/CiPullRequestStartCondition'
-            scheduledStartCondition:
-              $ref: '#/components/schemas/CiScheduledStartCondition'
-            manualBranchStartCondition:
-              $ref: '#/components/schemas/CiManualBranchStartCondition'
-            manualTagStartCondition:
-              $ref: '#/components/schemas/CiManualTagStartCondition'
-            manualPullRequestStartCondition:
-              $ref: '#/components/schemas/CiManualPullRequestStartCondition'
-            actions:
-              type: array
-              items:
-                $ref: '#/components/schemas/CiAction'
-            isEnabled:
-              type: boolean
-            isLockedForEditing:
-              type: boolean
-            clean:
-              type: boolean
-            containerFilePath:
-              type: string
-            lastModifiedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            product:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciProducts
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            repository:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - scmRepositories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            xcodeVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciXcodeVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            macOsVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciMacOsVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            buildRuns:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiWorkflowRepositoryLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - scmRepositories
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    CiXcodeVersion:
-      type: object
-      title: CiXcodeVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - ciXcodeVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            version:
-              type: string
-            name:
-              type: string
-            testDestinations:
-              type: array
-              items:
-                type: object
-                properties:
-                  deviceTypeName:
-                    type: string
-                  deviceTypeIdentifier:
-                    type: string
-                  availableRuntimes:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        runtimeName:
-                          type: string
-                        runtimeIdentifier:
-                          type: string
-                  kind:
-                    $ref: '#/components/schemas/CiTestDestinationKind'
-        relationships:
-          type: object
-          properties:
-            macOsVersions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - ciMacOsVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiBuildRunsResponse:
-      type: object
-      title: CiBuildRunsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiBuildRun'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/Build'
-            - $ref: '#/components/schemas/CiProduct'
-            - $ref: '#/components/schemas/CiWorkflow'
-            - $ref: '#/components/schemas/ScmGitReference'
-            - $ref: '#/components/schemas/ScmPullRequest'
-            discriminator:
-              propertyName: type
-              mapping:
-                ciProducts: '#/components/schemas/CiProduct'
-                builds: '#/components/schemas/Build'
-                scmPullRequests: '#/components/schemas/ScmPullRequest'
-                ciWorkflows: '#/components/schemas/CiWorkflow'
-                scmGitReferences: '#/components/schemas/ScmGitReference'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ScmProviderType:
-      type: object
-      properties:
-        kind:
-          type: string
-          enum:
-          - BITBUCKET_CLOUD
-          - BITBUCKET_SERVER
-          - GITHUB_CLOUD
-          - GITHUB_ENTERPRISE
-          - GITLAB_CLOUD
-          - GITLAB_SELF_MANAGED
-        displayName:
-          type: string
-        isOnPremise:
-          type: boolean
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    CiAction:
-      type: object
-      properties:
-        name:
-          type: string
-        actionType:
-          $ref: '#/components/schemas/CiActionType'
-        destination:
-          type: string
-          enum:
-          - ANY_IOS_DEVICE
-          - ANY_IOS_SIMULATOR
-          - ANY_TVOS_DEVICE
-          - ANY_TVOS_SIMULATOR
-          - ANY_WATCHOS_DEVICE
-          - ANY_WATCHOS_SIMULATOR
-          - ANY_MAC
-          - ANY_MAC_CATALYST
-          - ANY_VISIONOS_DEVICE
-          - ANY_VISIONOS_SIMULATOR
-        buildDistributionAudience:
-          $ref: '#/components/schemas/BuildAudienceType'
-        testConfiguration:
-          type: object
-          properties:
-            kind:
-              type: string
-              enum:
-              - USE_SCHEME_SETTINGS
-              - SPECIFIC_TEST_PLANS
-            testPlanName:
-              type: string
-            testDestinations:
-              type: array
-              items:
-                $ref: '#/components/schemas/CiTestDestination'
-        scheme:
-          type: string
-        platform:
-          type: string
-          enum:
-          - MACOS
-          - IOS
-          - TVOS
-          - WATCHOS
-          - VISIONOS
-        isRequiredToPass:
-          type: boolean
-    ScmRepositoryResponse:
-      type: object
-      title: ScmRepositoryResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/ScmRepository'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/ScmGitReference'
-            - $ref: '#/components/schemas/ScmProvider'
-            discriminator:
-              propertyName: type
-              mapping:
-                scmProviders: '#/components/schemas/ScmProvider'
-                scmGitReferences: '#/components/schemas/ScmGitReference'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
   securitySchemes:
     itc-bearer-token:
       type: http

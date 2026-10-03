@@ -283,29 +283,6 @@ paths:
       summary: Delete Subscription App Store Review Screenshots
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     ImageAsset:
       type: object
       properties:
@@ -315,55 +292,36 @@ components:
           type: integer
         height:
           type: integer
-    AppMediaAssetState:
+    HttpHeader:
       type: object
       properties:
-        errors:
+        name:
+          type: string
+        value:
+          type: string
+    SubscriptionAppStoreReviewScreenshotResponse:
+      type: object
+      title: SubscriptionAppStoreReviewScreenshotResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
+        included:
           type: array
           items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+            $ref: '#/components/schemas/Subscription'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - self
-    PagingInformation:
+      - data
+      - links
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+        pointer:
+          type: string
       required:
-      - paging
+      - pointer
     SubscriptionAppStoreReviewScreenshot:
       type: object
       title: SubscriptionAppStoreReviewScreenshot
@@ -418,13 +376,117 @@ components:
       required:
       - id
       - type
-    HttpHeader:
+    AppMediaAssetState:
       type: object
       properties:
-        name:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
-        value:
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
           type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    SubscriptionAppStoreReviewScreenshotUpdateRequest:
+      type: object
+      title: SubscriptionAppStoreReviewScreenshotUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionAppStoreReviewScreenshots
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
     ErrorLinks:
       type: object
       properties:
@@ -445,6 +507,35 @@ components:
                 properties:
                   source:
                     type: string
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     SubscriptionAppStoreReviewScreenshotCreateRequest:
       type: object
       title: SubscriptionAppStoreReviewScreenshotCreateRequest
@@ -494,105 +585,14 @@ components:
           - type
       required:
       - data
-    SubscriptionAppStoreReviewScreenshotUpdateRequest:
+    ErrorSourceParameter:
       type: object
-      title: SubscriptionAppStoreReviewScreenshotUpdateRequest
+      title: Parameter
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionAppStoreReviewScreenshots
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
-    SubscriptionAppStoreReviewScreenshotResponse:
-      type: object
-      title: SubscriptionAppStoreReviewScreenshotResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subscription'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+      - parameter
     Subscription:
       type: object
       title: Subscription

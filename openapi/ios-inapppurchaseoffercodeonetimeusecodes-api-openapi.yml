@@ -283,14 +283,118 @@ paths:
       summary: Get Related in App Purchase Offer Code One Time Use Codes / Values
 components:
   schemas:
-    ErrorSourceParameter:
+    OfferCodeEnvironment:
+      type: string
+      enum:
+      - PRODUCTION
+      - SANDBOX
+    InAppPurchaseOfferCodeOneTimeUseCodeCreateRequest:
       type: object
-      title: Parameter
+      title: InAppPurchaseOfferCodeOneTimeUseCodeCreateRequest
       properties:
-        parameter:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - inAppPurchaseOfferCodeOneTimeUseCodes
+            attributes:
+              type: object
+              properties:
+                numberOfCodes:
+                  type: integer
+                expirationDate:
+                  type: string
+                  format: date
+                environment:
+                  $ref: '#/components/schemas/OfferCodeEnvironment'
+              required:
+              - numberOfCodes
+              - expirationDate
+            relationships:
+              type: object
+              properties:
+                offerCode:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - inAppPurchaseOfferCodes
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - offerCode
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    InAppPurchaseOfferCodeOneTimeUseCodeResponse:
+      type: object
+      title: InAppPurchaseOfferCodeOneTimeUseCodeResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/InAppPurchaseOfferCodeOneTimeUseCode'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
           type: string
       required:
-      - parameter
+      - pointer
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     RelationshipLinks:
       type: object
       properties:
@@ -300,20 +404,59 @@ components:
         related:
           type: string
           format: uri-reference
-    ResourceLinks:
+    Actor:
       type: object
+      title: Actor
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
+          enum:
+          - actors
+        id:
           type: string
-          format: uri-reference
+        attributes:
+          type: object
+          properties:
+            actorType:
+              type: string
+              enum:
+              - USER
+              - API_KEY
+              - XCODE_CLOUD
+              - APPLE
+            userFirstName:
+              type: string
+            userLastName:
+              type: string
+            userEmail:
+              type: string
+            apiKeyId:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - self
+      - id
+      - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     InAppPurchaseOfferCodeOneTimeUseCode:
       type: object
       title: InAppPurchaseOfferCodeOneTimeUseCode
@@ -382,108 +525,28 @@ components:
       required:
       - id
       - type
-    OfferCodeEnvironment:
-      type: string
-      enum:
-      - PRODUCTION
-      - SANDBOX
-    InAppPurchaseOfferCodeOneTimeUseCodeCreateRequest:
-      type: object
-      title: InAppPurchaseOfferCodeOneTimeUseCodeCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - inAppPurchaseOfferCodeOneTimeUseCodes
-            attributes:
-              type: object
-              properties:
-                numberOfCodes:
-                  type: integer
-                expirationDate:
-                  type: string
-                  format: date
-                environment:
-                  $ref: '#/components/schemas/OfferCodeEnvironment'
-              required:
-              - numberOfCodes
-              - expirationDate
-            relationships:
-              type: object
-              properties:
-                offerCode:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - inAppPurchaseOfferCodes
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - offerCode
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    ErrorLinks:
+    ResourceLinks:
       type: object
       properties:
-        about:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    csv:
-      type: string
-    InAppPurchaseOfferCodeOneTimeUseCodeResponse:
+    ErrorSourceParameter:
       type: object
-      title: InAppPurchaseOfferCodeOneTimeUseCodeResponse
+      title: Parameter
       properties:
-        data:
-          $ref: '#/components/schemas/InAppPurchaseOfferCodeOneTimeUseCode'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Actor'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        parameter:
           type: string
       required:
-      - pointer
+      - parameter
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     InAppPurchaseOfferCodeOneTimeUseCodeUpdateRequest:
       type: object
       title: InAppPurchaseOfferCodeOneTimeUseCodeUpdateRequest
@@ -509,71 +572,8 @@ components:
           - type
       required:
       - data
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    Actor:
-      type: object
-      title: Actor
-      properties:
-        type:
-          type: string
-          enum:
-          - actors
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            actorType:
-              type: string
-              enum:
-              - USER
-              - API_KEY
-              - XCODE_CLOUD
-              - APPLE
-            userFirstName:
-              type: string
-            userLastName:
-              type: string
-            userEmail:
-              type: string
-            apiKeyId:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
+    csv:
+      type: string
   securitySchemes:
     itc-bearer-token:
       type: http

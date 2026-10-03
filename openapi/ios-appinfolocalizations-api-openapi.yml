@@ -281,47 +281,85 @@ paths:
       summary: Delete App Info Localizations
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppStoreAgeRating:
+    AppStoreVersionState:
       type: string
       enum:
-      - L
-      - ALL
-      - ONE_PLUS
-      - TWO_PLUS
-      - THREE_PLUS
-      - FOUR_PLUS
-      - FIVE_PLUS
-      - SIX_PLUS
-      - SEVEN_PLUS
-      - EIGHT_PLUS
-      - NINE_PLUS
-      - TEN_PLUS
-      - ELEVEN_PLUS
-      - TWELVE_PLUS
-      - THIRTEEN_PLUS
-      - FOURTEEN_PLUS
-      - FIFTEEN_PLUS
-      - SIXTEEN_PLUS
-      - SEVENTEEN_PLUS
-      - EIGHTEEN_PLUS
-      - NINETEEN_PLUS
-      - TWENTY_PLUS
-      - TWENTY_ONE_PLUS
-      - UNRATED
-    ResourceLinks:
+      - ACCEPTED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_CONTRACT
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PREORDER_READY_FOR_SALE
+      - PROCESSING_FOR_APP_STORE
+      - READY_FOR_REVIEW
+      - READY_FOR_SALE
+      - REJECTED
+      - REMOVED_FROM_SALE
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+      - REPLACED_WITH_NEW_VERSION
+      - NOT_APPLICABLE
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     RelationshipLinks:
       type: object
       properties:
@@ -331,9 +369,9 @@ components:
         related:
           type: string
           format: uri-reference
-    AppInfoLocalizationUpdateRequest:
+    AppInfoLocalizationCreateRequest:
       type: object
-      title: AppInfoLocalizationUpdateRequest
+      title: AppInfoLocalizationCreateRequest
       properties:
         data:
           type: object
@@ -342,15 +380,13 @@ components:
               type: string
               enum:
               - appInfoLocalizations
-            id:
-              type: string
             attributes:
               type: object
               properties:
+                locale:
+                  type: string
                 name:
-                  type:
-                  - string
-                  - 'null'
+                  type: string
                 subtitle:
                   type:
                   - string
@@ -367,11 +403,125 @@ components:
                   type:
                   - string
                   - 'null'
+              required:
+              - name
+              - locale
+            relationships:
+              type: object
+              properties:
+                appInfo:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appInfos
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appInfo
           required:
-          - id
+          - relationships
+          - attributes
           - type
       required:
       - data
+    AppInfoLocalization:
+      type: object
+      title: AppInfoLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - appInfoLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            name:
+              type: string
+            subtitle:
+              type: string
+            privacyPolicyUrl:
+              type: string
+            privacyChoicesUrl:
+              type: string
+            privacyPolicyText:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appInfo:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appInfos
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    KidsAgeBand:
+      type: string
+      enum:
+      - FIVE_AND_UNDER
+      - SIX_TO_EIGHT
+      - NINE_TO_ELEVEN
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     DocumentLinks:
       type: object
       properties:
@@ -380,6 +530,21 @@ components:
           format: uri-reference
       required:
       - self
+    AppInfoLocalizationResponse:
+      type: object
+      title: AppInfoLocalizationResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppInfoLocalization'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppInfo'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppInfo:
       type: object
       title: AppInfo
@@ -622,31 +787,9 @@ components:
       required:
       - id
       - type
-    KidsAgeBand:
-      type: string
-      enum:
-      - FIVE_AND_UNDER
-      - SIX_TO_EIGHT
-      - NINE_TO_ELEVEN
-    PagingInformation:
+    AppInfoLocalizationUpdateRequest:
       type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    AppInfoLocalizationCreateRequest:
-      type: object
-      title: AppInfoLocalizationCreateRequest
+      title: AppInfoLocalizationUpdateRequest
       properties:
         data:
           type: object
@@ -655,13 +798,15 @@ components:
               type: string
               enum:
               - appInfoLocalizations
+            id:
+              type: string
             attributes:
               type: object
               properties:
-                locale:
-                  type: string
                 name:
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 subtitle:
                   type:
                   - string
@@ -678,37 +823,38 @@ components:
                   type:
                   - string
                   - 'null'
-              required:
-              - name
-              - locale
-            relationships:
-              type: object
-              properties:
-                appInfo:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appInfos
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appInfo
           required:
-          - relationships
-          - attributes
+          - id
           - type
       required:
       - data
+    AppStoreAgeRating:
+      type: string
+      enum:
+      - L
+      - ALL
+      - ONE_PLUS
+      - TWO_PLUS
+      - THREE_PLUS
+      - FOUR_PLUS
+      - FIVE_PLUS
+      - SIX_PLUS
+      - SEVEN_PLUS
+      - EIGHT_PLUS
+      - NINE_PLUS
+      - TEN_PLUS
+      - ELEVEN_PLUS
+      - TWELVE_PLUS
+      - THIRTEEN_PLUS
+      - FOURTEEN_PLUS
+      - FIFTEEN_PLUS
+      - SIXTEEN_PLUS
+      - SEVENTEEN_PLUS
+      - EIGHTEEN_PLUS
+      - NINETEEN_PLUS
+      - TWENTY_PLUS
+      - TWENTY_ONE_PLUS
+      - UNRATED
     BrazilAgeRating:
       type: string
       enum:
@@ -718,152 +864,6 @@ components:
       - FOURTEEN
       - SIXTEEN
       - EIGHTEEN
-    AppInfoLocalization:
-      type: object
-      title: AppInfoLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - appInfoLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-            name:
-              type: string
-            subtitle:
-              type: string
-            privacyPolicyUrl:
-              type: string
-            privacyChoicesUrl:
-              type: string
-            privacyPolicyText:
-              type: string
-        relationships:
-          type: object
-          properties:
-            appInfo:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appInfos
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    AppInfoLocalizationResponse:
-      type: object
-      title: AppInfoLocalizationResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppInfoLocalization'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppInfo'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    AppStoreVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_CONTRACT
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PREORDER_READY_FOR_SALE
-      - PROCESSING_FOR_APP_STORE
-      - READY_FOR_REVIEW
-      - READY_FOR_SALE
-      - REJECTED
-      - REMOVED_FROM_SALE
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-      - REPLACED_WITH_NEW_VERSION
-      - NOT_APPLICABLE
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -480,70 +480,30 @@ paths:
       summary: List Related Subscription Promotional Offers / Prices
 components:
   schemas:
-    ErrorSourceParameter:
+    SubscriptionPromotionalOfferPricesLinkagesResponse:
       type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    SubscriptionPromotionalOfferUpdateRequest:
-      type: object
-      title: SubscriptionPromotionalOfferUpdateRequest
       properties:
         data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionPromotionalOffers
-            id:
-              type: string
-            relationships:
-              type: object
-              properties:
-                prices:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - subscriptionPromotionalOfferPrices
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-          required:
-          - id
-          - type
-        included:
           type: array
           items:
-            $ref: '#/components/schemas/SubscriptionPromotionalOfferPriceInlineCreate'
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - subscriptionPromotionalOfferPrices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+      - links
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -552,76 +512,48 @@ components:
           type: string
       required:
       - pointer
-    SubscriptionPromotionalOffer:
+    SubscriptionOfferMode:
+      type: string
+      enum:
+      - PAY_AS_YOU_GO
+      - PAY_UP_FRONT
+      - FREE_TRIAL
+    ResourceLinks:
       type: object
-      title: SubscriptionPromotionalOffer
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    Territory:
+      type: object
+      title: Territory
       properties:
         type:
           type: string
           enum:
-          - subscriptionPromotionalOffers
+          - territories
         id:
           type: string
         attributes:
           type: object
           properties:
-            duration:
-              $ref: '#/components/schemas/SubscriptionOfferDuration'
-            name:
+            currency:
               type: string
-            numberOfPeriods:
-              type: integer
-            offerCode:
-              type: string
-            offerMode:
-              $ref: '#/components/schemas/SubscriptionOfferMode'
-        relationships:
-          type: object
-          properties:
-            subscription:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            prices:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - subscriptionPromotionalOfferPrices
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    SubscriptionPromotionalOfferPrice:
+    SubscriptionPromotionalOfferPriceInlineCreate:
       type: object
-      title: SubscriptionPromotionalOfferPrice
       properties:
         type:
           type: string
@@ -662,10 +594,7 @@ components:
                   required:
                   - id
                   - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
       - type
     SubscriptionPricePoint:
       type: object
@@ -709,74 +638,6 @@ components:
               properties:
                 links:
                   $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionOfferMode:
-      type: string
-      enum:
-      - PAY_AS_YOU_GO
-      - PAY_UP_FRONT
-      - FREE_TRIAL
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    SubscriptionPromotionalOfferPricesResponse:
-      type: object
-      title: SubscriptionPromotionalOfferPricesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionPromotionalOfferPrice'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionPricePoint'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
@@ -864,96 +725,9 @@ components:
             $ref: '#/components/schemas/SubscriptionPromotionalOfferPriceInlineCreate'
       required:
       - data
-    RelationshipLinks:
+    SubscriptionPromotionalOfferPrice:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    SubscriptionOfferDuration:
-      type: string
-      enum:
-      - THREE_DAYS
-      - ONE_WEEK
-      - TWO_WEEKS
-      - ONE_MONTH
-      - TWO_MONTHS
-      - THREE_MONTHS
-      - SIX_MONTHS
-      - ONE_YEAR
-    SubscriptionPromotionalOfferResponse:
-      type: object
-      title: SubscriptionPromotionalOfferResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionPromotionalOffer'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionPromotionalOfferPrice'
-            - $ref: '#/components/schemas/Subscription'
-            discriminator:
-              propertyName: type
-              mapping:
-                subscriptions: '#/components/schemas/Subscription'
-                subscriptionPromotionalOfferPrices: '#/components/schemas/SubscriptionPromotionalOfferPrice'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    SubscriptionPromotionalOfferPriceInlineCreate:
-      type: object
+      title: SubscriptionPromotionalOfferPrice
       properties:
         type:
           type: string
@@ -994,8 +768,94 @@ components:
                   required:
                   - id
                   - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
+      - id
       - type
+    SubscriptionPromotionalOfferUpdateRequest:
+      type: object
+      title: SubscriptionPromotionalOfferUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionPromotionalOffers
+            id:
+              type: string
+            relationships:
+              type: object
+              properties:
+                prices:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - subscriptionPromotionalOfferPrices
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+          required:
+          - id
+          - type
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionPromotionalOfferPriceInlineCreate'
+      required:
+      - data
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     ErrorLinks:
       type: object
       properties:
@@ -1016,23 +876,44 @@ components:
                 properties:
                   source:
                     type: string
-    SubscriptionPromotionalOfferPricesLinkagesResponse:
+    SubscriptionOfferDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - ONE_WEEK
+      - TWO_WEEKS
+      - ONE_MONTH
+      - TWO_MONTHS
+      - THREE_MONTHS
+      - SIX_MONTHS
+      - ONE_YEAR
+    DocumentLinks:
       type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    SubscriptionPromotionalOfferPricesResponse:
+      type: object
+      title: SubscriptionPromotionalOfferPricesResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - subscriptionPromotionalOfferPrices
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/SubscriptionPromotionalOfferPrice'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionPricePoint'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1040,6 +921,125 @@ components:
       required:
       - data
       - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    SubscriptionPromotionalOfferResponse:
+      type: object
+      title: SubscriptionPromotionalOfferResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionPromotionalOffer'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionPromotionalOfferPrice'
+            - $ref: '#/components/schemas/Subscription'
+            discriminator:
+              propertyName: type
+              mapping:
+                subscriptions: '#/components/schemas/Subscription'
+                subscriptionPromotionalOfferPrices: '#/components/schemas/SubscriptionPromotionalOfferPrice'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    SubscriptionPromotionalOffer:
+      type: object
+      title: SubscriptionPromotionalOffer
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionPromotionalOffers
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            duration:
+              $ref: '#/components/schemas/SubscriptionOfferDuration'
+            name:
+              type: string
+            numberOfPeriods:
+              type: integer
+            offerCode:
+              type: string
+            offerMode:
+              $ref: '#/components/schemas/SubscriptionOfferMode'
+        relationships:
+          type: object
+          properties:
+            subscription:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            prices:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - subscriptionPromotionalOfferPrices
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     Subscription:
       type: object
       title: Subscription

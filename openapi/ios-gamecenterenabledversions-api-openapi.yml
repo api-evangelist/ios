@@ -461,29 +461,53 @@ paths:
       summary: List Related Game Center Enabled Versions / Compatible Versions
 components:
   schemas:
-    PagedDocumentLinks:
+    ImageAsset:
       type: object
       properties:
-        self:
+        templateUrl:
           type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
+        width:
+          type: integer
+        height:
+          type: integer
+    GameCenterEnabledVersionCompatibleVersionsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - gameCenterEnabledVersions
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - self
-    RelationshipLinks:
+      - data
+      - links
+      deprecated: true
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+      required:
+      - pointer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
     GameCenterEnabledVersion:
       type: object
       title: GameCenterEnabledVersion
@@ -548,10 +572,75 @@ components:
       - id
       - type
       deprecated: true
-    ResourceLinks:
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    PagedDocumentLinks:
       type: object
       properties:
         self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
           type: string
           format: uri-reference
     App:
@@ -1191,89 +1280,6 @@ components:
       required:
       - id
       - type
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    GameCenterEnabledVersionCompatibleVersionsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterEnabledVersions
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-      deprecated: true
-    GameCenterEnabledVersionCompatibleVersionsLinkagesRequest:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterEnabledVersions
-              id:
-                type: string
-            required:
-            - id
-            - type
-      required:
-      - data
-      deprecated: true
     Platform:
       type: string
       enum:
@@ -1328,46 +1334,40 @@ components:
                 properties:
                   source:
                     type: string
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
-    ErrorResponse:
+          format: uri-reference
+    GameCenterEnabledVersionCompatibleVersionsLinkagesRequest:
       type: object
       properties:
-        errors:
+        data:
           type: array
           items:
             type: object
             properties:
+              type:
+                type: string
+                enum:
+                - gameCenterEnabledVersions
               id:
                 type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
             required:
-            - code
-            - detail
-            - status
-            - title
+            - id
+            - type
+      required:
+      - data
+      deprecated: true
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

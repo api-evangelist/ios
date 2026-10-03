@@ -422,6 +422,35 @@ paths:
       summary: List Related Alternative Distribution Package Versions / Variants
 components:
   schemas:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    AlternativeDistributionPackageVariantsResponse:
+      type: object
+      title: AlternativeDistributionPackageVariantsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternativeDistributionPackageVariant'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     ErrorSourceParameter:
       type: object
       title: Parameter
@@ -430,6 +459,134 @@ components:
           type: string
       required:
       - parameter
+    AlternativeDistributionPackageDelta:
+      type: object
+      title: AlternativeDistributionPackageDelta
+      properties:
+        type:
+          type: string
+          enum:
+          - alternativeDistributionPackageDeltas
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            urlExpirationDate:
+              type: string
+              format: date-time
+            alternativeDistributionKeyBlob:
+              type: string
+            fileChecksum:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AlternativeDistributionPackageDeltasResponse:
+      type: object
+      title: AlternativeDistributionPackageDeltasResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternativeDistributionPackageDelta'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AlternativeDistributionPackageVersionVariantsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - alternativeDistributionPackageVariants
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     AlternativeDistributionPackageVersion:
       type: object
       title: AlternativeDistributionPackageVersion
@@ -523,12 +680,6 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     DocumentLinks:
       type: object
       properties:
@@ -537,116 +688,6 @@ components:
           format: uri-reference
       required:
       - self
-    AlternativeDistributionPackageVersionResponse:
-      type: object
-      title: AlternativeDistributionPackageVersionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AlternativeDistributionPackageVersion'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AlternativeDistributionPackageDelta'
-            - $ref: '#/components/schemas/AlternativeDistributionPackageVariant'
-            - $ref: '#/components/schemas/AlternativeDistributionPackage'
-            discriminator:
-              propertyName: type
-              mapping:
-                alternativeDistributionPackages: '#/components/schemas/AlternativeDistributionPackage'
-                alternativeDistributionPackageDeltas: '#/components/schemas/AlternativeDistributionPackageDelta'
-                alternativeDistributionPackageVariants: '#/components/schemas/AlternativeDistributionPackageVariant'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    Checksums:
-      type: object
-      properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    AlternativeDistributionPackageDeltasResponse:
-      type: object
-      title: AlternativeDistributionPackageDeltasResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlternativeDistributionPackageDelta'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AlternativeDistributionPackageDelta:
-      type: object
-      title: AlternativeDistributionPackageDelta
-      properties:
-        type:
-          type: string
-          enum:
-          - alternativeDistributionPackageDeltas
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            url:
-              type: string
-              format: uri
-            urlExpirationDate:
-              type: string
-              format: date-time
-            alternativeDistributionKeyBlob:
-              type: string
-            fileChecksum:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
     AlternativeDistributionPackageVersionDeltasLinkagesResponse:
       type: object
       properties:
@@ -671,15 +712,6 @@ components:
       required:
       - data
       - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     AlternativeDistributionPackage:
       type: object
       title: AlternativeDistributionPackage
@@ -724,6 +756,79 @@ components:
       required:
       - id
       - type
+    Checksums:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    AlternativeDistributionPackageVersionResponse:
+      type: object
+      title: AlternativeDistributionPackageVersionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AlternativeDistributionPackageVersion'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AlternativeDistributionPackageDelta'
+            - $ref: '#/components/schemas/AlternativeDistributionPackageVariant'
+            - $ref: '#/components/schemas/AlternativeDistributionPackage'
+            discriminator:
+              propertyName: type
+              mapping:
+                alternativeDistributionPackages: '#/components/schemas/AlternativeDistributionPackage'
+                alternativeDistributionPackageDeltas: '#/components/schemas/AlternativeDistributionPackageDelta'
+                alternativeDistributionPackageVariants: '#/components/schemas/AlternativeDistributionPackageVariant'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
     AlternativeDistributionPackageVariant:
       type: object
       title: AlternativeDistributionPackageVariant
@@ -752,116 +857,11 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     ChecksumAlgorithm:
       type: string
       enum:
       - MD5
       - SHA_256
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    AlternativeDistributionPackageVersionVariantsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - alternativeDistributionPackageVariants
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AlternativeDistributionPackageVariantsResponse:
-      type: object
-      title: AlternativeDistributionPackageVariantsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlternativeDistributionPackageVariant'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
   securitySchemes:
     itc-bearer-token:
       type: http

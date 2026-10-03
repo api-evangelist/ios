@@ -844,31 +844,31 @@ paths:
       summary: List Related Subscription Offer Codes / Prices
 components:
   schemas:
-    ErrorSourceParameter:
+    OfferCodeEnvironment:
+      type: string
+      enum:
+      - PRODUCTION
+      - SANDBOX
+    ErrorSourcePointer:
       type: object
-      title: Parameter
+      title: JsonPointer
       properties:
-        parameter:
+        pointer:
           type: string
       required:
-      - parameter
-    SubscriptionOfferCodeCustomCodesLinkagesResponse:
+      - pointer
+    SubscriptionOfferCodeCustomCodesResponse:
       type: object
+      title: SubscriptionOfferCodeCustomCodesResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - subscriptionOfferCodeCustomCodes
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/SubscriptionOfferCodeCustomCode'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionOfferCode'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -876,20 +876,60 @@ components:
       required:
       - data
       - links
-    ResourceLinks:
+    SubscriptionOfferCodeCustomCode:
       type: object
+      title: SubscriptionOfferCodeCustomCode
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
+          enum:
+          - subscriptionOfferCodeCustomCodes
+        id:
           type: string
-          format: uri-reference
+        attributes:
+          type: object
+          properties:
+            customCode:
+              type: string
+            numberOfCodes:
+              type: integer
+            createdDate:
+              type: string
+              format: date-time
+            expirationDate:
+              type: string
+              format: date
+            active:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            offerCode:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionOfferCodes
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - self
+      - id
+      - type
+    SubscriptionOfferMode:
+      type: string
+      enum:
+      - PAY_AS_YOU_GO
+      - PAY_UP_FRONT
+      - FREE_TRIAL
     SubscriptionOfferCodeUpdateRequest:
       type: object
       title: SubscriptionOfferCodeUpdateRequest
@@ -915,126 +955,40 @@ components:
           - type
       required:
       - data
-    SubscriptionOfferCodeOneTimeUseCodesResponse:
+    ResourceLinks:
       type: object
-      title: SubscriptionOfferCodeOneTimeUseCodesResponse
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionOfferCode'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    SubscriptionOfferCodeCustomCodesResponse:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
       type: object
-      title: SubscriptionOfferCodeCustomCodesResponse
+      title: Parameter
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionOfferCodeCustomCode'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionOfferCode'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        parameter:
+          type: string
       required:
-      - data
-      - links
-    SubscriptionOfferCodeResponse:
+      - parameter
+    Territory:
       type: object
-      title: SubscriptionOfferCodeResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionOfferCode'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionOfferCodeCustomCode'
-            - $ref: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
-            - $ref: '#/components/schemas/SubscriptionOfferCodePrice'
-            - $ref: '#/components/schemas/Subscription'
-            discriminator:
-              propertyName: type
-              mapping:
-                subscriptionOfferCodePrices: '#/components/schemas/SubscriptionOfferCodePrice'
-                subscriptions: '#/components/schemas/Subscription'
-                subscriptionOfferCodeOneTimeUseCodes: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
-                subscriptionOfferCodeCustomCodes: '#/components/schemas/SubscriptionOfferCodeCustomCode'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    SubscriptionOfferCodePrice:
-      type: object
-      title: SubscriptionOfferCodePrice
+      title: Territory
       properties:
         type:
           type: string
           enum:
-          - subscriptionOfferCodePrices
+          - territories
         id:
           type: string
-        relationships:
+        attributes:
           type: object
           properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            subscriptionPricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionPricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
+            currency:
+              type: string
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     SubscriptionPricePoint:
       type: object
       title: SubscriptionPricePoint
@@ -1082,8 +1036,9 @@ components:
       required:
       - id
       - type
-    SubscriptionOfferCodePriceInlineCreate:
+    SubscriptionOfferCodePrice:
       type: object
+      title: SubscriptionOfferCodePrice
       properties:
         type:
           type: string
@@ -1124,7 +1079,10 @@ components:
                   required:
                   - id
                   - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
+      - id
       - type
     SubscriptionOfferCodeCreateRequest:
       type: object
@@ -1217,35 +1175,51 @@ components:
             $ref: '#/components/schemas/SubscriptionOfferCodePriceInlineCreate'
       required:
       - data
-    SubscriptionOfferMode:
-      type: string
-      enum:
-      - PAY_AS_YOU_GO
-      - PAY_UP_FRONT
-      - FREE_TRIAL
-    PagingInformation:
+    SubscriptionOfferCodePriceInlineCreate:
       type: object
       properties:
-        paging:
+        type:
+          type: string
+          enum:
+          - subscriptionOfferCodePrices
+        id:
+          type: string
+        relationships:
           type: object
           properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            subscriptionPricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionPricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
       required:
-      - paging
-    SubscriptionCustomerEligibility:
-      type: string
-      enum:
-      - NEW
-      - EXISTING
-      - EXPIRED
-    SubscriptionOfferCodePricesLinkagesResponse:
+      - type
+    SubscriptionOfferCodeCustomCodesLinkagesResponse:
       type: object
       properties:
         data:
@@ -1256,7 +1230,7 @@ components:
               type:
                 type: string
                 enum:
-                - subscriptionOfferCodePrices
+                - subscriptionOfferCodeCustomCodes
               id:
                 type: string
             required:
@@ -1295,26 +1269,6 @@ components:
       required:
       - data
       - links
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     RelationshipLinks:
       type: object
       properties:
@@ -1324,41 +1278,6 @@ components:
         related:
           type: string
           format: uri-reference
-    SubscriptionOfferCodeOneTimeUseCodesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - subscriptionOfferCodeOneTimeUseCodes
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    SubscriptionOfferDuration:
-      type: string
-      enum:
-      - THREE_DAYS
-      - ONE_WEEK
-      - TWO_WEEKS
-      - ONE_MONTH
-      - TWO_MONTHS
-      - THREE_MONTHS
-      - SIX_MONTHS
-      - ONE_YEAR
     ErrorResponse:
       type: object
       properties:
@@ -1514,30 +1433,77 @@ components:
       required:
       - id
       - type
-    PagedDocumentLinks:
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    SubscriptionOfferDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - ONE_WEEK
+      - TWO_WEEKS
+      - ONE_MONTH
+      - TWO_MONTHS
+      - THREE_MONTHS
+      - SIX_MONTHS
+      - ONE_YEAR
+    SubscriptionOfferCodeResponse:
+      type: object
+      title: SubscriptionOfferCodeResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionOfferCode'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionOfferCodeCustomCode'
+            - $ref: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
+            - $ref: '#/components/schemas/SubscriptionOfferCodePrice'
+            - $ref: '#/components/schemas/Subscription'
+            discriminator:
+              propertyName: type
+              mapping:
+                subscriptionOfferCodePrices: '#/components/schemas/SubscriptionOfferCodePrice'
+                subscriptions: '#/components/schemas/Subscription'
+                subscriptionOfferCodeOneTimeUseCodes: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
+                subscriptionOfferCodeCustomCodes: '#/components/schemas/SubscriptionOfferCodeCustomCode'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
       - self
-    SubscriptionOfferEligibility:
+    SubscriptionCustomerEligibility:
       type: string
       enum:
-      - STACK_WITH_INTRO_OFFERS
-      - REPLACE_INTRO_OFFERS
-    OfferCodeEnvironment:
-      type: string
-      enum:
-      - PRODUCTION
-      - SANDBOX
+      - NEW
+      - EXISTING
+      - EXPIRED
     SubscriptionOfferCodeOneTimeUseCode:
       type: object
       title: SubscriptionOfferCodeOneTimeUseCode
@@ -1591,74 +1557,108 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
+    PagingInformation:
       type: object
       properties:
-        about:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
           type: string
           format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    SubscriptionOfferCodeCustomCode:
-      type: object
-      title: SubscriptionOfferCodeCustomCode
-      properties:
-        type:
+        first:
           type: string
-          enum:
-          - subscriptionOfferCodeCustomCodes
-        id:
+          format: uri-reference
+        next:
           type: string
-        attributes:
-          type: object
-          properties:
-            customCode:
-              type: string
-            numberOfCodes:
-              type: integer
-            createdDate:
-              type: string
-              format: date-time
-            expirationDate:
-              type: string
-              format: date
-            active:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            offerCode:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionOfferCodes
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+          format: uri-reference
       required:
-      - id
-      - type
+      - self
+    SubscriptionOfferCodeOneTimeUseCodesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - subscriptionOfferCodeOneTimeUseCodes
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    SubscriptionOfferCodePricesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - subscriptionOfferCodePrices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    SubscriptionOfferCodeOneTimeUseCodesResponse:
+      type: object
+      title: SubscriptionOfferCodeOneTimeUseCodesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionOfferCodeOneTimeUseCode'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionOfferCode'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    SubscriptionOfferEligibility:
+      type: string
+      enum:
+      - STACK_WITH_INTRO_OFFERS
+      - REPLACE_INTRO_OFFERS
     Subscription:
       type: object
       title: Subscription

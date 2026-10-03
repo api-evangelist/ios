@@ -204,29 +204,6 @@ paths:
       summary: Delete Game Center Challenge Version Releases
 components:
   schemas:
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     GameCenterChallengeVersion:
       type: object
       title: GameCenterChallengeVersion
@@ -324,22 +301,23 @@ components:
       required:
       - id
       - type
-    GameCenterChallengeVersionReleaseResponse:
+    ErrorSourcePointer:
       type: object
-      title: GameCenterChallengeVersionReleaseResponse
+      title: JsonPointer
       properties:
-        data:
-          $ref: '#/components/schemas/GameCenterChallengeVersionRelease'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterChallengeVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        pointer:
+          type: string
       required:
-      - data
-      - links
-      deprecated: true
+      - pointer
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
     PagingInformation:
       type: object
       properties:
@@ -356,14 +334,38 @@ components:
           - limit
       required:
       - paging
-    DocumentLinks:
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     GameCenterChallengeVersionRelease:
       type: object
       title: GameCenterChallengeVersionRelease
@@ -398,19 +400,6 @@ components:
       - id
       - type
       deprecated: true
-    GameCenterVersionState:
-      type: string
-      enum:
-      - PREPARE_FOR_SUBMISSION
-      - READY_FOR_REVIEW
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - DEVELOPER_REJECTED
-      - REJECTED
-      - ACCEPTED
-      - PENDING_RELEASE
-      - LIVE
-      - REPLACED_WITH_NEW_VERSION
     ErrorLinks:
       type: object
       properties:
@@ -431,46 +420,49 @@ components:
                 properties:
                   source:
                     type: string
-    ErrorSourcePointer:
+    GameCenterVersionState:
+      type: string
+      enum:
+      - PREPARE_FOR_SUBMISSION
+      - READY_FOR_REVIEW
+      - WAITING_FOR_REVIEW
+      - IN_REVIEW
+      - DEVELOPER_REJECTED
+      - REJECTED
+      - ACCEPTED
+      - PENDING_RELEASE
+      - LIVE
+      - REPLACED_WITH_NEW_VERSION
+    GameCenterChallengeVersionReleaseResponse:
       type: object
-      title: JsonPointer
+      title: GameCenterChallengeVersionReleaseResponse
       properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
+        data:
+          $ref: '#/components/schemas/GameCenterChallengeVersionRelease'
+        included:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+            $ref: '#/components/schemas/GameCenterChallengeVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     GameCenterChallengeVersionReleaseCreateRequest:
       type: object
       title: GameCenterChallengeVersionReleaseCreateRequest
@@ -528,6 +520,14 @@ components:
       required:
       - data
       deprecated: true
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

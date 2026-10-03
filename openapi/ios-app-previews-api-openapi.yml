@@ -272,42 +272,6 @@ paths:
       summary: Delete App Previews
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    AppPreviewResponse:
-      type: object
-      title: AppPreviewResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppPreview'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppPreviewSet'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
     PreviewType:
       type: string
       enum:
@@ -327,14 +291,63 @@ components:
       - DESKTOP
       - APPLE_TV
       - APPLE_VISION_PRO
-    DocumentLinks:
+    AppPreviewCreateRequest:
       type: object
+      title: AppPreviewCreateRequest
       properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appPreviews
+            attributes:
+              type: object
+              properties:
+                fileSize:
+                  type: integer
+                fileName:
+                  type: string
+                previewFrameTimeCode:
+                  type:
+                  - string
+                  - 'null'
+                mimeType:
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - fileName
+              - fileSize
+            relationships:
+              type: object
+              properties:
+                appPreviewSet:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appPreviewSets
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appPreviewSet
+          required:
+          - relationships
+          - attributes
+          - type
       required:
-      - self
+      - data
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -343,39 +356,51 @@ components:
           type: string
       required:
       - pointer
-    AppMediaPreviewFrameImageState:
+    PreviewFrameImage:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
+        image:
+          $ref: '#/components/schemas/ImageAsset'
         state:
-          type: string
-          enum:
-          - PROCESSING
-          - COMPLETE
-          - FAILED
-    PagingInformation:
+          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
+    UploadOperation:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
       required:
-      - paging
+      - parameter
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
     AppPreviewSet:
       type: object
       title: AppPreviewSet
@@ -465,7 +490,7 @@ components:
       required:
       - id
       - type
-    AppMediaVideoState:
+    AppMediaPreviewFrameImageState:
       type: object
       properties:
         errors:
@@ -479,26 +504,133 @@ components:
         state:
           type: string
           enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
           - PROCESSING
           - COMPLETE
           - FAILED
-    UploadOperation:
+    AppPreviewResponse:
       type: object
+      title: AppPreviewResponse
       properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
+        data:
+          $ref: '#/components/schemas/AppPreview'
+        included:
           type: array
           items:
-            $ref: '#/components/schemas/HttpHeader'
+            $ref: '#/components/schemas/AppPreviewSet'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppPreviewUpdateRequest:
+      type: object
+      title: AppPreviewUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appPreviews
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                previewFrameTimeCode:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     AppMediaAssetState:
       type: object
       properties:
@@ -517,30 +649,28 @@ components:
           - UPLOAD_COMPLETE
           - COMPLETE
           - FAILED
-    RelationshipLinks:
+    PagingInformation:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ImageAsset:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppMediaStateError:
       type: object
       properties:
-        templateUrl:
+        code:
           type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
+        description:
           type: string
     AppPreview:
       type: object
@@ -604,155 +734,25 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
+    AppMediaVideoState:
       type: object
       properties:
         errors:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AppPreviewCreateRequest:
-      type: object
-      title: AppPreviewCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appPreviews
-            attributes:
-              type: object
-              properties:
-                fileSize:
-                  type: integer
-                fileName:
-                  type: string
-                previewFrameTimeCode:
-                  type:
-                  - string
-                  - 'null'
-                mimeType:
-                  type:
-                  - string
-                  - 'null'
-              required:
-              - fileName
-              - fileSize
-            relationships:
-              type: object
-              properties:
-                appPreviewSet:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appPreviewSets
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appPreviewSet
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    PreviewFrameImage:
-      type: object
-      properties:
-        image:
-          $ref: '#/components/schemas/ImageAsset'
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
         state:
-          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
-    AppPreviewUpdateRequest:
-      type: object
-      title: AppPreviewUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appPreviews
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type:
-                  - string
-                  - 'null'
-                previewFrameTimeCode:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - PROCESSING
+          - COMPLETE
+          - FAILED
   securitySchemes:
     itc-bearer-token:
       type: http

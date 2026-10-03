@@ -791,45 +791,23 @@ paths:
       summary: List Related in App Purchase Offer Codes / Prices
 components:
   schemas:
-    ErrorSourceParameter:
+    OfferCodeEnvironment:
+      type: string
+      enum:
+      - PRODUCTION
+      - SANDBOX
+    InAppPurchaseOfferCodeCustomCodesResponse:
       type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    InAppPurchaseOfferCodeCustomCodesLinkagesResponse:
-      type: object
+      title: InAppPurchaseOfferCodeCustomCodesResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - inAppPurchaseOfferCodeCustomCodes
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/InAppPurchaseOfferCodeCustomCode'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -837,6 +815,62 @@ components:
       required:
       - data
       - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    InAppPurchaseOfferPrice:
+      type: object
+      title: InAppPurchaseOfferPrice
+      properties:
+        type:
+          type: string
+          enum:
+          - inAppPurchaseOfferPrices
+        id:
+          type: string
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            pricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - inAppPurchasePricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     InAppPurchaseOfferCode:
       type: object
       title: InAppPurchaseOfferCode
@@ -937,143 +971,12 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
-    InAppPurchaseOfferCodePricesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - inAppPurchaseOfferPrices
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    InAppPurchaseOfferCodeCustomCodesResponse:
-      type: object
-      title: InAppPurchaseOfferCodeCustomCodesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchaseOfferCodeCustomCode'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Actor'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    InAppPurchasePricePoint:
-      type: object
-      title: InAppPurchasePricePoint
-      properties:
-        type:
-          type: string
-          enum:
-          - inAppPurchasePricePoints
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            customerPrice:
-              type: string
-            proceeds:
-              type: string
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            equalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    InAppPurchaseOfferCodeUpdateRequest:
-      type: object
-      title: InAppPurchaseOfferCodeUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - inAppPurchaseOfferCodes
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                active:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
+          format: uri-reference
     InAppPurchaseOfferCodeCreateRequest:
       type: object
       title: InAppPurchaseOfferCodeCreateRequest
@@ -1153,69 +1056,14 @@ components:
             $ref: '#/components/schemas/InAppPurchaseOfferPriceInlineCreate'
       required:
       - data
-    InAppPurchaseOfferCodeCustomCode:
+    ErrorSourceParameter:
       type: object
-      title: InAppPurchaseOfferCodeCustomCode
+      title: Parameter
       properties:
-        type:
+        parameter:
           type: string
-          enum:
-          - inAppPurchaseOfferCodeCustomCodes
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            customCode:
-              type: string
-            numberOfCodes:
-              type: integer
-            createdDate:
-              type: string
-              format: date-time
-            expirationDate:
-              type: string
-              format: date
-            active:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            createdByActor:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - actors
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            deactivatedByActor:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - actors
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
-      - type
+      - parameter
     Territory:
       type: object
       title: Territory
@@ -1236,6 +1084,147 @@ components:
       required:
       - id
       - type
+    InAppPurchaseOfferCodePricesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - inAppPurchaseOfferPrices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    Actor:
+      type: object
+      title: Actor
+      properties:
+        type:
+          type: string
+          enum:
+          - actors
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            actorType:
+              type: string
+              enum:
+              - USER
+              - API_KEY
+              - XCODE_CLOUD
+              - APPLE
+            userFirstName:
+              type: string
+            userLastName:
+              type: string
+            userEmail:
+              type: string
+            apiKeyId:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    InAppPurchaseOfferCodeCustomCodesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - inAppPurchaseOfferCodeCustomCodes
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    InAppPurchaseOfferCodeOneTimeUseCodesResponse:
+      type: object
+      title: InAppPurchaseOfferCodeOneTimeUseCodesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InAppPurchaseOfferCodeOneTimeUseCode'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     InAppPurchaseOfferPriceInlineCreate:
       type: object
       properties:
@@ -1279,89 +1268,6 @@ components:
                   - id
                   - type
       required:
-      - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    InAppPurchaseOfferPricesResponse:
-      type: object
-      title: InAppPurchaseOfferPricesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchaseOfferPrice'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/InAppPurchasePricePoint'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                inAppPurchasePricePoints: '#/components/schemas/InAppPurchasePricePoint'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    InAppPurchaseOfferPrice:
-      type: object
-      title: InAppPurchaseOfferPrice
-      properties:
-        type:
-          type: string
-          enum:
-          - inAppPurchaseOfferPrices
-        id:
-          type: string
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            pricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - inAppPurchasePricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
       - type
     InAppPurchaseOfferCodeOneTimeUseCode:
       type: object
@@ -1431,57 +1337,26 @@ components:
       required:
       - id
       - type
-    InAppPurchaseOfferCodeOneTimeUseCodesResponse:
-      type: object
-      title: InAppPurchaseOfferCodeOneTimeUseCodesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/InAppPurchaseOfferCodeOneTimeUseCode'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Actor'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorResponse:
+    ErrorLinks:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
             properties:
-              id:
+              href:
                 type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
+                format: uri-reference
               meta:
                 type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+                properties:
+                  source:
+                    type: string
     InAppPurchaseOfferCodeOneTimeUseCodesLinkagesResponse:
       type: object
       properties:
@@ -1506,39 +1381,163 @@ components:
       required:
       - data
       - links
-    Actor:
+    DocumentLinks:
       type: object
-      title: Actor
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    InAppPurchaseOfferCodeCustomCode:
+      type: object
+      title: InAppPurchaseOfferCodeCustomCode
       properties:
         type:
           type: string
           enum:
-          - actors
+          - inAppPurchaseOfferCodeCustomCodes
         id:
           type: string
         attributes:
           type: object
           properties:
-            actorType:
+            customCode:
               type: string
-              enum:
-              - USER
-              - API_KEY
-              - XCODE_CLOUD
-              - APPLE
-            userFirstName:
+            numberOfCodes:
+              type: integer
+            createdDate:
               type: string
-            userLastName:
+              format: date-time
+            expirationDate:
               type: string
-            userEmail:
-              type: string
-            apiKeyId:
-              type: string
+              format: date
+            active:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            createdByActor:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - actors
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            deactivatedByActor:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - actors
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
+    InAppPurchaseOfferCodeUpdateRequest:
+      type: object
+      title: InAppPurchaseOfferCodeUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - inAppPurchaseOfferCodes
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                active:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    InAppPurchasePricePoint:
+      type: object
+      title: InAppPurchasePricePoint
+      properties:
+        type:
+          type: string
+          enum:
+          - inAppPurchasePricePoints
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            customerPrice:
+              type: string
+            proceeds:
+              type: string
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            equalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     PagedDocumentLinks:
       type: object
       properties:
@@ -1553,11 +1552,32 @@ components:
           format: uri-reference
       required:
       - self
-    OfferCodeEnvironment:
-      type: string
-      enum:
-      - PRODUCTION
-      - SANDBOX
+    InAppPurchaseOfferPricesResponse:
+      type: object
+      title: InAppPurchaseOfferPricesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InAppPurchaseOfferPrice'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/InAppPurchasePricePoint'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                inAppPurchasePricePoints: '#/components/schemas/InAppPurchasePricePoint'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     InAppPurchaseOfferCodeResponse:
       type: object
       title: InAppPurchaseOfferCodeResponse
@@ -1582,26 +1602,6 @@ components:
       required:
       - data
       - links
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
   securitySchemes:
     itc-bearer-token:
       type: http

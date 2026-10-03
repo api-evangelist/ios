@@ -1799,43 +1799,42 @@ paths:
       summary: List Related Game Center Achievements / Releases
 components:
   schemas:
-    ErrorSourceParameter:
+    GameCenterActivity:
       type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    GameCenterAchievementImage:
-      type: object
-      title: GameCenterAchievementImage
+      title: GameCenterActivity
       properties:
         type:
           type: string
           enum:
-          - gameCenterAchievementImages
+          - gameCenterActivities
         id:
           type: string
         attributes:
           type: object
           properties:
-            fileSize:
-              type: integer
-            fileName:
+            referenceName:
               type: string
-            imageAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
+            vendorIdentifier:
+              type: string
+            playStyle:
+              type: string
+              enum:
+              - ASYNCHRONOUS
+              - SYNCHRONOUS
+            minimumPlayersCount:
+              type: integer
+            maximumPlayersCount:
+              type: integer
+            supportsPartyCode:
+              type: boolean
+            archived:
+              type: boolean
+            properties:
+              $ref: '#/components/schemas/StringToStringMap'
         relationships:
           type: object
           properties:
-            gameCenterAchievementLocalization:
+            gameCenterDetail:
               type: object
               properties:
                 data:
@@ -1844,7 +1843,331 @@ components:
                     type:
                       type: string
                       enum:
-                      - gameCenterAchievementLocalizations
+                      - gameCenterDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterGroup:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterGroups
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            achievements:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievements
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            achievementsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievements
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            leaderboards:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboards
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            leaderboardsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboards
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            versions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterActivityVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    GameCenterAchievementLocalizationsResponse:
+      type: object
+      title: GameCenterAchievementLocalizationsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterAchievementLocalization'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterAchievementImage'
+            - $ref: '#/components/schemas/GameCenterAchievement'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterAchievements: '#/components/schemas/GameCenterAchievement'
+                gameCenterAchievementImages: '#/components/schemas/GameCenterAchievementImage'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+      deprecated: true
+    GameCenterAchievementReleasesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - gameCenterAchievementReleases
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+      deprecated: true
+    GameCenterAchievement:
+      type: object
+      title: GameCenterAchievement
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterAchievements
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            vendorIdentifier:
+              type: string
+            points:
+              type: integer
+            showBeforeEarned:
+              type: boolean
+            repeatable:
+              type: boolean
+            archived:
+              type: boolean
+            activityProperties:
+              $ref: '#/components/schemas/StringToStringMap'
+        relationships:
+          type: object
+          properties:
+            gameCenterDetail:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterGroup:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterGroups
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            groupAchievement:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAchievements
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+              deprecated: true
+            localizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievementLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            releases:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievementReleases
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            activity:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterActivities
                     id:
                       type: string
                   required:
@@ -1856,27 +2179,528 @@ components:
       - id
       - type
       deprecated: true
+    GameCenterAchievementVersionV2InlineCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterAchievementVersions
+        id:
+          type: string
+        relationships:
+          type: object
+          properties:
+            achievement:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAchievements
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+      required:
+      - type
+    GameCenterAchievementLocalizationsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - gameCenterAchievementLocalizations
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+      deprecated: true
+    GameCenterAchievementActivityLinkageRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterActivities
+            id:
+              type: string
+          required:
+          - id
+          - type
+      required:
+      - data
+      deprecated: true
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
     ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    AppMediaStateError:
+    GameCenterGroup:
       type: object
+      title: GameCenterGroup
       properties:
-        code:
+        type:
           type: string
-        description:
+          enum:
+          - gameCenterGroups
+        id:
           type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+        relationships:
+          type: object
+          properties:
+            gameCenterDetails:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterDetails
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterLeaderboards:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboards
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            gameCenterLeaderboardsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboards
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterLeaderboardSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboardSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            gameCenterLeaderboardSetsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterLeaderboardSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterAchievements:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievements
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+              deprecated: true
+            gameCenterAchievementsV2:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievements
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterActivities:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterActivities
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            gameCenterChallenges:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterChallenges
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - self
+      - id
+      - type
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    GameCenterAchievementV2UpdateRequest:
+      type: object
+      title: GameCenterAchievementV2UpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterAchievements
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                referenceName:
+                  type:
+                  - string
+                  - 'null'
+                points:
+                  type:
+                  - integer
+                  - 'null'
+                showBeforeEarned:
+                  type:
+                  - boolean
+                  - 'null'
+                repeatable:
+                  type:
+                  - boolean
+                  - 'null'
+                archived:
+                  type:
+                  - boolean
+                  - 'null'
+                activityProperties:
+                  $ref: '#/components/schemas/StringToStringMap'
+          required:
+          - id
+          - type
+      required:
+      - data
+    GameCenterAchievementV2:
+      type: object
+      title: GameCenterAchievementV2
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterAchievements
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            vendorIdentifier:
+              type: string
+            points:
+              type: integer
+            showBeforeEarned:
+              type: boolean
+            repeatable:
+              type: boolean
+            archived:
+              type: boolean
+            activityProperties:
+              $ref: '#/components/schemas/StringToStringMap'
+        relationships:
+          type: object
+          properties:
+            gameCenterDetail:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterGroup:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterGroups
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            activity:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterActivities
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            versions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - gameCenterAchievementVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    GameCenterAchievementReleasesResponse:
+      type: object
+      title: GameCenterAchievementReleasesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterAchievementRelease'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterAchievement'
+            - $ref: '#/components/schemas/GameCenterDetail'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterDetails: '#/components/schemas/GameCenterDetail'
+                gameCenterAchievements: '#/components/schemas/GameCenterAchievement'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+      deprecated: true
+    GameCenterAchievementV2VersionsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - gameCenterAchievementVersions
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     GameCenterAchievementCreateRequest:
       type: object
       title: GameCenterAchievementCreateRequest
@@ -1948,35 +2772,42 @@ components:
       required:
       - data
       deprecated: true
-    GameCenterAchievementLocalization:
+    GameCenterAchievementRelease:
       type: object
-      title: GameCenterAchievementLocalization
+      title: GameCenterAchievementRelease
       properties:
         type:
           type: string
           enum:
-          - gameCenterAchievementLocalizations
+          - gameCenterAchievementReleases
         id:
           type: string
         attributes:
           type: object
           properties:
-            locale:
-              type: string
-            name:
-              type: string
-            beforeEarnedDescription:
-              type: string
-            afterEarnedDescription:
-              type: string
+            live:
+              type: boolean
         relationships:
           type: object
           properties:
+            gameCenterDetail:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
             gameCenterAchievement:
               type: object
               properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
                 data:
                   type: object
                   properties:
@@ -1989,148 +2820,12 @@ components:
                   required:
                   - id
                   - type
-            gameCenterAchievementImage:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAchievementImages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
       deprecated: true
-    GameCenterAchievementLocalizationsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterAchievementLocalizations
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-      deprecated: true
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    GameCenterAchievementUpdateRequest:
-      type: object
-      title: GameCenterAchievementUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterAchievements
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                referenceName:
-                  type:
-                  - string
-                  - 'null'
-                points:
-                  type:
-                  - integer
-                  - 'null'
-                showBeforeEarned:
-                  type:
-                  - boolean
-                  - 'null'
-                repeatable:
-                  type:
-                  - boolean
-                  - 'null'
-                archived:
-                  type:
-                  - boolean
-                  - 'null'
-                activityProperties:
-                  $ref: '#/components/schemas/StringToStringMap'
-          required:
-          - id
-          - type
-      required:
-      - data
-      deprecated: true
-    GameCenterAchievementV2Response:
-      type: object
-      title: GameCenterAchievementV2Response
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterAchievementV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterAchievementVersionV2'
-            - $ref: '#/components/schemas/GameCenterActivity'
-            - $ref: '#/components/schemas/GameCenterDetail'
-            - $ref: '#/components/schemas/GameCenterGroup'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterAchievementVersions: '#/components/schemas/GameCenterAchievementVersionV2'
-                gameCenterDetails: '#/components/schemas/GameCenterDetail'
-                gameCenterActivities: '#/components/schemas/GameCenterActivity'
-                gameCenterGroups: '#/components/schemas/GameCenterGroup'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
     GameCenterDetail:
       type: object
       title: GameCenterDetail
@@ -2574,35 +3269,6 @@ components:
       required:
       - id
       - type
-    GameCenterAchievementVersionV2InlineCreate:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterAchievementVersions
-        id:
-          type: string
-        relationships:
-          type: object
-          properties:
-            achievement:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAchievements
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-      required:
-      - type
     GameCenterVersionState:
       type: string
       enum:
@@ -2616,128 +3282,6 @@ components:
       - PENDING_RELEASE
       - LIVE
       - REPLACED_WITH_NEW_VERSION
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    GameCenterAchievementVersionsV2Response:
-      type: object
-      title: GameCenterAchievementVersionsV2Response
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterAchievementVersionV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterAchievementLocalizationV2'
-            - $ref: '#/components/schemas/GameCenterAchievementV2'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterAchievementLocalizations: '#/components/schemas/GameCenterAchievementLocalizationV2'
-                gameCenterAchievements: '#/components/schemas/GameCenterAchievementV2'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    GameCenterAchievementLocalizationsResponse:
-      type: object
-      title: GameCenterAchievementLocalizationsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterAchievementLocalization'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterAchievementImage'
-            - $ref: '#/components/schemas/GameCenterAchievement'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterAchievements: '#/components/schemas/GameCenterAchievement'
-                gameCenterAchievementImages: '#/components/schemas/GameCenterAchievementImage'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-      deprecated: true
-    GameCenterAchievementReleasesResponse:
-      type: object
-      title: GameCenterAchievementReleasesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterAchievementRelease'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterAchievement'
-            - $ref: '#/components/schemas/GameCenterDetail'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterDetails: '#/components/schemas/GameCenterDetail'
-                gameCenterAchievements: '#/components/schemas/GameCenterAchievement'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-      deprecated: true
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
     GameCenterAchievementV2CreateRequest:
       type: object
       title: GameCenterAchievementV2CreateRequest
@@ -2834,407 +3378,25 @@ components:
             $ref: '#/components/schemas/GameCenterAchievementVersionV2InlineCreate'
       required:
       - data
-    ImageAsset:
+    GameCenterAchievementVersionsV2Response:
       type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    GameCenterAchievementV2:
-      type: object
-      title: GameCenterAchievementV2
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterAchievements
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-            vendorIdentifier:
-              type: string
-            points:
-              type: integer
-            showBeforeEarned:
-              type: boolean
-            repeatable:
-              type: boolean
-            archived:
-              type: boolean
-            activityProperties:
-              $ref: '#/components/schemas/StringToStringMap'
-        relationships:
-          type: object
-          properties:
-            gameCenterDetail:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterGroup:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterGroups
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            activity:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterActivities
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            versions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievementVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    GameCenterGroup:
-      type: object
-      title: GameCenterGroup
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterGroups
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-        relationships:
-          type: object
-          properties:
-            gameCenterDetails:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterDetails
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterLeaderboards:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboards
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            gameCenterLeaderboardsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboards
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterLeaderboardSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboardSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            gameCenterLeaderboardSetsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboardSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterAchievements:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievements
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            gameCenterAchievementsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievements
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterActivities:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterActivities
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            gameCenterChallenges:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterChallenges
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    GameCenterAchievementGroupAchievementLinkageRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterAchievements
-            id:
-              type: string
-          required:
-          - id
-          - type
-      required:
-      - data
-      deprecated: true
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    GameCenterAchievementReleasesLinkagesResponse:
-      type: object
+      title: GameCenterAchievementVersionsV2Response
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterAchievementReleases
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/GameCenterAchievementVersionV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterAchievementLocalizationV2'
+            - $ref: '#/components/schemas/GameCenterAchievementV2'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterAchievementLocalizations: '#/components/schemas/GameCenterAchievementLocalizationV2'
+                gameCenterAchievements: '#/components/schemas/GameCenterAchievementV2'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -3242,414 +3404,15 @@ components:
       required:
       - data
       - links
-      deprecated: true
-    GameCenterAchievementRelease:
-      type: object
-      title: GameCenterAchievementRelease
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterAchievementReleases
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            live:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            gameCenterDetail:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterAchievement:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAchievements
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-      deprecated: true
-    PagedDocumentLinks:
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+        related:
           type: string
           format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    GameCenterActivity:
-      type: object
-      title: GameCenterActivity
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterActivities
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-            vendorIdentifier:
-              type: string
-            playStyle:
-              type: string
-              enum:
-              - ASYNCHRONOUS
-              - SYNCHRONOUS
-            minimumPlayersCount:
-              type: integer
-            maximumPlayersCount:
-              type: integer
-            supportsPartyCode:
-              type: boolean
-            archived:
-              type: boolean
-            properties:
-              $ref: '#/components/schemas/StringToStringMap'
-        relationships:
-          type: object
-          properties:
-            gameCenterDetail:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterGroup:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterGroups
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            achievements:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievements
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            achievementsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievements
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            leaderboards:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboards
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-              deprecated: true
-            leaderboardsV2:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterLeaderboards
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            versions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterActivityVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    GameCenterAchievementV2ActivityLinkageRequest:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterActivities
-            id:
-              type: string
-          required:
-          - id
-          - type
-      required:
-      - data
-    GameCenterAchievementGroupAchievementLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterAchievements
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
-    GameCenterAchievementV2UpdateRequest:
-      type: object
-      title: GameCenterAchievementV2UpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterAchievements
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                referenceName:
-                  type:
-                  - string
-                  - 'null'
-                points:
-                  type:
-                  - integer
-                  - 'null'
-                showBeforeEarned:
-                  type:
-                  - boolean
-                  - 'null'
-                repeatable:
-                  type:
-                  - boolean
-                  - 'null'
-                archived:
-                  type:
-                  - boolean
-                  - 'null'
-                activityProperties:
-                  $ref: '#/components/schemas/StringToStringMap'
-          required:
-          - id
-          - type
-      required:
-      - data
-    GameCenterAchievementLocalizationV2:
-      type: object
-      title: GameCenterAchievementLocalizationV2
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterAchievementLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-            name:
-              type: string
-            beforeEarnedDescription:
-              type: string
-            afterEarnedDescription:
-              type: string
-        relationships:
-          type: object
-          properties:
-            version:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAchievementVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            image:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterAchievementImages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
     GameCenterAchievementVersionV2:
       type: object
       title: GameCenterAchievementVersionV2
@@ -3711,6 +3474,248 @@ components:
       required:
       - id
       - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    GameCenterAchievementGroupAchievementLinkageRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterAchievements
+            id:
+              type: string
+          required:
+          - id
+          - type
+      required:
+      - data
+      deprecated: true
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    GameCenterAchievementLocalization:
+      type: object
+      title: GameCenterAchievementLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterAchievementLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            name:
+              type: string
+            beforeEarnedDescription:
+              type: string
+            afterEarnedDescription:
+              type: string
+        relationships:
+          type: object
+          properties:
+            gameCenterAchievement:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAchievements
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterAchievementImage:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAchievementImages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+      deprecated: true
+    GameCenterAchievementImage:
+      type: object
+      title: GameCenterAchievementImage
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterAchievementImages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            imageAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        relationships:
+          type: object
+          properties:
+            gameCenterAchievementLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterAchievementLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+      deprecated: true
+    GameCenterAchievementUpdateRequest:
+      type: object
+      title: GameCenterAchievementUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterAchievements
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                referenceName:
+                  type:
+                  - string
+                  - 'null'
+                points:
+                  type:
+                  - integer
+                  - 'null'
+                showBeforeEarned:
+                  type:
+                  - boolean
+                  - 'null'
+                repeatable:
+                  type:
+                  - boolean
+                  - 'null'
+                archived:
+                  type:
+                  - boolean
+                  - 'null'
+                activityProperties:
+                  $ref: '#/components/schemas/StringToStringMap'
+          required:
+          - id
+          - type
+      required:
+      - data
+      deprecated: true
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     GameCenterAchievementResponse:
       type: object
       title: GameCenterAchievementResponse
@@ -3742,37 +3747,107 @@ components:
       - data
       - links
       deprecated: true
-    GameCenterAchievement:
+    GameCenterAchievementGroupAchievementLinkageResponse:
       type: object
-      title: GameCenterAchievement
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterAchievements
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    GameCenterAchievementLocalizationV2:
+      type: object
+      title: GameCenterAchievementLocalizationV2
       properties:
         type:
           type: string
           enum:
-          - gameCenterAchievements
+          - gameCenterAchievementLocalizations
         id:
           type: string
         attributes:
           type: object
           properties:
-            referenceName:
+            locale:
               type: string
-            vendorIdentifier:
+            name:
               type: string
-            points:
-              type: integer
-            showBeforeEarned:
-              type: boolean
-            repeatable:
-              type: boolean
-            archived:
-              type: boolean
-            activityProperties:
-              $ref: '#/components/schemas/StringToStringMap'
+            beforeEarnedDescription:
+              type: string
+            afterEarnedDescription:
+              type: string
         relationships:
           type: object
           properties:
-            gameCenterDetail:
+            version:
               type: object
               properties:
                 data:
@@ -3781,28 +3856,13 @@ components:
                     type:
                       type: string
                       enum:
-                      - gameCenterDetails
+                      - gameCenterAchievementVersions
                     id:
                       type: string
                   required:
                   - id
                   - type
-            gameCenterGroup:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterGroups
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            groupAchievement:
+            image:
               type: object
               properties:
                 links:
@@ -3813,67 +3873,7 @@ components:
                     type:
                       type: string
                       enum:
-                      - gameCenterAchievements
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-              deprecated: true
-            localizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievementLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            releases:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - gameCenterAchievementReleases
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            activity:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterActivities
+                      - gameCenterAchievementImages
                     id:
                       type: string
                   required:
@@ -3884,36 +3884,7 @@ components:
       required:
       - id
       - type
-      deprecated: true
-    StringToStringMap:
-      type: object
-      additionalProperties:
-        type: string
-    GameCenterAchievementV2VersionsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterAchievementVersions
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    GameCenterAchievementActivityLinkageRequest:
+    GameCenterAchievementV2ActivityLinkageRequest:
       type: object
       properties:
         data:
@@ -3930,7 +3901,36 @@ components:
           - type
       required:
       - data
-      deprecated: true
+    GameCenterAchievementV2Response:
+      type: object
+      title: GameCenterAchievementV2Response
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterAchievementV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterAchievementVersionV2'
+            - $ref: '#/components/schemas/GameCenterActivity'
+            - $ref: '#/components/schemas/GameCenterDetail'
+            - $ref: '#/components/schemas/GameCenterGroup'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterAchievementVersions: '#/components/schemas/GameCenterAchievementVersionV2'
+                gameCenterDetails: '#/components/schemas/GameCenterDetail'
+                gameCenterActivities: '#/components/schemas/GameCenterActivity'
+                gameCenterGroups: '#/components/schemas/GameCenterGroup'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    StringToStringMap:
+      type: object
+      additionalProperties:
+        type: string
   securitySchemes:
     itc-bearer-token:
       type: http

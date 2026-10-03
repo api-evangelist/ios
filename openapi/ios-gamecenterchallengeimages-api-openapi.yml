@@ -237,36 +237,66 @@ paths:
       summary: Delete Game Center Challenge Images
 components:
   schemas:
-    GameCenterChallengeImage:
+    ImageAsset:
       type: object
-      title: GameCenterChallengeImage
       properties:
-        type:
+        templateUrl:
           type: string
-          enum:
-          - gameCenterChallengeImages
-        id:
-          type: string
-        attributes:
+        width:
+          type: integer
+        height:
+          type: integer
+    GameCenterChallengeImageUpdateRequest:
+      type: object
+      title: GameCenterChallengeImageUpdateRequest
+      properties:
+        data:
           type: object
           properties:
-            fileSize:
-              type: integer
-            fileName:
+            type:
               type: string
-            imageAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+              enum:
+              - gameCenterChallengeImages
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
       required:
-      - id
-      - type
+      - data
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    GameCenterChallengeImageResponse:
+      type: object
+      title: GameCenterChallengeImageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterChallengeImage'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     AppMediaAssetState:
       type: object
       properties:
@@ -285,50 +315,44 @@ components:
           - UPLOAD_COMPLETE
           - COMPLETE
           - FAILED
-    ResourceLinks:
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     AppMediaStateError:
       type: object
       properties:
         code:
           type: string
         description:
-          type: string
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
           type: string
     GameCenterChallengeImageCreateRequest:
       type: object
@@ -409,42 +433,12 @@ components:
                 properties:
                   source:
                     type: string
-    GameCenterChallengeImageResponse:
+    ResourceLinks:
       type: object
-      title: GameCenterChallengeImageResponse
       properties:
-        data:
-          $ref: '#/components/schemas/GameCenterChallengeImage'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    GameCenterChallengeImageUpdateRequest:
-      type: object
-      title: GameCenterChallengeImageUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterChallengeImages
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
+        self:
+          type: string
+          format: uri-reference
     UploadOperation:
       type: object
       properties:
@@ -460,46 +454,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
-    ErrorSourcePointer:
+    GameCenterChallengeImage:
       type: object
-      title: JsonPointer
+      title: GameCenterChallengeImage
       properties:
-        pointer:
+        type:
+          type: string
+          enum:
+          - gameCenterChallengeImages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            imageAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
       required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

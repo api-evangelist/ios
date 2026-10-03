@@ -890,52 +890,6 @@ paths:
       summary: List Related Profiles / Devices
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ProfileCertificatesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - certificates
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
     ProfileCreateRequest:
       type: object
       title: ProfileCreateRequest
@@ -1037,6 +991,29 @@ components:
           - type
       required:
       - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    DevicesWithoutIncludesResponse:
+      type: object
+      title: DevicesWithoutIncludesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     BundleIdWithoutIncludesResponse:
       type: object
       title: BundleIdWithoutIncludesResponse
@@ -1048,14 +1025,76 @@ components:
       required:
       - data
       - links
-    BundleId:
+    ProfileResponse:
       type: object
-      title: BundleId
+      title: ProfileResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Profile'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/BundleId'
+            - $ref: '#/components/schemas/Certificate'
+            - $ref: '#/components/schemas/Device'
+            discriminator:
+              propertyName: type
+              mapping:
+                certificates: '#/components/schemas/Certificate'
+                devices: '#/components/schemas/Device'
+                bundleIds: '#/components/schemas/BundleId'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ProfileDevicesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - devices
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    Certificate:
+      type: object
+      title: Certificate
       properties:
         type:
           type: string
           enum:
-          - bundleIds
+          - certificates
         id:
           type: string
         attributes:
@@ -1063,58 +1102,25 @@ components:
           properties:
             name:
               type: string
+            certificateType:
+              $ref: '#/components/schemas/CertificateType'
+            displayName:
+              type: string
+            serialNumber:
+              type: string
             platform:
               $ref: '#/components/schemas/BundleIdPlatform'
-            identifier:
+            expirationDate:
               type: string
-            seedId:
+              format: date-time
+            certificateContent:
               type: string
+            activated:
+              type: boolean
         relationships:
           type: object
           properties:
-            profiles:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - profiles
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            bundleIdCapabilities:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - bundleIdCapabilities
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            app:
+            passTypeId:
               type: object
               properties:
                 links:
@@ -1125,7 +1131,7 @@ components:
                     type:
                       type: string
                       enum:
-                      - apps
+                      - passTypeIds
                     id:
                       type: string
                   required:
@@ -1136,14 +1142,55 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
+    ProfilesResponse:
       type: object
-      title: JsonPointer
+      title: ProfilesResponse
       properties:
-        pointer:
-          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profile'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/BundleId'
+            - $ref: '#/components/schemas/Certificate'
+            - $ref: '#/components/schemas/Device'
+            discriminator:
+              propertyName: type
+              mapping:
+                certificates: '#/components/schemas/Certificate'
+                devices: '#/components/schemas/Device'
+                bundleIds: '#/components/schemas/BundleId'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - pointer
+      - data
+      - links
+    CertificateType:
+      type: string
+      enum:
+      - APPLE_PAY
+      - APPLE_PAY_MERCHANT_IDENTITY
+      - APPLE_PAY_PSP_IDENTITY
+      - APPLE_PAY_RSA
+      - DEVELOPER_ID_KEXT
+      - DEVELOPER_ID_KEXT_G2
+      - DEVELOPER_ID_APPLICATION
+      - DEVELOPER_ID_APPLICATION_G2
+      - DEVELOPMENT
+      - DISTRIBUTION
+      - IDENTITY_ACCESS
+      - IOS_DEVELOPMENT
+      - IOS_DISTRIBUTION
+      - MAC_APP_DISTRIBUTION
+      - MAC_INSTALLER_DISTRIBUTION
+      - MAC_APP_DEVELOPMENT
+      - PASS_TYPE_ID
+      - PASS_TYPE_ID_WITH_NFC
     ProfileBundleIdLinkageResponse:
       type: object
       properties:
@@ -1164,6 +1211,81 @@ components:
       required:
       - data
       - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BundleIdPlatform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - UNIVERSAL
     Profile:
       type: object
       title: Profile
@@ -1324,61 +1446,30 @@ components:
       required:
       - id
       - type
-    Certificate:
+    ProfileCertificatesLinkagesResponse:
       type: object
-      title: Certificate
       properties:
-        type:
-          type: string
-          enum:
-          - certificates
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            certificateType:
-              $ref: '#/components/schemas/CertificateType'
-            displayName:
-              type: string
-            serialNumber:
-              type: string
-            platform:
-              $ref: '#/components/schemas/BundleIdPlatform'
-            expirationDate:
-              type: string
-              format: date-time
-            certificateContent:
-              type: string
-            activated:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            passTypeId:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - passTypeIds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - certificates
+              id:
+                type: string
+            required:
+            - id
+            - type
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - id
-      - type
+      - data
+      - links
     PagingInformation:
       type: object
       properties:
@@ -1395,85 +1486,108 @@ components:
           - limit
       required:
       - paging
-    CertificateType:
-      type: string
-      enum:
-      - APPLE_PAY
-      - APPLE_PAY_MERCHANT_IDENTITY
-      - APPLE_PAY_PSP_IDENTITY
-      - APPLE_PAY_RSA
-      - DEVELOPER_ID_KEXT
-      - DEVELOPER_ID_KEXT_G2
-      - DEVELOPER_ID_APPLICATION
-      - DEVELOPER_ID_APPLICATION_G2
-      - DEVELOPMENT
-      - DISTRIBUTION
-      - IDENTITY_ACCESS
-      - IOS_DEVELOPMENT
-      - IOS_DISTRIBUTION
-      - MAC_APP_DISTRIBUTION
-      - MAC_INSTALLER_DISTRIBUTION
-      - MAC_APP_DEVELOPMENT
-      - PASS_TYPE_ID
-      - PASS_TYPE_ID_WITH_NFC
-    ProfilesResponse:
-      type: object
-      title: ProfilesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Profile'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/BundleId'
-            - $ref: '#/components/schemas/Certificate'
-            - $ref: '#/components/schemas/Device'
-            discriminator:
-              propertyName: type
-              mapping:
-                certificates: '#/components/schemas/Certificate'
-                devices: '#/components/schemas/Device'
-                bundleIds: '#/components/schemas/BundleId'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BundleIdPlatform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - UNIVERSAL
-    DevicesWithoutIncludesResponse:
-      type: object
-      title: DevicesWithoutIncludesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Device'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    RelationshipLinks:
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
+        first:
           type: string
           format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BundleId:
+      type: object
+      title: BundleId
+      properties:
+        type:
+          type: string
+          enum:
+          - bundleIds
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            platform:
+              $ref: '#/components/schemas/BundleIdPlatform'
+            identifier:
+              type: string
+            seedId:
+              type: string
+        relationships:
+          type: object
+          properties:
+            profiles:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - profiles
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            bundleIdCapabilities:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - bundleIdCapabilities
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     CertificatesWithoutIncludesResponse:
       type: object
       title: CertificatesWithoutIncludesResponse
@@ -1489,120 +1603,6 @@ components:
       required:
       - data
       - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ProfileResponse:
-      type: object
-      title: ProfileResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Profile'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/BundleId'
-            - $ref: '#/components/schemas/Certificate'
-            - $ref: '#/components/schemas/Device'
-            discriminator:
-              propertyName: type
-              mapping:
-                certificates: '#/components/schemas/Certificate'
-                devices: '#/components/schemas/Device'
-                bundleIds: '#/components/schemas/BundleId'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ProfileDevicesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - devices
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
   securitySchemes:
     itc-bearer-token:
       type: http

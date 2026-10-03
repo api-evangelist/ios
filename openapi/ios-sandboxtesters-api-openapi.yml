@@ -147,6 +147,30 @@ paths:
       summary: Update Sandbox Testers V2
 components:
   schemas:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     SandboxTestersV2Response:
       type: object
       title: SandboxTestersV2Response
@@ -162,25 +186,52 @@ components:
       required:
       - data
       - links
-    ErrorSourceParameter:
+    PagedDocumentLinks:
       type: object
-      title: Parameter
       properties:
-        parameter:
+        self:
           type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - parameter
-    SandboxTesterV2Response:
+      - self
+    ErrorResponse:
       type: object
-      title: SandboxTesterV2Response
       properties:
-        data:
-          $ref: '#/components/schemas/SandboxTesterV2'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     SandboxTesterV2UpdateRequest:
       type: object
       title: SandboxTesterV2UpdateRequest
@@ -218,70 +269,6 @@ components:
           - type
       required:
       - data
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
     SandboxTesterV2:
       type: object
       title: SandboxTesterV2
@@ -320,14 +307,6 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     TerritoryCode:
       type: string
       enum:
@@ -564,38 +543,59 @@ components:
       - ZAF
       - ZMB
       - ZWE
-    ErrorResponse:
+    ErrorLinks:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
             properties:
-              id:
+              href:
                 type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
+                format: uri-reference
               meta:
                 type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    SandboxTesterV2Response:
+      type: object
+      title: SandboxTesterV2Response
+      properties:
+        data:
+          $ref: '#/components/schemas/SandboxTesterV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
   securitySchemes:
     itc-bearer-token:
       type: http

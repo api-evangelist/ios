@@ -73,6 +73,97 @@ paths:
       summary: List Related Diagnostic Signatures / Logs
 components:
   schemas:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    DiagnosticLogCallStackNode:
+      type: object
+      properties:
+        sampleCount:
+          type: integer
+        isBlameFrame:
+          type: boolean
+        symbolName:
+          type: string
+        insightsCategory:
+          type: string
+        offsetIntoSymbol:
+          type: string
+        binaryName:
+          type: string
+        fileName:
+          type: string
+        binaryUUID:
+          type: string
+        lineNumber:
+          type: string
+        address:
+          type: string
+        offsetIntoBinaryTextSegment:
+          type: string
+        rawFrame:
+          type: string
+        subFrames:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosticLogCallStackNode'
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     ErrorSourceParameter:
       type: object
       title: Parameter
@@ -146,97 +237,6 @@ components:
                           type: string
         version:
           type: string
-    DiagnosticLogCallStackNode:
-      type: object
-      properties:
-        sampleCount:
-          type: integer
-        isBlameFrame:
-          type: boolean
-        symbolName:
-          type: string
-        insightsCategory:
-          type: string
-        offsetIntoSymbol:
-          type: string
-        binaryName:
-          type: string
-        fileName:
-          type: string
-        binaryUUID:
-          type: string
-        lineNumber:
-          type: string
-        address:
-          type: string
-        offsetIntoBinaryTextSegment:
-          type: string
-        rawFrame:
-          type: string
-        subFrames:
-          type: array
-          items:
-            $ref: '#/components/schemas/DiagnosticLogCallStackNode'
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
   securitySchemes:
     itc-bearer-token:
       type: http

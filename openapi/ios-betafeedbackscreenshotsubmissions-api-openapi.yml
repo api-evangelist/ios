@@ -208,45 +208,6 @@ paths:
       summary: Delete Beta Feedback Screenshot Submissions
 components:
   schemas:
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    DeviceFamily:
-      type: string
-      enum:
-      - IPHONE
-      - IPAD
-      - APPLE_TV
-      - APPLE_WATCH
-      - MAC
-      - VISION
-    BetaTesterState:
-      type: string
-      enum:
-      - NOT_INVITED
-      - INVITED
-      - ACCEPTED
-      - INSTALLED
-      - REVOKED
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -255,143 +216,42 @@ components:
           type: string
       required:
       - pointer
-    PagingInformation:
+    ResourceLinks:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    BetaTester:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
       type: object
-      title: BetaTester
+      title: Parameter
       properties:
-        type:
+        parameter:
           type: string
-          enum:
-          - betaTesters
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            firstName:
-              type: string
-            lastName:
-              type: string
-            email:
-              type: string
-              format: email
-            inviteType:
-              $ref: '#/components/schemas/BetaInviteType'
-            state:
-              $ref: '#/components/schemas/BetaTesterState'
-            appDevices:
-              type: array
-              items:
-                type: object
-                properties:
-                  model:
-                    type: string
-                  platform:
-                    type: string
-                    enum:
-                    - IOS
-                    - MAC_OS
-                    - TV_OS
-                    - WATCH_OS
-                    - VISION_OS
-                  osVersion:
-                    type: string
-                  appBuildVersion:
-                    type: string
-        relationships:
-          type: object
-          properties:
-            apps:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - apps
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaGroups:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - betaGroups
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - id
-      - type
-    Platform:
+      - parameter
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    BuildAudienceType:
       type: string
       enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    BetaTesterState:
+      type: string
+      enum:
+      - NOT_INVITED
+      - INVITED
+      - ACCEPTED
+      - INSTALLED
+      - REVOKED
     Build:
       type: object
       title: Build
@@ -686,11 +546,142 @@ components:
         expirationDate:
           type: string
           format: date-time
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
+    BetaFeedbackScreenshotSubmissionResponse:
+      type: object
+      title: BetaFeedbackScreenshotSubmissionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BetaFeedbackScreenshotSubmission'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/BetaTester'
+            - $ref: '#/components/schemas/Build'
+            discriminator:
+              propertyName: type
+              mapping:
+                builds: '#/components/schemas/Build'
+                betaTesters: '#/components/schemas/BetaTester'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    BetaTester:
+      type: object
+      title: BetaTester
+      properties:
+        type:
+          type: string
+          enum:
+          - betaTesters
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+              format: email
+            inviteType:
+              $ref: '#/components/schemas/BetaInviteType'
+            state:
+              $ref: '#/components/schemas/BetaTesterState'
+            appDevices:
+              type: array
+              items:
+                type: object
+                properties:
+                  model:
+                    type: string
+                  platform:
+                    type: string
+                    enum:
+                    - IOS
+                    - MAC_OS
+                    - TV_OS
+                    - WATCH_OS
+                    - VISION_OS
+                  osVersion:
+                    type: string
+                  appBuildVersion:
+                    type: string
+        relationships:
+          type: object
+          properties:
+            apps:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - apps
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaGroups:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - betaGroups
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     RelationshipLinks:
       type: object
       properties:
@@ -700,15 +691,6 @@ components:
         related:
           type: string
           format: uri-reference
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
     ErrorResponse:
       type: object
       properties:
@@ -741,28 +723,67 @@ components:
             - detail
             - status
             - title
-    BetaFeedbackScreenshotSubmissionResponse:
+    ErrorLinks:
       type: object
-      title: BetaFeedbackScreenshotSubmissionResponse
       properties:
-        data:
-          $ref: '#/components/schemas/BetaFeedbackScreenshotSubmission'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/BetaTester'
-            - $ref: '#/components/schemas/Build'
-            discriminator:
-              propertyName: type
-              mapping:
-                builds: '#/components/schemas/Build'
-                betaTesters: '#/components/schemas/BetaTester'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
       required:
-      - data
-      - links
+      - self
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    DeviceConnectionType:
+      type: string
+      enum:
+      - WIFI
+      - MOBILE_DATA
+      - WIRE
+      - UNKNOWN
+      - NONE
+    DeviceFamily:
+      type: string
+      enum:
+      - IPHONE
+      - IPAD
+      - APPLE_TV
+      - APPLE_WATCH
+      - MAC
+      - VISION
     BetaFeedbackScreenshotSubmission:
       type: object
       title: BetaFeedbackScreenshotSubmission
@@ -868,39 +889,18 @@ components:
       required:
       - id
       - type
-    DeviceConnectionType:
+    Platform:
       type: string
       enum:
-      - WIFI
-      - MOBILE_DATA
-      - WIRE
-      - UNKNOWN
-      - NONE
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
     BetaInviteType:
       type: string
       enum:
       - EMAIL
       - PUBLIC_LINK
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
   securitySchemes:
     itc-bearer-token:
       type: http

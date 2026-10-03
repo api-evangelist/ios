@@ -656,6 +656,154 @@ paths:
       summary: List Related User Invitations / Visible Apps
 components:
   schemas:
+    AppsWithoutIncludesResponse:
+      type: object
+      title: AppsWithoutIncludesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    UserInvitation:
+      type: object
+      title: UserInvitation
+      properties:
+        type:
+          type: string
+          enum:
+          - userInvitations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+            firstName:
+              type: string
+            lastName:
+              type: string
+            expirationDate:
+              type: string
+              format: date-time
+            roles:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserRole'
+            allAppsVisible:
+              type: boolean
+            provisioningAllowed:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            visibleApps:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - apps
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    UserInvitationsResponse:
+      type: object
+      title: UserInvitationsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserInvitation'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    UserRole:
+      type: string
+      enum:
+      - ADMIN
+      - FINANCE
+      - ACCOUNT_HOLDER
+      - SALES
+      - MARKETING
+      - APP_MANAGER
+      - DEVELOPER
+      - ACCESS_TO_REPORTS
+      - CUSTOMER_SUPPORT
+      - CREATE_APPS
+      - CLOUD_MANAGED_DEVELOPER_ID
+      - CLOUD_MANAGED_APP_DISTRIBUTION
+      - GENERATE_INDIVIDUAL_KEYS
     PagedDocumentLinks:
       type: object
       properties:
@@ -670,29 +818,69 @@ components:
           format: uri-reference
       required:
       - self
-    RelationshipLinks:
+    UserInvitationCreateRequest:
       type: object
+      title: UserInvitationCreateRequest
       properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - userInvitations
+            attributes:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserRole'
+                allAppsVisible:
+                  type:
+                  - boolean
+                  - 'null'
+                provisioningAllowed:
+                  type:
+                  - boolean
+                  - 'null'
+              required:
+              - firstName
+              - lastName
+              - roles
+              - email
+            relationships:
+              type: object
+              properties:
+                visibleApps:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - apps
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+          required:
+          - attributes
+          - type
       required:
-      - parameter
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+      - data
     App:
       type: object
       title: App
@@ -1330,197 +1518,6 @@ components:
       required:
       - id
       - type
-    AppsWithoutIncludesResponse:
-      type: object
-      title: AppsWithoutIncludesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    UserRole:
-      type: string
-      enum:
-      - ADMIN
-      - FINANCE
-      - ACCOUNT_HOLDER
-      - SALES
-      - MARKETING
-      - APP_MANAGER
-      - DEVELOPER
-      - ACCESS_TO_REPORTS
-      - CUSTOMER_SUPPORT
-      - CREATE_APPS
-      - CLOUD_MANAGED_DEVELOPER_ID
-      - CLOUD_MANAGED_APP_DISTRIBUTION
-      - GENERATE_INDIVIDUAL_KEYS
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    UserInvitation:
-      type: object
-      title: UserInvitation
-      properties:
-        type:
-          type: string
-          enum:
-          - userInvitations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            email:
-              type: string
-              format: email
-            firstName:
-              type: string
-            lastName:
-              type: string
-            expirationDate:
-              type: string
-              format: date-time
-            roles:
-              type: array
-              items:
-                $ref: '#/components/schemas/UserRole'
-            allAppsVisible:
-              type: boolean
-            provisioningAllowed:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            visibleApps:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - apps
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    UserInvitationsResponse:
-      type: object
-      title: UserInvitationsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserInvitation'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    UserInvitationVisibleAppsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - apps
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -1553,6 +1550,72 @@ components:
             - detail
             - status
             - title
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    UserInvitationVisibleAppsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - apps
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     UserInvitationResponse:
       type: object
       title: UserInvitationResponse
@@ -1568,69 +1631,6 @@ components:
       required:
       - data
       - links
-    UserInvitationCreateRequest:
-      type: object
-      title: UserInvitationCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - userInvitations
-            attributes:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                roles:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/UserRole'
-                allAppsVisible:
-                  type:
-                  - boolean
-                  - 'null'
-                provisioningAllowed:
-                  type:
-                  - boolean
-                  - 'null'
-              required:
-              - firstName
-              - lastName
-              - roles
-              - email
-            relationships:
-              type: object
-              properties:
-                visibleApps:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - apps
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-          required:
-          - attributes
-          - type
-      required:
-      - data
   securitySchemes:
     itc-bearer-token:
       type: http

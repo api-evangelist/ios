@@ -529,83 +529,14 @@ paths:
       summary: Delete Game Center Leaderboard Images V2
 components:
   schemas:
-    ErrorSourceParameter:
+    ErrorSourcePointer:
       type: object
-      title: Parameter
+      title: JsonPointer
       properties:
-        parameter:
+        pointer:
           type: string
       required:
-      - parameter
-    GameCenterLeaderboardImageV2:
-      type: object
-      title: GameCenterLeaderboardImageV2
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterLeaderboardImages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            imageAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        relationships:
-          type: object
-          properties:
-            localization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboardLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+      - pointer
     GameCenterLeaderboardImageV2CreateRequest:
       type: object
       title: GameCenterLeaderboardImageV2CreateRequest
@@ -655,6 +586,125 @@ components:
           - type
       required:
       - data
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    GameCenterLeaderboardLocalizationV2:
+      type: object
+      title: GameCenterLeaderboardLocalizationV2
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterLeaderboardLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            name:
+              type: string
+            formatterOverride:
+              $ref: '#/components/schemas/GameCenterLeaderboardFormatter'
+            formatterSuffix:
+              type: string
+            formatterSuffixSingular:
+              type: string
+            description:
+              type: string
+        relationships:
+          type: object
+          properties:
+            version:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboardVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            image:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboardImages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    GameCenterLeaderboardImageResponse:
+      type: object
+      title: GameCenterLeaderboardImageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterLeaderboardImage'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterLeaderboardLocalization'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
     GameCenterLeaderboardLocalization:
       type: object
       title: GameCenterLeaderboardLocalization
@@ -721,6 +771,139 @@ components:
       - id
       - type
       deprecated: true
+    GameCenterLeaderboardImageV2UpdateRequest:
+      type: object
+      title: GameCenterLeaderboardImageV2UpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterLeaderboardImages
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    GameCenterLeaderboardFormatter:
+      type: string
+      enum:
+      - INTEGER
+      - DECIMAL_POINT_1_PLACE
+      - DECIMAL_POINT_2_PLACE
+      - DECIMAL_POINT_3_PLACE
+      - ELAPSED_TIME_CENTISECOND
+      - ELAPSED_TIME_MINUTE
+      - ELAPSED_TIME_SECOND
+      - MONEY_POUND_DECIMAL
+      - MONEY_POUND
+      - MONEY_DOLLAR_DECIMAL
+      - MONEY_DOLLAR
+      - MONEY_EURO_DECIMAL
+      - MONEY_EURO
+      - MONEY_FRANC_DECIMAL
+      - MONEY_FRANC
+      - MONEY_KRONER_DECIMAL
+      - MONEY_KRONER
+      - MONEY_YEN
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    GameCenterLeaderboardImageUpdateRequest:
+      type: object
+      title: GameCenterLeaderboardImageUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterLeaderboardImages
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+      deprecated: true
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     GameCenterLeaderboardImageCreateRequest:
       type: object
       title: GameCenterLeaderboardImageCreateRequest
@@ -771,35 +954,50 @@ components:
       required:
       - data
       deprecated: true
-    GameCenterLeaderboardLocalizationV2:
+    DocumentLinks:
       type: object
-      title: GameCenterLeaderboardLocalizationV2
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    GameCenterLeaderboardImageV2:
+      type: object
+      title: GameCenterLeaderboardImageV2
       properties:
         type:
           type: string
           enum:
-          - gameCenterLeaderboardLocalizations
+          - gameCenterLeaderboardImages
         id:
           type: string
         attributes:
           type: object
           properties:
-            locale:
+            fileSize:
+              type: integer
+            fileName:
               type: string
-            name:
-              type: string
-            formatterOverride:
-              $ref: '#/components/schemas/GameCenterLeaderboardFormatter'
-            formatterSuffix:
-              type: string
-            formatterSuffixSingular:
-              type: string
-            description:
-              type: string
+            imageAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
         relationships:
           type: object
           properties:
-            version:
+            localization:
               type: object
               properties:
                 data:
@@ -808,24 +1006,7 @@ components:
                     type:
                       type: string
                       enum:
-                      - gameCenterLeaderboardVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            image:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboardImages
+                      - gameCenterLeaderboardLocalizations
                     id:
                       type: string
                   required:
@@ -836,191 +1017,6 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    GameCenterLeaderboardImageV2Response:
-      type: object
-      title: GameCenterLeaderboardImageV2Response
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterLeaderboardImageV2'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    GameCenterLeaderboardImageUpdateRequest:
-      type: object
-      title: GameCenterLeaderboardImageUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterLeaderboardImages
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-      deprecated: true
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    GameCenterLeaderboardImageV2UpdateRequest:
-      type: object
-      title: GameCenterLeaderboardImageV2UpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterLeaderboardImages
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    GameCenterLeaderboardFormatter:
-      type: string
-      enum:
-      - INTEGER
-      - DECIMAL_POINT_1_PLACE
-      - DECIMAL_POINT_2_PLACE
-      - DECIMAL_POINT_3_PLACE
-      - ELAPSED_TIME_CENTISECOND
-      - ELAPSED_TIME_MINUTE
-      - ELAPSED_TIME_SECOND
-      - MONEY_POUND_DECIMAL
-      - MONEY_POUND
-      - MONEY_DOLLAR_DECIMAL
-      - MONEY_DOLLAR
-      - MONEY_EURO_DECIMAL
-      - MONEY_EURO
-      - MONEY_FRANC_DECIMAL
-      - MONEY_FRANC
-      - MONEY_KRONER_DECIMAL
-      - MONEY_KRONER
-      - MONEY_YEN
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     GameCenterLeaderboardImage:
       type: object
       title: GameCenterLeaderboardImage
@@ -1070,42 +1066,46 @@ components:
       - id
       - type
       deprecated: true
-    ErrorLinks:
+    AppMediaAssetState:
       type: object
       properties:
-        about:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    GameCenterLeaderboardImageResponse:
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    AppMediaStateError:
       type: object
-      title: GameCenterLeaderboardImageResponse
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    GameCenterLeaderboardImageV2Response:
+      type: object
+      title: GameCenterLeaderboardImageV2Response
       properties:
         data:
-          $ref: '#/components/schemas/GameCenterLeaderboardImage'
+          $ref: '#/components/schemas/GameCenterLeaderboardImageV2'
         included:
           type: array
           items:
-            $ref: '#/components/schemas/GameCenterLeaderboardLocalization'
+            $ref: '#/components/schemas/GameCenterLeaderboardLocalizationV2'
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-      deprecated: true
   securitySchemes:
     itc-bearer-token:
       type: http
