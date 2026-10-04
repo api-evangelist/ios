@@ -533,19 +533,31 @@ paths:
       summary: Get Related Beta License Agreements / App
 components:
   schemas:
-    ErrorSourcePointer:
+    BetaLicenseAgreementUpdateRequest:
       type: object
-      title: JsonPointer
+      title: BetaLicenseAgreementUpdateRequest
       properties:
-        pointer:
-          type: string
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - betaLicenseAgreements
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                agreementText:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
       required:
-      - pointer
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
+      - data
     RelationshipLinks:
       type: object
       properties:
@@ -555,32 +567,26 @@ components:
         related:
           type: string
           format: uri-reference
-    PagingInformation:
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    AppWithoutIncludesResponse:
       type: object
+      title: AppWithoutIncludesResponse
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+        data:
+          $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - paging
-    PagedDocumentLinks:
+      - data
+      - links
+    DocumentLinks:
       type: object
       properties:
         self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
           type: string
           format: uri-reference
       required:
@@ -620,6 +626,130 @@ components:
       required:
       - data
       - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    BetaLicenseAgreement:
+      type: object
+      title: BetaLicenseAgreement
+      properties:
+        type:
+          type: string
+          enum:
+          - betaLicenseAgreements
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            agreementText:
+              type: string
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     App:
       type: object
       title: App
@@ -1257,89 +1387,6 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    BetaLicenseAgreement:
-      type: object
-      title: BetaLicenseAgreement
-      properties:
-        type:
-          type: string
-          enum:
-          - betaLicenseAgreements
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            agreementText:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppWithoutIncludesResponse:
-      type: object
-      title: AppWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     ErrorLinks:
       type: object
       properties:
@@ -1360,53 +1407,6 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BetaLicenseAgreementUpdateRequest:
-      type: object
-      title: BetaLicenseAgreementUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - betaLicenseAgreements
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                agreementText:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
     BetaLicenseAgreementsResponse:
       type: object
       title: BetaLicenseAgreementsResponse

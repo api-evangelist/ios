@@ -551,6 +551,11 @@ paths:
       summary: Get Related Beta Build Localizations / Build
 components:
   schemas:
+    BuildAudienceType:
+      type: string
+      enum:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
     BetaBuildLocalizationCreateRequest:
       type: object
       title: BetaBuildLocalizationCreateRequest
@@ -601,67 +606,40 @@ components:
           - type
       required:
       - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    ResourceLinks:
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        first:
           type: string
-      required:
-      - parameter
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
+          format: uri-reference
+        next:
           type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    BetaBuildLocalizationUpdateRequest:
-      type: object
-      title: BetaBuildLocalizationUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - betaBuildLocalizations
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                whatsNew:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
+          format: uri-reference
       required:
-      - data
+      - self
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     Build:
       type: object
       title: Build
@@ -944,6 +922,107 @@ components:
       required:
       - id
       - type
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BuildWithoutIncludesResponse:
+      type: object
+      title: BuildWithoutIncludesResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Build'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    BetaBuildLocalizationUpdateRequest:
+      type: object
+      title: BetaBuildLocalizationUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - betaBuildLocalizations
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                whatsNew:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    BetaBuildLocalizationResponse:
+      type: object
+      title: BetaBuildLocalizationResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BetaBuildLocalization'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Build'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     BetaBuildLocalizationsResponse:
       type: object
       title: BetaBuildLocalizationsResponse
@@ -960,21 +1039,6 @@ components:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
           $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BetaBuildLocalizationResponse:
-      type: object
-      title: BetaBuildLocalizationResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BetaBuildLocalization'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
@@ -1010,43 +1074,6 @@ components:
             - detail
             - status
             - title
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
     BetaBuildLocalization:
       type: object
       title: BetaBuildLocalization
@@ -1089,47 +1116,20 @@ components:
       required:
       - id
       - type
-    BuildWithoutIncludesResponse:
-      type: object
-      title: BuildWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
-      - self
+      - parameter
     BetaBuildLocalizationBuildLinkageResponse:
       type: object
       properties:

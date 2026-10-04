@@ -807,90 +807,158 @@ paths:
       summary: List Related Ci Build Actions / Test Results
 components:
   schemas:
-    CiGitRefKind:
+    BuildAudienceType:
       type: string
       enum:
-      - BRANCH
-      - TAG
-    CiBuildAction:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    CiAction:
       type: object
-      title: CiBuildAction
       properties:
-        type:
+        name:
+          type: string
+        actionType:
+          $ref: '#/components/schemas/CiActionType'
+        destination:
           type: string
           enum:
-          - ciBuildActions
-        id:
+          - ANY_IOS_DEVICE
+          - ANY_IOS_SIMULATOR
+          - ANY_TVOS_DEVICE
+          - ANY_TVOS_SIMULATOR
+          - ANY_WATCHOS_DEVICE
+          - ANY_WATCHOS_SIMULATOR
+          - ANY_MAC
+          - ANY_MAC_CATALYST
+          - ANY_VISIONOS_DEVICE
+          - ANY_VISIONOS_SIMULATOR
+        buildDistributionAudience:
+          $ref: '#/components/schemas/BuildAudienceType'
+        testConfiguration:
+          type: object
+          properties:
+            kind:
+              type: string
+              enum:
+              - USE_SCHEME_SETTINGS
+              - SPECIFIC_TEST_PLANS
+            testPlanName:
+              type: string
+            testDestinations:
+              type: array
+              items:
+                $ref: '#/components/schemas/CiTestDestination'
+        scheme:
           type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            actionType:
-              $ref: '#/components/schemas/CiActionType'
-            startedDate:
-              type: string
-              format: date-time
-            finishedDate:
-              type: string
-              format: date-time
-            issueCounts:
-              $ref: '#/components/schemas/CiIssueCounts'
-            executionProgress:
-              $ref: '#/components/schemas/CiExecutionProgress'
-            completionStatus:
-              $ref: '#/components/schemas/CiCompletionStatus'
-            isRequiredToPass:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            buildRun:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - ciBuildRuns
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            artifacts:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            issues:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-            testResults:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorSourcePointer:
+        platform:
+          type: string
+          enum:
+          - MACOS
+          - IOS
+          - TVOS
+          - WATCHOS
+          - VISIONOS
+        isRequiredToPass:
+          type: boolean
+    CiBuildActionArtifactsLinkagesResponse:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
-          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - ciArtifacts
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - pointer
+      - data
+      - links
+    CiBuildActionIssuesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - ciIssues
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    CiTestDestination:
+      type: object
+      properties:
+        deviceTypeName:
+          type: string
+        deviceTypeIdentifier:
+          type: string
+        runtimeName:
+          type: string
+        runtimeIdentifier:
+          type: string
+        kind:
+          $ref: '#/components/schemas/CiTestDestinationKind'
+    CiBuildActionTestResultsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - ciTestResults
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     FileLocation:
       type: object
       properties:
@@ -898,94 +966,23 @@ components:
           type: string
         lineNumber:
           type: integer
-    CiArtifact:
-      type: object
-      title: CiArtifact
-      properties:
-        type:
-          type: string
-          enum:
-          - ciArtifacts
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileType:
-              type: string
-              enum:
-              - ARCHIVE
-              - ARCHIVE_EXPORT
-              - LOG_BUNDLE
-              - RESULT_BUNDLE
-              - TEST_PRODUCTS
-              - XCODEBUILD_PRODUCTS
-              - STAPLED_NOTARIZED_ARCHIVE
-            fileName:
-              type: string
-            fileSize:
-              type: integer
-            downloadUrl:
-              type: string
-              format: uri
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiTestResult:
-      type: object
-      title: CiTestResult
-      properties:
-        type:
-          type: string
-          enum:
-          - ciTestResults
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            className:
-              type: string
-            name:
-              type: string
-            status:
-              $ref: '#/components/schemas/CiTestStatus'
-            fileSource:
-              $ref: '#/components/schemas/FileLocation'
-            message:
-              type: string
-            destinationTestResults:
-              type: array
-              items:
-                type: object
-                properties:
-                  uuid:
-                    type: string
-                  deviceName:
-                    type: string
-                  osVersion:
-                    type: string
-                  status:
-                    $ref: '#/components/schemas/CiTestStatus'
-                  duration:
-                    type: number
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    CiManualBranchStartCondition:
+    ImageAsset:
       type: object
       properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-    CiTestDestinationKind:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    CiCompletionStatus:
       type: string
       enum:
-      - SIMULATOR
-      - MAC
+      - SUCCEEDED
+      - FAILED
+      - ERRORED
+      - CANCELED
+      - SKIPPED
     ScmPullRequest:
       type: object
       title: ScmPullRequest
@@ -1045,89 +1042,6 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    CiTestResultsResponse:
-      type: object
-      title: CiTestResultsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiTestResult'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    CiScheduledStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        schedule:
-          type: object
-          properties:
-            frequency:
-              type: string
-              enum:
-              - WEEKLY
-              - DAILY
-              - HOURLY
-            days:
-              type: array
-              items:
-                type: string
-                enum:
-                - SUNDAY
-                - MONDAY
-                - TUESDAY
-                - WEDNESDAY
-                - THURSDAY
-                - FRIDAY
-                - SATURDAY
-            hour:
-              type: integer
-            minute:
-              type: integer
-            timezone:
-              type: string
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    CiTestStatus:
-      type: string
-      enum:
-      - SUCCESS
-      - FAILURE
-      - MIXED
-      - SKIPPED
-      - EXPECTED_FAILURE
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
     Build:
       type: object
       title: Build
@@ -1410,6 +1324,229 @@ components:
       required:
       - id
       - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    CiIssuesResponse:
+      type: object
+      title: CiIssuesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiIssue'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CiScheduledStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        schedule:
+          type: object
+          properties:
+            frequency:
+              type: string
+              enum:
+              - WEEKLY
+              - DAILY
+              - HOURLY
+            days:
+              type: array
+              items:
+                type: string
+                enum:
+                - SUNDAY
+                - MONDAY
+                - TUESDAY
+                - WEDNESDAY
+                - THURSDAY
+                - FRIDAY
+                - SATURDAY
+            hour:
+              type: integer
+            minute:
+              type: integer
+            timezone:
+              type: string
+    CiExecutionProgress:
+      type: string
+      enum:
+      - PENDING
+      - RUNNING
+      - COMPLETE
+    CiManualPullRequestStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        destination:
+          $ref: '#/components/schemas/CiBranchPatterns'
+    CiBuildActionBuildRunLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - ciBuildRuns
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CiBuildAction:
+      type: object
+      title: CiBuildAction
+      properties:
+        type:
+          type: string
+          enum:
+          - ciBuildActions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            actionType:
+              $ref: '#/components/schemas/CiActionType'
+            startedDate:
+              type: string
+              format: date-time
+            finishedDate:
+              type: string
+              format: date-time
+            issueCounts:
+              $ref: '#/components/schemas/CiIssueCounts'
+            executionProgress:
+              $ref: '#/components/schemas/CiExecutionProgress'
+            completionStatus:
+              $ref: '#/components/schemas/CiCompletionStatus'
+            isRequiredToPass:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            buildRun:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - ciBuildRuns
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            artifacts:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            issues:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+            testResults:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiBuildActionResponse:
+      type: object
+      title: CiBuildActionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/CiBuildAction'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiBuildRun'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    CiGitRefKind:
+      type: string
+      enum:
+      - BRANCH
+      - TAG
+    CiArtifactsResponse:
+      type: object
+      title: CiArtifactsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiArtifact'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     CiWorkflow:
       type: object
       title: CiWorkflow
@@ -1531,6 +1668,40 @@ components:
       required:
       - id
       - type
+    CiTestStatus:
+      type: string
+      enum:
+      - SUCCESS
+      - FAILURE
+      - MIXED
+      - SKIPPED
+      - EXPECTED_FAILURE
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    CiManualBranchStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+    CiTestDestinationKind:
+      type: string
+      enum:
+      - SIMULATOR
+      - MAC
     CiGitUser:
       type: object
       properties:
@@ -1539,78 +1710,49 @@ components:
         avatarUrl:
           type: string
           format: uri
-    CiTagPatterns:
+    CiTestResultsResponse:
+      type: object
+      title: CiTestResultsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiTestResult'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CiStartConditionFileMatcher:
       type: object
       properties:
-        isAllMatch:
+        directory:
+          type: string
+        fileExtension:
+          type: string
+        fileName:
+          type: string
+    CiPullRequestStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        destination:
+          $ref: '#/components/schemas/CiBranchPatterns'
+        filesAndFoldersRule:
+          $ref: '#/components/schemas/CiFilesAndFoldersRule'
+        autoCancel:
           type: boolean
-        patterns:
-          type: array
-          items:
-            type: object
-            properties:
-              pattern:
-                type: string
-              isPrefix:
-                type: boolean
-    CiBuildRunResponse:
+    ErrorSourcePointer:
       type: object
-      title: CiBuildRunResponse
+      title: JsonPointer
       properties:
-        data:
-          $ref: '#/components/schemas/CiBuildRun'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/Build'
-            - $ref: '#/components/schemas/CiProduct'
-            - $ref: '#/components/schemas/CiWorkflow'
-            - $ref: '#/components/schemas/ScmGitReference'
-            - $ref: '#/components/schemas/ScmPullRequest'
-            discriminator:
-              propertyName: type
-              mapping:
-                ciProducts: '#/components/schemas/CiProduct'
-                builds: '#/components/schemas/Build'
-                scmPullRequests: '#/components/schemas/ScmPullRequest'
-                ciWorkflows: '#/components/schemas/CiWorkflow'
-                scmGitReferences: '#/components/schemas/ScmGitReference'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        pointer:
+          type: string
       required:
-      - data
-      - links
-    CiArtifactsResponse:
-      type: object
-      title: CiArtifactsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiArtifact'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    CiIssuesResponse:
-      type: object
-      title: CiIssuesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiIssue'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
+      - pointer
     CiIssueCounts:
       type: object
       properties:
@@ -1622,6 +1764,49 @@ components:
           type: integer
         warnings:
           type: integer
+    CiTestResult:
+      type: object
+      title: CiTestResult
+      properties:
+        type:
+          type: string
+          enum:
+          - ciTestResults
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            className:
+              type: string
+            name:
+              type: string
+            status:
+              $ref: '#/components/schemas/CiTestStatus'
+            fileSource:
+              $ref: '#/components/schemas/FileLocation'
+            message:
+              type: string
+            destinationTestResults:
+              type: array
+              items:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                  deviceName:
+                    type: string
+                  osVersion:
+                    type: string
+                  status:
+                    $ref: '#/components/schemas/CiTestStatus'
+                  duration:
+                    type: number
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     CiBuildRun:
       type: object
       title: CiBuildRun
@@ -1805,6 +1990,55 @@ components:
       required:
       - id
       - type
+    CiArtifact:
+      type: object
+      title: CiArtifact
+      properties:
+        type:
+          type: string
+          enum:
+          - ciArtifacts
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileType:
+              type: string
+              enum:
+              - ARCHIVE
+              - ARCHIVE_EXPORT
+              - LOG_BUNDLE
+              - RESULT_BUNDLE
+              - TEST_PRODUCTS
+              - XCODEBUILD_PRODUCTS
+              - STAPLED_NOTARIZED_ARCHIVE
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+            downloadUrl:
+              type: string
+              format: uri
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiBranchPatterns:
+      type: object
+      properties:
+        isAllMatch:
+          type: boolean
+        patterns:
+          type: array
+          items:
+            type: object
+            properties:
+              pattern:
+                type: string
+              isPrefix:
+                type: boolean
     ScmGitReference:
       type: object
       title: ScmGitReference
@@ -1849,64 +2083,13 @@ components:
       required:
       - id
       - type
-    CiBuildActionTestResultsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - ciTestResults
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    CiBranchPatterns:
-      type: object
-      properties:
-        isAllMatch:
-          type: boolean
-        patterns:
-          type: array
-          items:
-            type: object
-            properties:
-              pattern:
-                type: string
-              isPrefix:
-                type: boolean
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    CiPullRequestStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        destination:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        filesAndFoldersRule:
-          $ref: '#/components/schemas/CiFilesAndFoldersRule'
-        autoCancel:
-          type: boolean
+    CiActionType:
+      type: string
+      enum:
+      - BUILD
+      - ANALYZE
+      - TEST
+      - ARCHIVE
     ErrorResponse:
       type: object
       properties:
@@ -1939,95 +2122,82 @@ components:
             - detail
             - status
             - title
-    CiExecutionProgress:
-      type: string
-      enum:
-      - PENDING
-      - RUNNING
-      - COMPLETE
-    CiBuildActionResponse:
+    CiBuildRunResponse:
       type: object
-      title: CiBuildActionResponse
+      title: CiBuildRunResponse
       properties:
         data:
-          $ref: '#/components/schemas/CiBuildAction'
+          $ref: '#/components/schemas/CiBuildRun'
         included:
           type: array
           items:
-            $ref: '#/components/schemas/CiBuildRun'
+            oneOf:
+            - $ref: '#/components/schemas/Build'
+            - $ref: '#/components/schemas/CiProduct'
+            - $ref: '#/components/schemas/CiWorkflow'
+            - $ref: '#/components/schemas/ScmGitReference'
+            - $ref: '#/components/schemas/ScmPullRequest'
+            discriminator:
+              propertyName: type
+              mapping:
+                ciProducts: '#/components/schemas/CiProduct'
+                builds: '#/components/schemas/Build'
+                scmPullRequests: '#/components/schemas/ScmPullRequest'
+                ciWorkflows: '#/components/schemas/CiWorkflow'
+                scmGitReferences: '#/components/schemas/ScmGitReference'
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-    CiAction:
+    CiFilesAndFoldersRule:
       type: object
       properties:
-        name:
-          type: string
-        actionType:
-          $ref: '#/components/schemas/CiActionType'
-        destination:
+        mode:
           type: string
           enum:
-          - ANY_IOS_DEVICE
-          - ANY_IOS_SIMULATOR
-          - ANY_TVOS_DEVICE
-          - ANY_TVOS_SIMULATOR
-          - ANY_WATCHOS_DEVICE
-          - ANY_WATCHOS_SIMULATOR
-          - ANY_MAC
-          - ANY_MAC_CATALYST
-          - ANY_VISIONOS_DEVICE
-          - ANY_VISIONOS_SIMULATOR
-        buildDistributionAudience:
-          $ref: '#/components/schemas/BuildAudienceType'
-        testConfiguration:
+          - START_IF_ANY_FILE_MATCHES
+          - DO_NOT_START_IF_ALL_FILES_MATCH
+        matchers:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiStartConditionFileMatcher'
+    CiManualTagStartCondition:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/CiTagPatterns'
+    CiIssue:
+      type: object
+      title: CiIssue
+      properties:
+        type:
+          type: string
+          enum:
+          - ciIssues
+        id:
+          type: string
+        attributes:
           type: object
           properties:
-            kind:
+            issueType:
               type: string
               enum:
-              - USE_SCHEME_SETTINGS
-              - SPECIFIC_TEST_PLANS
-            testPlanName:
+              - ANALYZER_WARNING
+              - ERROR
+              - TEST_FAILURE
+              - WARNING
+            message:
               type: string
-            testDestinations:
-              type: array
-              items:
-                $ref: '#/components/schemas/CiTestDestination'
-        scheme:
-          type: string
-        platform:
-          type: string
-          enum:
-          - MACOS
-          - IOS
-          - TVOS
-          - WATCHOS
-          - VISIONOS
-        isRequiredToPass:
-          type: boolean
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+            fileSource:
+              $ref: '#/components/schemas/FileLocation'
+            category:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     CiProduct:
       type: object
       title: CiProduct
@@ -2127,81 +2297,20 @@ components:
       required:
       - id
       - type
-    CiIssue:
-      type: object
-      title: CiIssue
-      properties:
-        type:
-          type: string
-          enum:
-          - ciIssues
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            issueType:
-              type: string
-              enum:
-              - ANALYZER_WARNING
-              - ERROR
-              - TEST_FAILURE
-              - WARNING
-            message:
-              type: string
-            fileSource:
-              $ref: '#/components/schemas/FileLocation'
-            category:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    DocumentLinks:
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
       required:
-      - self
-    CiTagStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiTagPatterns'
-        filesAndFoldersRule:
-          $ref: '#/components/schemas/CiFilesAndFoldersRule'
-        autoCancel:
-          type: boolean
-    CiManualPullRequestStartCondition:
-      type: object
-      properties:
-        source:
-          $ref: '#/components/schemas/CiBranchPatterns'
-        destination:
-          $ref: '#/components/schemas/CiBranchPatterns'
-    CiBuildActionBuildRunLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - ciBuildRuns
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+      - parameter
     CiBranchStartCondition:
       type: object
       properties:
@@ -2211,138 +2320,29 @@ components:
           $ref: '#/components/schemas/CiFilesAndFoldersRule'
         autoCancel:
           type: boolean
-    CiStartConditionFileMatcher:
+    CiTagPatterns:
       type: object
       properties:
-        directory:
-          type: string
-        fileExtension:
-          type: string
-        fileName:
-          type: string
-    CiTestDestination:
-      type: object
-      properties:
-        deviceTypeName:
-          type: string
-        deviceTypeIdentifier:
-          type: string
-        runtimeName:
-          type: string
-        runtimeIdentifier:
-          type: string
-        kind:
-          $ref: '#/components/schemas/CiTestDestinationKind'
-    CiBuildActionIssuesLinkagesResponse:
-      type: object
-      properties:
-        data:
+        isAllMatch:
+          type: boolean
+        patterns:
           type: array
           items:
             type: object
             properties:
-              type:
+              pattern:
                 type: string
-                enum:
-                - ciIssues
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    CiCompletionStatus:
-      type: string
-      enum:
-      - SUCCEEDED
-      - FAILED
-      - ERRORED
-      - CANCELED
-      - SKIPPED
-    CiManualTagStartCondition:
+              isPrefix:
+                type: boolean
+    CiTagStartCondition:
       type: object
       properties:
         source:
           $ref: '#/components/schemas/CiTagPatterns'
-    CiActionType:
-      type: string
-      enum:
-      - BUILD
-      - ANALYZE
-      - TEST
-      - ARCHIVE
-    CiFilesAndFoldersRule:
-      type: object
-      properties:
-        mode:
-          type: string
-          enum:
-          - START_IF_ANY_FILE_MATCHES
-          - DO_NOT_START_IF_ALL_FILES_MATCH
-        matchers:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiStartConditionFileMatcher'
-    CiBuildActionArtifactsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - ciArtifacts
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
+        filesAndFoldersRule:
+          $ref: '#/components/schemas/CiFilesAndFoldersRule'
+        autoCancel:
+          type: boolean
   securitySchemes:
     itc-bearer-token:
       type: http

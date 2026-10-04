@@ -211,30 +211,48 @@ paths:
       summary: List Related Analytics Report Instances / Segments
 components:
   schemas:
-    ErrorSourcePointer:
+    RelationshipLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
-    PagingInformation:
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
       type: object
       properties:
-        paging:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AnalyticsReportSegment:
+      type: object
+      title: AnalyticsReportSegment
+      properties:
+        type:
+          type: string
+          enum:
+          - analyticsReportSegments
+        id:
+          type: string
+        attributes:
           type: object
           properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
+            checksum:
               type: string
-          required:
-          - limit
+            sizeInBytes:
+              type: integer
+            url:
+              type: string
+              format: uri
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - paging
+      - id
+      - type
     ErrorResponse:
       type: object
       properties:
@@ -267,6 +285,21 @@ components:
             - detail
             - status
             - title
+    AnalyticsReportSegmentsResponse:
+      type: object
+      title: AnalyticsReportSegmentsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalyticsReportSegment'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     PagedDocumentLinks:
       type: object
       properties:
@@ -281,6 +314,33 @@ components:
           format: uri-reference
       required:
       - self
+    AnalyticsReportInstanceResponse:
+      type: object
+      title: AnalyticsReportInstanceResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AnalyticsReportInstance'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     AnalyticsReportInstanceSegmentsLinkagesResponse:
       type: object
       properties:
@@ -305,86 +365,28 @@ components:
       required:
       - data
       - links
-    AnalyticsReportSegmentsResponse:
-      type: object
-      title: AnalyticsReportSegmentsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnalyticsReportSegment'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AnalyticsReportInstanceResponse:
-      type: object
-      title: AnalyticsReportInstanceResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AnalyticsReportInstance'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AnalyticsReportSegment:
-      type: object
-      title: AnalyticsReportSegment
-      properties:
-        type:
-          type: string
-          enum:
-          - analyticsReportSegments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            checksum:
-              type: string
-            sizeInBytes:
-              type: integer
-            url:
-              type: string
-              format: uri
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    RelationshipLinks:
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        about:
+        parameter:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     AnalyticsReportInstance:
       type: object
       title: AnalyticsReportInstance
@@ -420,28 +422,26 @@ components:
       required:
       - id
       - type
-    ResourceLinks:
+    ErrorLinks:
       type: object
       properties:
-        self:
+        about:
           type: string
           format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
   securitySchemes:
     itc-bearer-token:
       type: http

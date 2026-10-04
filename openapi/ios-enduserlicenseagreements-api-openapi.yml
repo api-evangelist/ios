@@ -463,21 +463,6 @@ paths:
       summary: List Related End User License Agreements / Territories
 components:
   schemas:
-    TerritoriesWithoutIncludesResponse:
-      type: object
-      title: TerritoriesWithoutIncludesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
     EndUserLicenseAgreementCreateRequest:
       type: object
       title: EndUserLicenseAgreementCreateRequest
@@ -544,35 +529,6 @@ components:
           - type
       required:
       - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
     RelationshipLinks:
       type: object
       properties:
@@ -582,42 +538,19 @@ components:
         related:
           type: string
           format: uri-reference
-    PagedDocumentLinks:
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
       - self
-    EndUserLicenseAgreementResponse:
-      type: object
-      title: EndUserLicenseAgreementResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/EndUserLicenseAgreement'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
     ErrorResponse:
       type: object
       properties:
@@ -650,6 +583,243 @@ components:
             - detail
             - status
             - title
+    Territory:
+      type: object
+      title: Territory
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            currency:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    EndUserLicenseAgreement:
+      type: object
+      title: EndUserLicenseAgreement
+      properties:
+        type:
+          type: string
+          enum:
+          - endUserLicenseAgreements
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            agreementText:
+              type: string
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            territories:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - territories
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    EndUserLicenseAgreementUpdateRequest:
+      type: object
+      title: EndUserLicenseAgreementUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - endUserLicenseAgreements
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                agreementText:
+                  type:
+                  - string
+                  - 'null'
+            relationships:
+              type: object
+              properties:
+                territories:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - territories
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+          required:
+          - id
+          - type
+      required:
+      - data
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    TerritoriesWithoutIncludesResponse:
+      type: object
+      title: TerritoriesWithoutIncludesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Territory'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    EndUserLicenseAgreementTerritoriesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - territories
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    EndUserLicenseAgreementResponse:
+      type: object
+      title: EndUserLicenseAgreementResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/EndUserLicenseAgreement'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     App:
       type: object
       title: App
@@ -1287,89 +1457,6 @@ components:
       required:
       - id
       - type
-    EndUserLicenseAgreement:
-      type: object
-      title: EndUserLicenseAgreement
-      properties:
-        type:
-          type: string
-          enum:
-          - endUserLicenseAgreements
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            agreementText:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            territories:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - territories
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    EndUserLicenseAgreementTerritoriesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - territories
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
     ErrorLinks:
       type: object
       properties:
@@ -1390,93 +1477,6 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    EndUserLicenseAgreementUpdateRequest:
-      type: object
-      title: EndUserLicenseAgreementUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - endUserLicenseAgreements
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                agreementText:
-                  type:
-                  - string
-                  - 'null'
-            relationships:
-              type: object
-              properties:
-                territories:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - territories
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-          required:
-          - id
-          - type
-      required:
-      - data
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
   securitySchemes:
     itc-bearer-token:
       type: http

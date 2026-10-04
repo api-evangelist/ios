@@ -455,6 +455,426 @@ paths:
       summary: List Related Win Back Offers / Prices
 components:
   schemas:
+    SubscriptionPricePoint:
+      type: object
+      title: SubscriptionPricePoint
+      properties:
+        type:
+          type: string
+          enum:
+          - subscriptionPricePoints
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            customerPrice:
+              type: string
+            proceeds:
+              type: string
+            proceedsYear2:
+              type: string
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            equalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    SubscriptionOfferMode:
+      type: string
+      enum:
+      - PAY_AS_YOU_GO
+      - PAY_UP_FRONT
+      - FREE_TRIAL
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    WinBackOfferPricesResponse:
+      type: object
+      title: WinBackOfferPricesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WinBackOfferPrice'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SubscriptionPricePoint'
+            - $ref: '#/components/schemas/Territory'
+            discriminator:
+              propertyName: type
+              mapping:
+                territories: '#/components/schemas/Territory'
+                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    WinBackOfferPrice:
+      type: object
+      title: WinBackOfferPrice
+      properties:
+        type:
+          type: string
+          enum:
+          - winBackOfferPrices
+        id:
+          type: string
+        relationships:
+          type: object
+          properties:
+            territory:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - territories
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            subscriptionPricePoint:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - subscriptionPricePoints
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    WinBackOfferPriceInlineCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - winBackOfferPrices
+        id:
+          type: string
+      required:
+      - type
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    WinBackOffer:
+      type: object
+      title: WinBackOffer
+      properties:
+        type:
+          type: string
+          enum:
+          - winBackOffers
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            offerId:
+              type: string
+            duration:
+              $ref: '#/components/schemas/SubscriptionOfferDuration'
+            offerMode:
+              $ref: '#/components/schemas/SubscriptionOfferMode'
+            periodCount:
+              type: integer
+            customerEligibilityPaidSubscriptionDurationInMonths:
+              type: integer
+            customerEligibilityTimeSinceLastSubscribedInMonths:
+              $ref: '#/components/schemas/IntegerRange'
+            customerEligibilityWaitBetweenOffersInMonths:
+              type: integer
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            priority:
+              type: string
+              enum:
+              - HIGH
+              - NORMAL
+            promotionIntent:
+              type: string
+              enum:
+              - NOT_PROMOTED
+              - USE_AUTO_GENERATED_ASSETS
+        relationships:
+          type: object
+          properties:
+            prices:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - winBackOfferPrices
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    WinBackOfferUpdateRequest:
+      type: object
+      title: WinBackOfferUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - winBackOffers
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                customerEligibilityPaidSubscriptionDurationInMonths:
+                  type:
+                  - integer
+                  - 'null'
+                customerEligibilityTimeSinceLastSubscribedInMonths:
+                  $ref: '#/components/schemas/IntegerRange'
+                customerEligibilityWaitBetweenOffersInMonths:
+                  type:
+                  - integer
+                  - 'null'
+                startDate:
+                  type:
+                  - string
+                  - 'null'
+                  format: date
+                endDate:
+                  type:
+                  - string
+                  - 'null'
+                  format: date
+                priority:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - HIGH
+                  - NORMAL
+                promotionIntent:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - NOT_PROMOTED
+                  - USE_AUTO_GENERATED_ASSETS
+          required:
+          - id
+          - type
+      required:
+      - data
+    SubscriptionOfferDuration:
+      type: string
+      enum:
+      - THREE_DAYS
+      - ONE_WEEK
+      - TWO_WEEKS
+      - ONE_MONTH
+      - TWO_MONTHS
+      - THREE_MONTHS
+      - SIX_MONTHS
+      - ONE_YEAR
+    Territory:
+      type: object
+      title: Territory
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            currency:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    WinBackOfferResponse:
+      type: object
+      title: WinBackOfferResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/WinBackOffer'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/WinBackOfferPrice'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     WinBackOfferCreateRequest:
       type: object
       title: WinBackOfferCreateRequest
@@ -569,20 +989,12 @@ components:
             $ref: '#/components/schemas/WinBackOfferPriceInlineCreate'
       required:
       - data
-    ErrorSourcePointer:
+    ResourceLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
-      required:
-      - pointer
-    SubscriptionOfferMode:
-      type: string
-      enum:
-      - PAY_AS_YOU_GO
-      - PAY_UP_FRONT
-      - FREE_TRIAL
+          format: uri-reference
     ErrorSourceParameter:
       type: object
       title: Parameter
@@ -591,145 +1003,13 @@ components:
           type: string
       required:
       - parameter
-    ResourceLinks:
+    IntegerRange:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-    WinBackOfferUpdateRequest:
-      type: object
-      title: WinBackOfferUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - winBackOffers
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                customerEligibilityPaidSubscriptionDurationInMonths:
-                  type:
-                  - integer
-                  - 'null'
-                customerEligibilityTimeSinceLastSubscribedInMonths:
-                  $ref: '#/components/schemas/IntegerRange'
-                customerEligibilityWaitBetweenOffersInMonths:
-                  type:
-                  - integer
-                  - 'null'
-                startDate:
-                  type:
-                  - string
-                  - 'null'
-                  format: date
-                endDate:
-                  type:
-                  - string
-                  - 'null'
-                  format: date
-                priority:
-                  type:
-                  - string
-                  - 'null'
-                  enum:
-                  - HIGH
-                  - NORMAL
-                promotionIntent:
-                  type:
-                  - string
-                  - 'null'
-                  enum:
-                  - NOT_PROMOTED
-                  - USE_AUTO_GENERATED_ASSETS
-          required:
-          - id
-          - type
-      required:
-      - data
-    WinBackOfferPriceInlineCreate:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - winBackOfferPrices
-        id:
-          type: string
-      required:
-      - type
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    SubscriptionPricePoint:
-      type: object
-      title: SubscriptionPricePoint
-      properties:
-        type:
-          type: string
-          enum:
-          - subscriptionPricePoints
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            customerPrice:
-              type: string
-            proceeds:
-              type: string
-            proceedsYear2:
-              type: string
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            equalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
+        minimum:
+          type: integer
+        maximum:
+          type: integer
     WinBackOfferPricesLinkagesResponse:
       type: object
       properties:
@@ -747,286 +1027,6 @@ components:
             required:
             - id
             - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    IntegerRange:
-      type: object
-      properties:
-        minimum:
-          type: integer
-        maximum:
-          type: integer
-    WinBackOfferPrice:
-      type: object
-      title: WinBackOfferPrice
-      properties:
-        type:
-          type: string
-          enum:
-          - winBackOfferPrices
-        id:
-          type: string
-        relationships:
-          type: object
-          properties:
-            territory:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - territories
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            subscriptionPricePoint:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - subscriptionPricePoints
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    WinBackOfferResponse:
-      type: object
-      title: WinBackOfferResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/WinBackOffer'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/WinBackOfferPrice'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    WinBackOffer:
-      type: object
-      title: WinBackOffer
-      properties:
-        type:
-          type: string
-          enum:
-          - winBackOffers
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-            offerId:
-              type: string
-            duration:
-              $ref: '#/components/schemas/SubscriptionOfferDuration'
-            offerMode:
-              $ref: '#/components/schemas/SubscriptionOfferMode'
-            periodCount:
-              type: integer
-            customerEligibilityPaidSubscriptionDurationInMonths:
-              type: integer
-            customerEligibilityTimeSinceLastSubscribedInMonths:
-              $ref: '#/components/schemas/IntegerRange'
-            customerEligibilityWaitBetweenOffersInMonths:
-              type: integer
-            startDate:
-              type: string
-              format: date
-            endDate:
-              type: string
-              format: date
-            priority:
-              type: string
-              enum:
-              - HIGH
-              - NORMAL
-            promotionIntent:
-              type: string
-              enum:
-              - NOT_PROMOTED
-              - USE_AUTO_GENERATED_ASSETS
-        relationships:
-          type: object
-          properties:
-            prices:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - winBackOfferPrices
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    SubscriptionOfferDuration:
-      type: string
-      enum:
-      - THREE_DAYS
-      - ONE_WEEK
-      - TWO_WEEKS
-      - ONE_MONTH
-      - TWO_MONTHS
-      - THREE_MONTHS
-      - SIX_MONTHS
-      - ONE_YEAR
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    WinBackOfferPricesResponse:
-      type: object
-      title: WinBackOfferPricesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/WinBackOfferPrice'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/SubscriptionPricePoint'
-            - $ref: '#/components/schemas/Territory'
-            discriminator:
-              propertyName: type
-              mapping:
-                territories: '#/components/schemas/Territory'
-                subscriptionPricePoints: '#/components/schemas/SubscriptionPricePoint'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:

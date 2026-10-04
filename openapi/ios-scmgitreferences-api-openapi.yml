@@ -114,11 +114,23 @@ paths:
       summary: Get Scm Git References
 components:
   schemas:
-    CiGitRefKind:
-      type: string
-      enum:
-      - BRANCH
-      - TAG
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ScmGitReference:
       type: object
       title: ScmGitReference
@@ -163,23 +175,6 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     ErrorResponse:
       type: object
       properties:
@@ -212,6 +207,68 @@ components:
             - detail
             - status
             - title
+    ScmGitReferenceResponse:
+      type: object
+      title: ScmGitReferenceResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/ScmGitReference'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmRepository'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    CiGitRefKind:
+      type: string
+      enum:
+      - BRANCH
+      - TAG
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     ScmRepository:
       type: object
       title: ScmRepository
@@ -286,63 +343,6 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ScmGitReferenceResponse:
-      type: object
-      title: ScmGitReferenceResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/ScmGitReference'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScmRepository'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

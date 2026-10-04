@@ -363,93 +363,23 @@ paths:
       summary: List Related Analytics Report Requests / Reports
 components:
   schemas:
-    AnalyticsReportRequestCreateRequest:
+    RelationshipLinks:
       type: object
-      title: AnalyticsReportRequestCreateRequest
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - analyticsReportRequests
-            attributes:
-              type: object
-              properties:
-                accessType:
-                  type: string
-                  enum:
-                  - ONE_TIME_SNAPSHOT
-                  - ONGOING
-              required:
-              - accessType
-            relationships:
-              type: object
-              properties:
-                app:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    AnalyticsReportRequestResponse:
-      type: object
-      title: AnalyticsReportRequestResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AnalyticsReportRequest'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnalyticsReport'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AnalyticsReportsResponse:
-      type: object
-      title: AnalyticsReportsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AnalyticsReport'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        self:
           type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
       required:
-      - pointer
+      - self
     AnalyticsReportRequestReportsLinkagesResponse:
       type: object
       properties:
@@ -474,113 +404,21 @@ components:
       required:
       - data
       - links
-    ErrorResponse:
+    AnalyticsReportsResponse:
       type: object
+      title: AnalyticsReportsResponse
       properties:
-        errors:
+        data:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AnalyticsReport:
-      type: object
-      title: AnalyticsReport
-      properties:
-        type:
-          type: string
-          enum:
-          - analyticsReports
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            category:
-              type: string
-              enum:
-              - APP_USAGE
-              - APP_STORE_ENGAGEMENT
-              - COMMERCE
-              - FRAMEWORK_USAGE
-              - PERFORMANCE
-        relationships:
-          type: object
-          properties:
-            instances:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
+            $ref: '#/components/schemas/AnalyticsReport'
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - id
-      - type
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+      - data
+      - links
     AnalyticsReportRequest:
       type: object
       title: AnalyticsReportRequest
@@ -630,6 +468,139 @@ components:
       required:
       - id
       - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AnalyticsReportRequestCreateRequest:
+      type: object
+      title: AnalyticsReportRequestCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - analyticsReportRequests
+            attributes:
+              type: object
+              properties:
+                accessType:
+                  type: string
+                  enum:
+                  - ONE_TIME_SNAPSHOT
+                  - ONGOING
+              required:
+              - accessType
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
     ErrorLinks:
       type: object
       properties:
@@ -650,28 +621,57 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
+    AnalyticsReportRequestResponse:
       type: object
+      title: AnalyticsReportRequestResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
+        data:
+          $ref: '#/components/schemas/AnalyticsReportRequest'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalyticsReport'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - parameter
-    DocumentLinks:
+      - data
+      - links
+    AnalyticsReport:
       type: object
+      title: AnalyticsReport
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
+          enum:
+          - analyticsReports
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            category:
+              type: string
+              enum:
+              - APP_USAGE
+              - APP_STORE_ENGAGEMENT
+              - COMMERCE
+              - FRAMEWORK_USAGE
+              - PERFORMANCE
+        relationships:
+          type: object
+          properties:
+            instances:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - self
+      - id
+      - type
   securitySchemes:
     itc-bearer-token:
       type: http

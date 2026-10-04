@@ -114,13 +114,23 @@ paths:
       summary: Get Background Asset Version Internal Beta Releases
 components:
   schemas:
-    BackgroundAssetVersionState:
-      type: string
-      enum:
-      - AWAITING_UPLOAD
-      - PROCESSING
-      - FAILED
-      - COMPLETE
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     BackgroundAssetVersionInternalBetaRelease:
       type: object
       title: BackgroundAssetVersionInternalBetaRelease
@@ -162,14 +172,6 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -202,15 +204,64 @@ components:
             - detail
             - status
             - title
-    RelationshipLinks:
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    StateDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
+    BackgroundAssetVersionState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
-          format: uri-reference
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    BackgroundAssetVersionInternalBetaReleaseResponse:
+      type: object
+      title: BackgroundAssetVersionInternalBetaReleaseResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackgroundAssetVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     BackgroundAssetVersion:
       type: object
       title: BackgroundAssetVersion
@@ -353,35 +404,6 @@ components:
       required:
       - id
       - type
-    StateDetail:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    BackgroundAssetVersionInternalBetaReleaseResponse:
-      type: object
-      title: BackgroundAssetVersionInternalBetaReleaseResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BackgroundAssetVersionInternalBetaRelease'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/BackgroundAssetVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
     ErrorLinks:
       type: object
       properties:
@@ -402,28 +424,6 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
   securitySchemes:
     itc-bearer-token:
       type: http

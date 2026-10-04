@@ -274,78 +274,13 @@ paths:
       summary: Update App Clip Advanced Experiences
 components:
   schemas:
-    ErrorSourcePointer:
+    AppMediaStateError:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        code:
           type: string
-      required:
-      - pointer
-    AppClip:
-      type: object
-      title: AppClip
-      properties:
-        type:
+        description:
           type: string
-          enum:
-          - appClips
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            bundleId:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDefaultExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appClipDefaultExperiences
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appClipAdvancedExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     UploadOperation:
       type: object
       properties:
@@ -361,22 +296,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
-    ResourceLinks:
+    AppClipAdvancedExperienceLocalization:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppClipAdvancedExperienceLocalizationInlineCreate:
-      type: object
+      title: AppClipAdvancedExperienceLocalization
       properties:
         type:
           type: string
@@ -390,15 +312,20 @@ components:
             language:
               $ref: '#/components/schemas/AppClipAdvancedExperienceLanguage'
             title:
-              type:
-              - string
-              - 'null'
+              type: string
             subtitle:
-              type:
-              - string
-              - 'null'
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
+      - id
       - type
+    AppClipAction:
+      type: string
+      enum:
+      - OPEN
+      - VIEW
+      - PLAY
     ImageAsset:
       type: object
       properties:
@@ -408,12 +335,50 @@ components:
           type: integer
         height:
           type: integer
-    AppClipAction:
-      type: string
-      enum:
-      - OPEN
-      - VIEW
-      - PLAY
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     AppClipAdvancedExperienceLanguage:
       type: string
       enum:
@@ -698,91 +663,375 @@ components:
             $ref: '#/components/schemas/AppClipAdvancedExperienceLocalizationInlineCreate'
       required:
       - data
-    AppClipAdvancedExperienceLocalization:
+    AppClipAdvancedExperienceResponse:
       type: object
-      title: AppClipAdvancedExperienceLocalization
+      title: AppClipAdvancedExperienceResponse
       properties:
-        type:
-          type: string
-          enum:
-          - appClipAdvancedExperienceLocalizations
-        id:
-          type: string
-        attributes:
+        data:
+          $ref: '#/components/schemas/AppClipAdvancedExperience'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppClipAdvancedExperienceImage'
+            - $ref: '#/components/schemas/AppClipAdvancedExperienceLocalization'
+            - $ref: '#/components/schemas/AppClip'
+            discriminator:
+              propertyName: type
+              mapping:
+                appClipAdvancedExperienceLocalizations: '#/components/schemas/AppClipAdvancedExperienceLocalization'
+                appClipAdvancedExperienceImages: '#/components/schemas/AppClipAdvancedExperienceImage'
+                appClips: '#/components/schemas/AppClip'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
           type: object
           properties:
-            language:
-              $ref: '#/components/schemas/AppClipAdvancedExperienceLanguage'
-            title:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
               type: string
-            subtitle:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+          required:
+          - limit
       required:
-      - id
-      - type
-    RelationshipLinks:
+      - paging
+    AppClipAdvancedExperienceUpdateRequest:
       type: object
+      title: AppClipAdvancedExperienceUpdateRequest
       properties:
-        self:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipAdvancedExperiences
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                action:
+                  $ref: '#/components/schemas/AppClipAction'
+                isPoweredBy:
+                  type:
+                  - boolean
+                  - 'null'
+                place:
+                  type:
+                  - object
+                  - 'null'
+                  properties:
+                    placeId:
+                      type: string
+                    names:
+                      type: array
+                      items:
+                        type: string
+                    mainAddress:
+                      type: object
+                      properties:
+                        fullAddress:
+                          type: string
+                        structuredAddress:
+                          type: object
+                          properties:
+                            streetAddress:
+                              type: array
+                              items:
+                                type: string
+                            floor:
+                              type: string
+                            neighborhood:
+                              type: string
+                            locality:
+                              type: string
+                            stateProvince:
+                              type: string
+                            postalCode:
+                              type: string
+                            countryCode:
+                              type: string
+                    displayPoint:
+                      type: object
+                      properties:
+                        coordinates:
+                          type: object
+                          properties:
+                            latitude:
+                              type: number
+                            longitude:
+                              type: number
+                        source:
+                          type: string
+                          enum:
+                          - CALCULATED
+                          - MANUALLY_PLACED
+                    mapAction:
+                      type: string
+                      enum:
+                      - BUY_TICKETS
+                      - VIEW_AVAILABILITY
+                      - VIEW_PRICING
+                      - HOTEL_BOOK_ROOM
+                      - PARKING_RESERVE_PARKING
+                      - RESTAURANT_JOIN_WAITLIST
+                      - RESTAURANT_ORDER_DELIVERY
+                      - RESTAURANT_ORDER_FOOD
+                      - RESTAURANT_ORDER_TAKEOUT
+                      - RESTAURANT_RESERVATION
+                      - SCHEDULE_APPOINTMENT
+                      - RESTAURANT_VIEW_MENU
+                      - THEATER_NOW_PLAYING
+                      - AIRLINE_BOOK_TRAVEL
+                      - AIRLINE_CHECK_IN
+                      - AIRLINE_FLIGHT_STATUS
+                      - APPLY
+                      - BOOK
+                      - BOOK_ACTIVITIES
+                      - BOOK_RIDES
+                      - BOOK_TEETIMES
+                      - BOOK_TOURS
+                      - CAREERS
+                      - CHARGE_EV
+                      - COUPONS
+                      - DONATE
+                      - EVENTS
+                      - EVENTS_SHOWS
+                      - EVENTS_SPORTS
+                      - GIFT_CARD
+                      - HOTEL_AMENITIES
+                      - JOIN
+                      - PARKING_AVAILABLE
+                      - RESTAURANT_PICKUP
+                      - RETAIL_SERVICE_QUOTE
+                      - RETAIL_STORE_DELIVERY
+                      - RETAIL_STORE_PICKUP
+                      - RETAIL_STORE_SHOP
+                      - SERVICES
+                      - SUPPORT
+                      - PAY_TO_PARK
+                    relationship:
+                      type: string
+                      enum:
+                      - OWNER
+                      - AUTHORIZED
+                      - OTHER
+                    phoneNumber:
+                      type: object
+                      properties:
+                        number:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                          - FAX
+                          - LANDLINE
+                          - MOBILE
+                          - TOLLFREE
+                        intent:
+                          type: string
+                    homePage:
+                      type: string
+                    categories:
+                      type: array
+                      items:
+                        type: string
+                businessCategory:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - AUTOMOTIVE
+                  - BEAUTY
+                  - BIKES
+                  - BOOKS
+                  - CASINO
+                  - EDUCATION
+                  - EDUCATION_JAPAN
+                  - ENTERTAINMENT
+                  - EV_CHARGER
+                  - FINANCIAL_USD
+                  - FINANCIAL_CNY
+                  - FINANCIAL_GBP
+                  - FINANCIAL_JPY
+                  - FINANCIAL_EUR
+                  - FITNESS
+                  - FOOD_AND_DRINK
+                  - GAS
+                  - GROCERY
+                  - HEALTH_AND_MEDICAL
+                  - HOTEL_AND_TRAVEL
+                  - MUSIC
+                  - PARKING
+                  - PET_SERVICES
+                  - PROFESSIONAL_SERVICES
+                  - SHOPPING
+                  - TICKETING
+                  - TRANSIT
+                defaultLanguage:
+                  $ref: '#/components/schemas/AppClipAdvancedExperienceLanguage'
+                removed:
+                  type:
+                  - boolean
+                  - 'null'
+            relationships:
+              type: object
+              properties:
+                appClip:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appClips
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                headerImage:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appClipAdvancedExperienceImages
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                localizations:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - appClipAdvancedExperienceLocalizations
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+          required:
+          - id
+          - type
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppClipAdvancedExperienceLocalizationInlineCreate'
+      required:
+      - data
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
           type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
+      required:
+      - pointer
+    AppMediaAssetState:
       type: object
       properties:
         errors:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    AppClip:
+      type: object
+      title: AppClip
+      properties:
+        type:
+          type: string
+          enum:
+          - appClips
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            bundleId:
+              type: string
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipDefaultExperiences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appClipDefaultExperiences
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appClipAdvancedExperiences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     AppClipAdvancedExperienceImage:
       type: object
       title: AppClipAdvancedExperienceImage
@@ -815,14 +1064,62 @@ components:
       required:
       - id
       - type
-    DocumentLinks:
+    ErrorResponse:
       type: object
       properties:
-        self:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppClipAdvancedExperienceLocalizationInlineCreate:
+      type: object
+      properties:
+        type:
           type: string
-          format: uri-reference
+          enum:
+          - appClipAdvancedExperienceLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            language:
+              $ref: '#/components/schemas/AppClipAdvancedExperienceLanguage'
+            title:
+              type:
+              - string
+              - 'null'
+            subtitle:
+              type:
+              - string
+              - 'null'
       required:
-      - self
+      - type
     AppClipAdvancedExperience:
       type: object
       title: AppClipAdvancedExperience
@@ -1064,317 +1361,20 @@ components:
       required:
       - id
       - type
-    HttpHeader:
+    ResourceLinks:
       type: object
       properties:
-        name:
+        self:
           type: string
-        value:
-          type: string
-    AppMediaAssetState:
+          format: uri-reference
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
+        parameter:
           type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
       required:
-      - paging
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    AppClipAdvancedExperienceUpdateRequest:
-      type: object
-      title: AppClipAdvancedExperienceUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipAdvancedExperiences
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                action:
-                  $ref: '#/components/schemas/AppClipAction'
-                isPoweredBy:
-                  type:
-                  - boolean
-                  - 'null'
-                place:
-                  type:
-                  - object
-                  - 'null'
-                  properties:
-                    placeId:
-                      type: string
-                    names:
-                      type: array
-                      items:
-                        type: string
-                    mainAddress:
-                      type: object
-                      properties:
-                        fullAddress:
-                          type: string
-                        structuredAddress:
-                          type: object
-                          properties:
-                            streetAddress:
-                              type: array
-                              items:
-                                type: string
-                            floor:
-                              type: string
-                            neighborhood:
-                              type: string
-                            locality:
-                              type: string
-                            stateProvince:
-                              type: string
-                            postalCode:
-                              type: string
-                            countryCode:
-                              type: string
-                    displayPoint:
-                      type: object
-                      properties:
-                        coordinates:
-                          type: object
-                          properties:
-                            latitude:
-                              type: number
-                            longitude:
-                              type: number
-                        source:
-                          type: string
-                          enum:
-                          - CALCULATED
-                          - MANUALLY_PLACED
-                    mapAction:
-                      type: string
-                      enum:
-                      - BUY_TICKETS
-                      - VIEW_AVAILABILITY
-                      - VIEW_PRICING
-                      - HOTEL_BOOK_ROOM
-                      - PARKING_RESERVE_PARKING
-                      - RESTAURANT_JOIN_WAITLIST
-                      - RESTAURANT_ORDER_DELIVERY
-                      - RESTAURANT_ORDER_FOOD
-                      - RESTAURANT_ORDER_TAKEOUT
-                      - RESTAURANT_RESERVATION
-                      - SCHEDULE_APPOINTMENT
-                      - RESTAURANT_VIEW_MENU
-                      - THEATER_NOW_PLAYING
-                      - AIRLINE_BOOK_TRAVEL
-                      - AIRLINE_CHECK_IN
-                      - AIRLINE_FLIGHT_STATUS
-                      - APPLY
-                      - BOOK
-                      - BOOK_ACTIVITIES
-                      - BOOK_RIDES
-                      - BOOK_TEETIMES
-                      - BOOK_TOURS
-                      - CAREERS
-                      - CHARGE_EV
-                      - COUPONS
-                      - DONATE
-                      - EVENTS
-                      - EVENTS_SHOWS
-                      - EVENTS_SPORTS
-                      - GIFT_CARD
-                      - HOTEL_AMENITIES
-                      - JOIN
-                      - PARKING_AVAILABLE
-                      - RESTAURANT_PICKUP
-                      - RETAIL_SERVICE_QUOTE
-                      - RETAIL_STORE_DELIVERY
-                      - RETAIL_STORE_PICKUP
-                      - RETAIL_STORE_SHOP
-                      - SERVICES
-                      - SUPPORT
-                      - PAY_TO_PARK
-                    relationship:
-                      type: string
-                      enum:
-                      - OWNER
-                      - AUTHORIZED
-                      - OTHER
-                    phoneNumber:
-                      type: object
-                      properties:
-                        number:
-                          type: string
-                        type:
-                          type: string
-                          enum:
-                          - FAX
-                          - LANDLINE
-                          - MOBILE
-                          - TOLLFREE
-                        intent:
-                          type: string
-                    homePage:
-                      type: string
-                    categories:
-                      type: array
-                      items:
-                        type: string
-                businessCategory:
-                  type:
-                  - string
-                  - 'null'
-                  enum:
-                  - AUTOMOTIVE
-                  - BEAUTY
-                  - BIKES
-                  - BOOKS
-                  - CASINO
-                  - EDUCATION
-                  - EDUCATION_JAPAN
-                  - ENTERTAINMENT
-                  - EV_CHARGER
-                  - FINANCIAL_USD
-                  - FINANCIAL_CNY
-                  - FINANCIAL_GBP
-                  - FINANCIAL_JPY
-                  - FINANCIAL_EUR
-                  - FITNESS
-                  - FOOD_AND_DRINK
-                  - GAS
-                  - GROCERY
-                  - HEALTH_AND_MEDICAL
-                  - HOTEL_AND_TRAVEL
-                  - MUSIC
-                  - PARKING
-                  - PET_SERVICES
-                  - PROFESSIONAL_SERVICES
-                  - SHOPPING
-                  - TICKETING
-                  - TRANSIT
-                defaultLanguage:
-                  $ref: '#/components/schemas/AppClipAdvancedExperienceLanguage'
-                removed:
-                  type:
-                  - boolean
-                  - 'null'
-            relationships:
-              type: object
-              properties:
-                appClip:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appClips
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                headerImage:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appClipAdvancedExperienceImages
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                localizations:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - appClipAdvancedExperienceLocalizations
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-          required:
-          - id
-          - type
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppClipAdvancedExperienceLocalizationInlineCreate'
-      required:
-      - data
-    AppClipAdvancedExperienceResponse:
-      type: object
-      title: AppClipAdvancedExperienceResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppClipAdvancedExperience'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppClipAdvancedExperienceImage'
-            - $ref: '#/components/schemas/AppClipAdvancedExperienceLocalization'
-            - $ref: '#/components/schemas/AppClip'
-            discriminator:
-              propertyName: type
-              mapping:
-                appClipAdvancedExperienceLocalizations: '#/components/schemas/AppClipAdvancedExperienceLocalization'
-                appClipAdvancedExperienceImages: '#/components/schemas/AppClipAdvancedExperienceImage'
-                appClips: '#/components/schemas/AppClip'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

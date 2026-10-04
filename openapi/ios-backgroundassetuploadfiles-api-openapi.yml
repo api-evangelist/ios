@@ -202,32 +202,55 @@ paths:
       summary: Update Background Asset Upload Files
 components:
   schemas:
-    Checksums:
+    AppMediaAssetState:
       type: object
       properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    HttpHeader:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    DocumentLinks:
       type: object
       properties:
-        name:
+        self:
           type: string
-        value:
+          format: uri-reference
+      required:
+      - self
+    BackgroundAssetUploadFileResponse:
+      type: object
+      title: BackgroundAssetUploadFileResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BackgroundAssetUploadFile'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
           type: string
+        description:
+          type: string
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
     BackgroundAssetUploadFileUpdateRequest:
       type: object
       title: BackgroundAssetUploadFileUpdateRequest
@@ -260,32 +283,6 @@ components:
           - type
       required:
       - data
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
     ErrorResponse:
       type: object
       properties:
@@ -318,6 +315,31 @@ components:
             - detail
             - status
             - title
+    Checksums:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     DeliveryFileUploadOperation:
       type: object
       properties:
@@ -349,13 +371,65 @@ components:
           minimum: 1
         entityTag:
           type: string
-    AppMediaStateError:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        code:
+        pointer:
           type: string
-        description:
+      required:
+      - pointer
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
+      required:
+      - parameter
+    BackgroundAssetUploadFile:
+      type: object
+      title: BackgroundAssetUploadFile
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetUploadFiles
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+            assetToken:
+              type: string
+            assetType:
+              type: string
+              enum:
+              - ASSET
+              - MANIFEST
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+              format: int64
+              maximum: 9007199254740991
+              minimum: 1
+            sourceFileChecksum:
+              type: string
+              deprecated: true
+            sourceFileChecksums:
+              $ref: '#/components/schemas/Checksums'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeliveryFileUploadOperation'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     BackgroundAssetUploadFileCreateRequest:
       type: object
       title: BackgroundAssetUploadFileCreateRequest
@@ -414,65 +488,6 @@ components:
           - type
       required:
       - data
-    BackgroundAssetUploadFileResponse:
-      type: object
-      title: BackgroundAssetUploadFileResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BackgroundAssetUploadFile'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    BackgroundAssetUploadFile:
-      type: object
-      title: BackgroundAssetUploadFile
-      properties:
-        type:
-          type: string
-          enum:
-          - backgroundAssetUploadFiles
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-            assetToken:
-              type: string
-            assetType:
-              type: string
-              enum:
-              - ASSET
-              - MANIFEST
-            fileName:
-              type: string
-            fileSize:
-              type: integer
-              format: int64
-              maximum: 9007199254740991
-              minimum: 1
-            sourceFileChecksum:
-              type: string
-              deprecated: true
-            sourceFileChecksums:
-              $ref: '#/components/schemas/Checksums'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/DeliveryFileUploadOperation'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
     ErrorLinks:
       type: object
       properties:
@@ -493,28 +508,13 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
+    HttpHeader:
       type: object
       properties:
-        self:
+        name:
           type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
+        value:
           type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

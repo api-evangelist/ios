@@ -244,68 +244,103 @@ paths:
       summary: Delete Game Center Leaderboard Set Releases
 components:
   schemas:
-    GameCenterLeaderboardSetRelease:
+    RelationshipLinks:
       type: object
-      title: GameCenterLeaderboardSetRelease
       properties:
-        type:
+        self:
           type: string
-          enum:
-          - gameCenterLeaderboardSetReleases
-        id:
+          format: uri-reference
+        related:
           type: string
-        attributes:
-          type: object
-          properties:
-            live:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            gameCenterDetail:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            gameCenterLeaderboardSet:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterLeaderboardSets
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
       required:
-      - id
-      - type
+      - self
+    GameCenterLeaderboardSetReleaseCreateRequest:
+      type: object
+      title: GameCenterLeaderboardSetReleaseCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterLeaderboardSetReleases
+            relationships:
+              type: object
+              properties:
+                gameCenterDetail:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - gameCenterDetails
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+                gameCenterLeaderboardSet:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - gameCenterLeaderboardSets
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - gameCenterDetail
+              - gameCenterLeaderboardSet
+          required:
+          - relationships
+          - type
+      required:
+      - data
       deprecated: true
-    ErrorSourcePointer:
+    GameCenterLeaderboardSetReleaseResponse:
       type: object
-      title: JsonPointer
+      title: GameCenterLeaderboardSetReleaseResponse
       properties:
-        pointer:
-          type: string
+        data:
+          $ref: '#/components/schemas/GameCenterLeaderboardSetRelease'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterDetail'
+            - $ref: '#/components/schemas/GameCenterLeaderboardSet'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterDetails: '#/components/schemas/GameCenterDetail'
+                gameCenterLeaderboardSets: '#/components/schemas/GameCenterLeaderboardSet'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - pointer
+      - data
+      - links
+      deprecated: true
     ErrorResponse:
       type: object
       properties:
@@ -338,80 +373,6 @@ components:
             - detail
             - status
             - title
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    GameCenterLeaderboardSetReleaseResponse:
-      type: object
-      title: GameCenterLeaderboardSetReleaseResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterLeaderboardSetRelease'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterDetail'
-            - $ref: '#/components/schemas/GameCenterLeaderboardSet'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterDetails: '#/components/schemas/GameCenterDetail'
-                gameCenterLeaderboardSets: '#/components/schemas/GameCenterLeaderboardSet'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
     GameCenterDetail:
       type: object
       title: GameCenterDetail
@@ -855,79 +816,6 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    GameCenterLeaderboardSetReleaseCreateRequest:
-      type: object
-      title: GameCenterLeaderboardSetReleaseCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterLeaderboardSetReleases
-            relationships:
-              type: object
-              properties:
-                gameCenterDetail:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - gameCenterDetails
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-                gameCenterLeaderboardSet:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - gameCenterLeaderboardSets
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - gameCenterDetail
-              - gameCenterLeaderboardSet
-          required:
-          - relationships
-          - type
-      required:
-      - data
-      deprecated: true
     GameCenterLeaderboardSet:
       type: object
       title: GameCenterLeaderboardSet
@@ -1065,6 +953,118 @@ components:
       - id
       - type
       deprecated: true
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    GameCenterLeaderboardSetRelease:
+      type: object
+      title: GameCenterLeaderboardSetRelease
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterLeaderboardSetReleases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            live:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            gameCenterDetail:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            gameCenterLeaderboardSet:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterLeaderboardSets
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+      deprecated: true
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
   securitySchemes:
     itc-bearer-token:
       type: http

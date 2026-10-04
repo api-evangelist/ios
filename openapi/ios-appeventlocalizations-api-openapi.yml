@@ -663,21 +663,42 @@ paths:
       summary: List Related App Event Localizations / App Event Video Clips
 components:
   schemas:
-    ErrorSourcePointer:
+    AppMediaStateError:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        code:
           type: string
-      required:
-      - pointer
-    PreviewFrameImage:
+        description:
+          type: string
+    UploadOperation:
       type: object
       properties:
-        image:
-          $ref: '#/components/schemas/ImageAsset'
-        state:
-          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
     AppEventLocalizationResponse:
       type: object
       title: AppEventLocalizationResponse
@@ -699,6 +720,83 @@ components:
                 appEventScreenshots: '#/components/schemas/AppEventScreenshot'
         links:
           $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppEventLocalizationAppEventScreenshotsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appEventScreenshots
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links
@@ -726,32 +824,56 @@ components:
       required:
       - data
       - links
-    UploadOperation:
+    AppEventLocalizationUpdateRequest:
+      type: object
+      title: AppEventLocalizationUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appEventLocalizations
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                name:
+                  type:
+                  - string
+                  - 'null'
+                shortDescription:
+                  type:
+                  - string
+                  - 'null'
+                longDescription:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    AppMediaPreviewFrameImageState:
       type: object
       properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
+        errors:
           type: array
           items:
-            $ref: '#/components/schemas/HttpHeader'
-    AppEventAssetType:
-      type: string
-      enum:
-      - EVENT_CARD
-      - EVENT_DETAILS_PAGE
-    ResourceLinks:
-      type: object
-      properties:
-        self:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
-          format: uri-reference
+          enum:
+          - PROCESSING
+          - COMPLETE
+          - FAILED
     AppEvent:
       type: object
       title: AppEvent
@@ -874,64 +996,6 @@ components:
       required:
       - id
       - type
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    AppEventLocalizationAppEventScreenshotsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appEventScreenshots
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppMediaPreviewFrameImageState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - PROCESSING
-          - COMPLETE
-          - FAILED
     AppEventScreenshot:
       type: object
       title: AppEventScreenshot
@@ -984,6 +1048,49 @@ components:
       required:
       - id
       - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AppMediaVideoState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - PROCESSING
+          - COMPLETE
+          - FAILED
     AppEventVideoClipsResponse:
       type: object
       title: AppEventVideoClipsResponse
@@ -1003,94 +1110,36 @@ components:
       required:
       - data
       - links
-    AppEventVideoClip:
+    PreviewFrameImage:
       type: object
-      title: AppEventVideoClip
       properties:
-        type:
+        image:
+          $ref: '#/components/schemas/ImageAsset'
+        state:
+          $ref: '#/components/schemas/AppMediaPreviewFrameImageState'
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
           type: string
           enum:
-          - appEventVideoClips
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            previewFrameTimeCode:
-              type: string
-            videoUrl:
-              type: string
-            previewFrameImage:
-              $ref: '#/components/schemas/PreviewFrameImage'
-            previewImage:
-              deprecated: true
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              deprecated: true
-              $ref: '#/components/schemas/AppMediaAssetState'
-            videoDeliveryState:
-              $ref: '#/components/schemas/AppMediaVideoState'
-            appEventAssetType:
-              $ref: '#/components/schemas/AppEventAssetType'
-        relationships:
-          type: object
-          properties:
-            appEventLocalization:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appEventLocalizations
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppEventScreenshotsResponse:
-      type: object
-      title: AppEventScreenshotsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppEventScreenshot'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppEventLocalization'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    AppEventAssetType:
+      type: string
+      enum:
+      - EVENT_CARD
+      - EVENT_DETAILS_PAGE
     ErrorResponse:
       type: object
       properties:
@@ -1123,34 +1172,12 @@ components:
             - detail
             - status
             - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-      required:
-      - self
     AppEventLocalization:
       type: object
       title: AppEventLocalization
@@ -1237,68 +1264,14 @@ components:
       required:
       - id
       - type
-    HttpHeader:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        name:
+        parameter:
           type: string
-        value:
-          type: string
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
       required:
-      - paging
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
+      - parameter
     AppEventLocalizationCreateRequest:
       type: object
       title: AppEventLocalizationCreateRequest
@@ -1357,58 +1330,85 @@ components:
           - type
       required:
       - data
-    AppEventLocalizationUpdateRequest:
+    AppEventVideoClip:
       type: object
-      title: AppEventLocalizationUpdateRequest
+      title: AppEventVideoClip
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appEventLocalizations
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                name:
-                  type:
-                  - string
-                  - 'null'
-                shortDescription:
-                  type:
-                  - string
-                  - 'null'
-                longDescription:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    AppMediaVideoState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
+        type:
           type: string
           enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - PROCESSING
-          - COMPLETE
-          - FAILED
+          - appEventVideoClips
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            previewFrameTimeCode:
+              type: string
+            videoUrl:
+              type: string
+            previewFrameImage:
+              $ref: '#/components/schemas/PreviewFrameImage'
+            previewImage:
+              deprecated: true
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              deprecated: true
+              $ref: '#/components/schemas/AppMediaAssetState'
+            videoDeliveryState:
+              $ref: '#/components/schemas/AppMediaVideoState'
+            appEventAssetType:
+              $ref: '#/components/schemas/AppEventAssetType'
+        relationships:
+          type: object
+          properties:
+            appEventLocalization:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appEventLocalizations
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppEventScreenshotsResponse:
+      type: object
+      title: AppEventScreenshotsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppEventScreenshot'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppEventLocalization'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
   securitySchemes:
     itc-bearer-token:
       type: http

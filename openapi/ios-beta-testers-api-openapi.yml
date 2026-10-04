@@ -1547,27 +1547,306 @@ paths:
       summary: Get Metrics Beta Testers / Beta Tester Usages
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    SubscriptionStatusUrlVersion:
+    BuildAudienceType:
       type: string
       enum:
-      - V1
-      - V2
-    BetaGroupsWithoutIncludesResponse:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    BetaTester:
       type: object
-      title: BetaGroupsWithoutIncludesResponse
+      title: BetaTester
+      properties:
+        type:
+          type: string
+          enum:
+          - betaTesters
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+              format: email
+            inviteType:
+              $ref: '#/components/schemas/BetaInviteType'
+            state:
+              $ref: '#/components/schemas/BetaTesterState'
+            appDevices:
+              type: array
+              items:
+                type: object
+                properties:
+                  model:
+                    type: string
+                  platform:
+                    type: string
+                    enum:
+                    - IOS
+                    - MAC_OS
+                    - TV_OS
+                    - WATCH_OS
+                    - VISION_OS
+                  osVersion:
+                    type: string
+                  appBuildVersion:
+                    type: string
+        relationships:
+          type: object
+          properties:
+            apps:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - apps
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaGroups:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - betaGroups
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BetaGroup:
+      type: object
+      title: BetaGroup
+      properties:
+        type:
+          type: string
+          enum:
+          - betaGroups
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            isInternalGroup:
+              type: boolean
+            hasAccessToAllBuilds:
+              type: boolean
+            publicLinkEnabled:
+              type: boolean
+            publicLinkId:
+              type: string
+            publicLinkLimitEnabled:
+              type: boolean
+            publicLinkLimit:
+              type: integer
+            publicLink:
+              type: string
+            feedbackEnabled:
+              type: boolean
+            iosBuildsAvailableForAppleSiliconMac:
+              type: boolean
+            iosBuildsAvailableForAppleVision:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaTesters:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - betaTesters
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaRecruitmentCriteria:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - betaRecruitmentCriteria
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            betaRecruitmentCriterionCompatibleBuildCheck:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BetaTesterBuildsLinkagesRequest:
+      type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/BetaGroup'
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - builds
+              id:
+                type: string
+            required:
+            - id
+            - type
+      required:
+      - data
+    BetaTestersResponse:
+      type: object
+      title: BetaTestersResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetaTester'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/BetaGroup'
+            - $ref: '#/components/schemas/Build'
+            discriminator:
+              propertyName: type
+              mapping:
+                betaGroups: '#/components/schemas/BetaGroup'
+                builds: '#/components/schemas/Build'
+                apps: '#/components/schemas/App'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1575,20 +1854,101 @@ components:
       required:
       - data
       - links
-    ResourceLinks:
+    BetaTesterUsagesV1MetricResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              dataPoints:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    start:
+                      type: string
+                      format: date-time
+                    end:
+                      type: string
+                      format: date-time
+                    values:
+                      type: object
+                      properties:
+                        crashCount:
+                          type: integer
+                        sessionCount:
+                          type: integer
+                        feedbackCount:
+                          type: integer
+              dimensions:
+                type: object
+                properties:
+                  apps:
+                    type: object
+                    properties:
+                      links:
+                        type: object
+                        properties:
+                          groupBy:
+                            type: string
+                            format: uri-reference
+                          related:
+                            type: string
+                            format: uri-reference
+                      data:
+                        type: string
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
-      - parameter
+      - data
+      - links
+    BetaTesterBetaGroupsLinkagesRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - betaGroups
+              id:
+                type: string
+            required:
+            - id
+            - type
+      required:
+      - data
+    BetaTesterBetaGroupsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - betaGroups
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     ImageAsset:
       type: object
       properties:
@@ -1598,19 +1958,14 @@ components:
           type: integer
         height:
           type: integer
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    AppsWithoutIncludesResponse:
+    BuildsWithoutIncludesResponse:
       type: object
-      title: AppsWithoutIncludesResponse
+      title: BuildsWithoutIncludesResponse
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/App'
+            $ref: '#/components/schemas/Build'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1618,83 +1973,6 @@ components:
       required:
       - data
       - links
-    BetaTesterCreateRequest:
-      type: object
-      title: BetaTesterCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - betaTesters
-            attributes:
-              type: object
-              properties:
-                firstName:
-                  type:
-                  - string
-                  - 'null'
-                lastName:
-                  type:
-                  - string
-                  - 'null'
-                email:
-                  type: string
-                  format: email
-              required:
-              - email
-            relationships:
-              type: object
-              properties:
-                betaGroups:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - betaGroups
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-                builds:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - builds
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-          required:
-          - attributes
-          - type
-      required:
-      - data
-    BetaTesterState:
-      type: string
-      enum:
-      - NOT_INVITED
-      - INVITED
-      - ACCEPTED
-      - INSTALLED
-      - REVOKED
     Build:
       type: object
       title: Build
@@ -1977,7 +2255,49 @@ components:
       required:
       - id
       - type
-    BetaTesterBetaGroupsLinkagesRequest:
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BetaTesterBuildsLinkagesResponse:
       type: object
       properties:
         data:
@@ -1988,14 +2308,127 @@ components:
               type:
                 type: string
                 enum:
-                - betaGroups
+                - builds
               id:
                 type: string
             required:
             - id
             - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
+      - links
+    BetaTesterAppsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - apps
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    BetaTesterCreateRequest:
+      type: object
+      title: BetaTesterCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - betaTesters
+            attributes:
+              type: object
+              properties:
+                firstName:
+                  type:
+                  - string
+                  - 'null'
+                lastName:
+                  type:
+                  - string
+                  - 'null'
+                email:
+                  type: string
+                  format: email
+              required:
+              - email
+            relationships:
+              type: object
+              properties:
+                betaGroups:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - betaGroups
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+                builds:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - builds
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+          required:
+          - attributes
+          - type
+      required:
+      - data
+    BetaGroupsWithoutIncludesResponse:
+      type: object
+      title: BetaGroupsWithoutIncludesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetaGroup'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     App:
       type: object
       title: App
@@ -2633,148 +3066,14 @@ components:
       required:
       - id
       - type
-    BuildsWithoutIncludesResponse:
-      type: object
-      title: BuildsWithoutIncludesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BetaGroup:
-      type: object
-      title: BetaGroup
-      properties:
-        type:
-          type: string
-          enum:
-          - betaGroups
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            isInternalGroup:
-              type: boolean
-            hasAccessToAllBuilds:
-              type: boolean
-            publicLinkEnabled:
-              type: boolean
-            publicLinkId:
-              type: string
-            publicLinkLimitEnabled:
-              type: boolean
-            publicLinkLimit:
-              type: integer
-            publicLink:
-              type: string
-            feedbackEnabled:
-              type: boolean
-            iosBuildsAvailableForAppleSiliconMac:
-              type: boolean
-            iosBuildsAvailableForAppleVision:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaTesters:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - betaTesters
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaRecruitmentCriteria:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - betaRecruitmentCriteria
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            betaRecruitmentCriterionCompatibleBuildCheck:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
+    BetaTesterState:
+      type: string
+      enum:
+      - NOT_INVITED
+      - INVITED
+      - ACCEPTED
+      - INSTALLED
+      - REVOKED
     BetaTesterAppsLinkagesRequest:
       type: object
       properties:
@@ -2794,233 +3093,45 @@ components:
             - type
       required:
       - data
-    BetaTesterUsagesV1MetricResponse:
+    PagingInformation:
       type: object
       properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              dataPoints:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    start:
-                      type: string
-                      format: date-time
-                    end:
-                      type: string
-                      format: date-time
-                    values:
-                      type: object
-                      properties:
-                        crashCount:
-                          type: integer
-                        sessionCount:
-                          type: integer
-                        feedbackCount:
-                          type: integer
-              dimensions:
-                type: object
-                properties:
-                  apps:
-                    type: object
-                    properties:
-                      links:
-                        type: object
-                        properties:
-                          groupBy:
-                            type: string
-                            format: uri-reference
-                          related:
-                            type: string
-                            format: uri-reference
-                      data:
-                        type: string
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BetaTestersResponse:
-      type: object
-      title: BetaTestersResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BetaTester'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/BetaGroup'
-            - $ref: '#/components/schemas/Build'
-            discriminator:
-              propertyName: type
-              mapping:
-                betaGroups: '#/components/schemas/BetaGroup'
-                builds: '#/components/schemas/Build'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BetaTesterBetaGroupsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - betaGroups
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    BetaTester:
-      type: object
-      title: BetaTester
-      properties:
-        type:
-          type: string
-          enum:
-          - betaTesters
-        id:
-          type: string
-        attributes:
+        paging:
           type: object
           properties:
-            firstName:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
               type: string
-            lastName:
-              type: string
-            email:
-              type: string
-              format: email
-            inviteType:
-              $ref: '#/components/schemas/BetaInviteType'
-            state:
-              $ref: '#/components/schemas/BetaTesterState'
-            appDevices:
-              type: array
-              items:
-                type: object
-                properties:
-                  model:
-                    type: string
-                  platform:
-                    type: string
-                    enum:
-                    - IOS
-                    - MAC_OS
-                    - TV_OS
-                    - WATCH_OS
-                    - VISION_OS
-                  osVersion:
-                    type: string
-                  appBuildVersion:
-                    type: string
-        relationships:
-          type: object
-          properties:
-            apps:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - apps
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaGroups:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - betaGroups
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+          required:
+          - limit
       required:
-      - id
-      - type
+      - paging
+    AppsWithoutIncludesResponse:
+      type: object
+      title: AppsWithoutIncludesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     ErrorResponse:
       type: object
       properties:
@@ -3053,34 +3164,11 @@ components:
             - detail
             - status
             - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+    BetaInviteType:
+      type: string
+      enum:
+      - EMAIL
+      - PUBLIC_LINK
     BetaTesterResponse:
       type: object
       title: BetaTesterResponse
@@ -3105,108 +3193,20 @@ components:
       required:
       - data
       - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
-      - self
-    BetaTesterBuildsLinkagesRequest:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - builds
-              id:
-                type: string
-            required:
-            - id
-            - type
-      required:
-      - data
-    BetaTesterAppsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - apps
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BetaInviteType:
-      type: string
-      enum:
-      - EMAIL
-      - PUBLIC_LINK
-    BetaTesterBuildsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - builds
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

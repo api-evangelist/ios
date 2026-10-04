@@ -538,15 +538,21 @@ paths:
       summary: List Related Build Bundles / Build Bundle File Sizes
 components:
   schemas:
-    ErrorSourcePointer:
+    PagedDocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - pointer
-    BuildBundleAppClipDomainCacheStatusLinkageResponse:
+      - self
+    BuildBundleAppClipDomainDebugStatusLinkageResponse:
       type: object
       properties:
         data:
@@ -566,20 +572,105 @@ components:
       required:
       - data
       - links
-    ResourceLinks:
+    BuildBundleFileSize:
+      type: object
+      title: BuildBundleFileSize
+      properties:
+        type:
+          type: string
+          enum:
+          - buildBundleFileSizes
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            deviceModel:
+              type: string
+            osVersion:
+              type: string
+            downloadBytes:
+              type: integer
+            installBytes:
+              type: integer
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BuildBundleFileSizesResponse:
+      type: object
+      title: BuildBundleFileSizesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildBundleFileSize'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
       required:
-      - parameter
+      - self
+    BetaAppClipInvocationsResponse:
+      type: object
+      title: BetaAppClipInvocationsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetaAppClipInvocation'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetaAppClipInvocationLocalization'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppClipDomainStatusResponse:
+      type: object
+      title: AppClipDomainStatusResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppClipDomainStatus'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     BetaAppClipInvocation:
       type: object
       title: BetaAppClipInvocation
@@ -623,257 +714,6 @@ components:
       required:
       - id
       - type
-    BuildBundleBetaAppClipInvocationsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - betaAppClipInvocations
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BuildBundleBuildBundleFileSizesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - buildBundleFileSizes
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BuildBundleFileSizesResponse:
-      type: object
-      title: BuildBundleFileSizesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BuildBundleFileSize'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    BuildBundleAppClipDomainDebugStatusLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipDomainStatuses
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppClipDomainStatusResponse:
-      type: object
-      title: AppClipDomainStatusResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppClipDomainStatus'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    BetaAppClipInvocationsResponse:
-      type: object
-      title: BetaAppClipInvocationsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BetaAppClipInvocation'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/BetaAppClipInvocationLocalization'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    BetaAppClipInvocationLocalization:
-      type: object
-      title: BetaAppClipInvocationLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - betaAppClipInvocationLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            title:
-              type: string
-            locale:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BuildBundleFileSize:
-      type: object
-      title: BuildBundleFileSize
-      properties:
-        type:
-          type: string
-          enum:
-          - buildBundleFileSizes
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            deviceModel:
-              type: string
-            osVersion:
-              type: string
-            downloadBytes:
-              type: integer
-            installBytes:
-              type: integer
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
     AppClipDomainStatus:
       type: object
       title: AppClipDomainStatus
@@ -928,6 +768,166 @@ components:
       required:
       - id
       - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    BetaAppClipInvocationLocalization:
+      type: object
+      title: BetaAppClipInvocationLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - betaAppClipInvocationLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            title:
+              type: string
+            locale:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BuildBundleBetaAppClipInvocationsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - betaAppClipInvocations
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    BuildBundleBuildBundleFileSizesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - buildBundleFileSizes
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    BuildBundleAppClipDomainCacheStatusLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipDomainStatuses
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

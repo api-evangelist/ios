@@ -282,59 +282,70 @@ paths:
       summary: Delete Subscription Images
 components:
   schemas:
-    ImageAsset:
+    RelationshipLinks:
       type: object
       properties:
-        templateUrl:
+        self:
           type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    SubscriptionImageResponse:
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
       type: object
-      title: SubscriptionImageResponse
       properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionImage'
-        included:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
           type: array
           items:
-            $ref: '#/components/schemas/Subscription'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    SubscriptionImageUpdateRequest:
+            $ref: '#/components/schemas/HttpHeader'
+    ErrorResponse:
       type: object
-      title: SubscriptionImageUpdateRequest
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionImages
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     SubscriptionImageCreateRequest:
       type: object
       title: SubscriptionImageCreateRequest
@@ -444,78 +455,21 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
+    SubscriptionImageResponse:
       type: object
-      title: JsonPointer
+      title: SubscriptionImageResponse
       properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
+        data:
+          $ref: '#/components/schemas/SubscriptionImage'
+        included:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+            $ref: '#/components/schemas/Subscription'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - paging
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
+      - data
+      - links
     ErrorLinks:
       type: object
       properties:
@@ -536,27 +490,28 @@ components:
                 properties:
                   source:
                     type: string
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-        offset:
-          type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
     ErrorSourceParameter:
       type: object
       title: Parameter
@@ -565,14 +520,30 @@ components:
           type: string
       required:
       - parameter
-    DocumentLinks:
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ImageAsset:
       type: object
       properties:
-        self:
+        templateUrl:
           type: string
-          format: uri-reference
-      required:
-      - self
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     Subscription:
       type: object
       title: Subscription
@@ -844,6 +815,35 @@ components:
       required:
       - id
       - type
+    SubscriptionImageUpdateRequest:
+      type: object
+      title: SubscriptionImageUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionImages
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -646,47 +646,28 @@ paths:
       summary: Get Related Beta App Localizations / App
 components:
   schemas:
-    BetaAppLocalizationUpdateRequest:
+    RelationshipLinks:
       type: object
-      title: BetaAppLocalizationUpdateRequest
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - betaAppLocalizations
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                feedbackEmail:
-                  type:
-                  - string
-                  - 'null'
-                marketingUrl:
-                  type:
-                  - string
-                  - 'null'
-                privacyPolicyUrl:
-                  type:
-                  - string
-                  - 'null'
-                tvOsPrivacyPolicy:
-                  type:
-                  - string
-                  - 'null'
-                description:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
       required:
-      - data
+      - self
     BetaAppLocalization:
       type: object
       title: BetaAppLocalization
@@ -737,73 +718,37 @@ components:
       required:
       - id
       - type
-    ErrorSourcePointer:
+    AppWithoutIncludesResponse:
       type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    BetaAppLocalizationResponse:
-      type: object
-      title: BetaAppLocalizationResponse
+      title: AppWithoutIncludesResponse
       properties:
         data:
-          $ref: '#/components/schemas/BetaAppLocalization'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/App'
+          $ref: '#/components/schemas/App'
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-    RelationshipLinks:
+    BetaAppLocalizationAppLinkageResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
+        data:
           type: object
           properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
+            type:
+              type: string
+              enum:
+              - apps
+            id:
               type: string
           required:
-          - limit
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
+      - data
+      - links
     ErrorResponse:
       type: object
       properties:
@@ -836,6 +781,184 @@ components:
             - detail
             - status
             - title
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    BetaAppLocalizationCreateRequest:
+      type: object
+      title: BetaAppLocalizationCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - betaAppLocalizations
+            attributes:
+              type: object
+              properties:
+                feedbackEmail:
+                  type:
+                  - string
+                  - 'null'
+                marketingUrl:
+                  type:
+                  - string
+                  - 'null'
+                privacyPolicyUrl:
+                  type:
+                  - string
+                  - 'null'
+                tvOsPrivacyPolicy:
+                  type:
+                  - string
+                  - 'null'
+                description:
+                  type:
+                  - string
+                  - 'null'
+                locale:
+                  type: string
+              required:
+              - locale
+            relationships:
+              type: object
+              properties:
+                app:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - apps
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - app
+          required:
+          - relationships
+          - attributes
+          - type
+      required:
+      - data
+    BetaAppLocalizationUpdateRequest:
+      type: object
+      title: BetaAppLocalizationUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - betaAppLocalizations
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                feedbackEmail:
+                  type:
+                  - string
+                  - 'null'
+                marketingUrl:
+                  type:
+                  - string
+                  - 'null'
+                privacyPolicyUrl:
+                  type:
+                  - string
+                  - 'null'
+                tvOsPrivacyPolicy:
+                  type:
+                  - string
+                  - 'null'
+                description:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    BetaAppLocalizationsResponse:
+      type: object
+      title: BetaAppLocalizationsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetaAppLocalization'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     App:
       type: object
       title: App
@@ -1473,103 +1596,6 @@ components:
       required:
       - id
       - type
-    BetaAppLocalizationCreateRequest:
-      type: object
-      title: BetaAppLocalizationCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - betaAppLocalizations
-            attributes:
-              type: object
-              properties:
-                feedbackEmail:
-                  type:
-                  - string
-                  - 'null'
-                marketingUrl:
-                  type:
-                  - string
-                  - 'null'
-                privacyPolicyUrl:
-                  type:
-                  - string
-                  - 'null'
-                tvOsPrivacyPolicy:
-                  type:
-                  - string
-                  - 'null'
-                description:
-                  type:
-                  - string
-                  - 'null'
-                locale:
-                  type: string
-              required:
-              - locale
-            relationships:
-              type: object
-              properties:
-                app:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - apps
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - app
-          required:
-          - relationships
-          - attributes
-          - type
-      required:
-      - data
-    AppWithoutIncludesResponse:
-      type: object
-      title: AppWithoutIncludesResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    BetaAppLocalizationAppLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - apps
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     ErrorLinks:
       type: object
       properties:
@@ -1590,47 +1616,21 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
+    BetaAppLocalizationResponse:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BetaAppLocalizationsResponse:
-      type: object
-      title: BetaAppLocalizationsResponse
+      title: BetaAppLocalizationResponse
       properties:
         data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BetaAppLocalization'
+          $ref: '#/components/schemas/BetaAppLocalization'
         included:
           type: array
           items:
             $ref: '#/components/schemas/App'
         links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

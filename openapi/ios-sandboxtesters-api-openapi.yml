@@ -147,59 +147,52 @@ paths:
       summary: Update Sandbox Testers V2
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    SandboxTestersV2Response:
-      type: object
-      title: SandboxTestersV2Response
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SandboxTesterV2'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    PagedDocumentLinks:
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
       - self
+    SandboxTesterV2:
+      type: object
+      title: SandboxTesterV2
+      properties:
+        type:
+          type: string
+          enum:
+          - sandboxTesters
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            acAccountName:
+              type: string
+            territory:
+              $ref: '#/components/schemas/TerritoryCode'
+            applePayCompatible:
+              type: boolean
+            interruptPurchases:
+              type: boolean
+            subscriptionRenewalRate:
+              type: string
+              enum:
+              - MONTHLY_RENEWAL_EVERY_ONE_HOUR
+              - MONTHLY_RENEWAL_EVERY_THIRTY_MINUTES
+              - MONTHLY_RENEWAL_EVERY_FIFTEEN_MINUTES
+              - MONTHLY_RENEWAL_EVERY_FIVE_MINUTES
+              - MONTHLY_RENEWAL_EVERY_THREE_MINUTES
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     ErrorResponse:
       type: object
       properties:
@@ -269,44 +262,69 @@ components:
           - type
       required:
       - data
-    SandboxTesterV2:
+    PagedDocumentLinks:
       type: object
-      title: SandboxTesterV2
       properties:
-        type:
+        self:
           type: string
-          enum:
-          - sandboxTesters
-        id:
+          format: uri-reference
+        first:
           type: string
-        attributes:
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    SandboxTesterV2Response:
+      type: object
+      title: SandboxTesterV2Response
+      properties:
+        data:
+          $ref: '#/components/schemas/SandboxTesterV2'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
           type: object
           properties:
-            firstName:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
               type: string
-            lastName:
-              type: string
-            acAccountName:
-              type: string
-            territory:
-              $ref: '#/components/schemas/TerritoryCode'
-            applePayCompatible:
-              type: boolean
-            interruptPurchases:
-              type: boolean
-            subscriptionRenewalRate:
-              type: string
-              enum:
-              - MONTHLY_RENEWAL_EVERY_ONE_HOUR
-              - MONTHLY_RENEWAL_EVERY_THIRTY_MINUTES
-              - MONTHLY_RENEWAL_EVERY_FIFTEEN_MINUTES
-              - MONTHLY_RENEWAL_EVERY_FIVE_MINUTES
-              - MONTHLY_RENEWAL_EVERY_THREE_MINUTES
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
+          required:
+          - limit
       required:
-      - id
-      - type
+      - paging
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     TerritoryCode:
       type: string
       enum:
@@ -563,36 +581,18 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
+    SandboxTestersV2Response:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    SandboxTesterV2Response:
-      type: object
-      title: SandboxTesterV2Response
+      title: SandboxTestersV2Response
       properties:
         data:
-          $ref: '#/components/schemas/SandboxTesterV2'
+          type: array
+          items:
+            $ref: '#/components/schemas/SandboxTesterV2'
         links:
-          $ref: '#/components/schemas/DocumentLinks'
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
       required:
       - data
       - links

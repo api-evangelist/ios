@@ -661,83 +661,13 @@ paths:
       summary: List Related App Clips / App Clip Default Experiences
 components:
   schemas:
-    ErrorSourcePointer:
+    AppMediaStateError:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        code:
           type: string
-      required:
-      - pointer
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
-    AppClip:
-      type: object
-      title: AppClip
-      properties:
-        type:
+        description:
           type: string
-          enum:
-          - appClips
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            bundleId:
-              type: string
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDefaultExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appClipDefaultExperiences
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appClipAdvancedExperiences:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     UploadOperation:
       type: object
       properties:
@@ -753,52 +683,68 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
-    ResourceLinks:
+    AppClipAppClipDefaultExperiencesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appClipDefaultExperiences
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppClipAdvancedExperienceLocalization:
+      type: object
+      title: AppClipAdvancedExperienceLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - appClipAdvancedExperienceLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            language:
+              $ref: '#/components/schemas/AppClipAdvancedExperienceLanguage'
+            title:
+              type: string
+            subtitle:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        first:
           type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - parameter
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    AppStoreVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_CONTRACT
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PREORDER_READY_FOR_SALE
-      - PROCESSING_FOR_APP_STORE
-      - READY_FOR_REVIEW
-      - READY_FOR_SALE
-      - REJECTED
-      - REMOVED_FROM_SALE
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-      - REPLACED_WITH_NEW_VERSION
-      - NOT_APPLICABLE
+      - self
     AppClipDefaultExperience:
       type: object
       title: AppClipDefaultExperience
@@ -898,6 +844,139 @@ components:
       - OPEN
       - VIEW
       - PLAY
+    AppClipDefaultExperienceLocalization:
+      type: object
+      title: AppClipDefaultExperienceLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - appClipDefaultExperienceLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+            subtitle:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appClipDefaultExperience:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDefaultExperiences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipHeaderImage:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipHeaderImages
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AppVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - READY_FOR_REVIEW
+      - REJECTED
+      - REPLACED_WITH_NEW_VERSION
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     AppClipAdvancedExperienceLanguage:
       type: string
       enum:
@@ -933,6 +1012,124 @@ components:
       - UK
       - VI
       - ZH
+    AppClipDefaultExperiencesResponse:
+      type: object
+      title: AppClipDefaultExperiencesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppClipDefaultExperience'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppClipAppStoreReviewDetail'
+            - $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
+            - $ref: '#/components/schemas/AppClip'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appClipDefaultExperienceLocalizations: '#/components/schemas/AppClipDefaultExperienceLocalization'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                appClipAppStoreReviewDetails: '#/components/schemas/AppClipAppStoreReviewDetail'
+                appClips: '#/components/schemas/AppClip'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppClipAppStoreReviewDetail:
+      type: object
+      title: AppClipAppStoreReviewDetail
+      properties:
+        type:
+          type: string
+          enum:
+          - appClipAppStoreReviewDetails
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            invocationUrls:
+              type: array
+              items:
+                type: string
+                format: uri
+        relationships:
+          type: object
+          properties:
+            appClipDefaultExperience:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDefaultExperiences
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppClipAppClipAdvancedExperiencesLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appClipAdvancedExperiences
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppStoreVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_CONTRACT
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PREORDER_READY_FOR_SALE
+      - PROCESSING_FOR_APP_STORE
+      - READY_FOR_REVIEW
+      - READY_FOR_SALE
+      - REJECTED
+      - REMOVED_FROM_SALE
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+      - REPLACED_WITH_NEW_VERSION
+      - NOT_APPLICABLE
     App:
       type: object
       title: App
@@ -1570,109 +1767,26 @@ components:
       required:
       - id
       - type
-    AppClipDefaultExperienceLocalization:
+    AppClipAdvancedExperiencesResponse:
       type: object
-      title: AppClipDefaultExperienceLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - appClipDefaultExperienceLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-            subtitle:
-              type: string
-        relationships:
-          type: object
-          properties:
-            appClipDefaultExperience:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDefaultExperiences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipHeaderImage:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipHeaderImages
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppClipAdvancedExperienceLocalization:
-      type: object
-      title: AppClipAdvancedExperienceLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - appClipAdvancedExperienceLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            language:
-              $ref: '#/components/schemas/AppClipAdvancedExperienceLanguage'
-            title:
-              type: string
-            subtitle:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppClipDefaultExperiencesResponse:
-      type: object
-      title: AppClipDefaultExperiencesResponse
+      title: AppClipAdvancedExperiencesResponse
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/AppClipDefaultExperience'
+            $ref: '#/components/schemas/AppClipAdvancedExperience'
         included:
           type: array
           items:
             oneOf:
-            - $ref: '#/components/schemas/AppClipAppStoreReviewDetail'
-            - $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
+            - $ref: '#/components/schemas/AppClipAdvancedExperienceImage'
+            - $ref: '#/components/schemas/AppClipAdvancedExperienceLocalization'
             - $ref: '#/components/schemas/AppClip'
-            - $ref: '#/components/schemas/AppStoreVersion'
             discriminator:
               propertyName: type
               mapping:
-                appClipDefaultExperienceLocalizations: '#/components/schemas/AppClipDefaultExperienceLocalization'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                appClipAppStoreReviewDetails: '#/components/schemas/AppClipAppStoreReviewDetail'
+                appClipAdvancedExperienceLocalizations: '#/components/schemas/AppClipAdvancedExperienceLocalization'
+                appClipAdvancedExperienceImages: '#/components/schemas/AppClipAdvancedExperienceImage'
                 appClips: '#/components/schemas/AppClip'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
@@ -1681,6 +1795,112 @@ components:
       required:
       - data
       - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    AppClip:
+      type: object
+      title: AppClip
+      properties:
+        type:
+          type: string
+          enum:
+          - appClips
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            bundleId:
+              type: string
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipDefaultExperiences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appClipDefaultExperiences
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appClipAdvancedExperiences:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     AppClipResponse:
       type: object
       title: AppClipResponse
@@ -1703,85 +1923,6 @@ components:
       required:
       - data
       - links
-    AppVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - READY_FOR_REVIEW
-      - REJECTED
-      - REPLACED_WITH_NEW_VERSION
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
     AppClipAdvancedExperienceImage:
       type: object
       title: AppClipAdvancedExperienceImage
@@ -1814,42 +1955,45 @@ components:
       required:
       - id
       - type
-    DocumentLinks:
+    ErrorResponse:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppClipAdvancedExperiencesResponse:
-      type: object
-      title: AppClipAdvancedExperiencesResponse
-      properties:
-        data:
+        errors:
           type: array
           items:
-            $ref: '#/components/schemas/AppClipAdvancedExperience'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppClipAdvancedExperienceImage'
-            - $ref: '#/components/schemas/AppClipAdvancedExperienceLocalization'
-            - $ref: '#/components/schemas/AppClip'
-            discriminator:
-              propertyName: type
-              mapping:
-                appClipAdvancedExperienceLocalizations: '#/components/schemas/AppClipAdvancedExperienceLocalization'
-                appClipAdvancedExperienceImages: '#/components/schemas/AppClipAdvancedExperienceImage'
-                appClips: '#/components/schemas/AppClip'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
     AppClipAdvancedExperience:
       type: object
       title: AppClipAdvancedExperience
@@ -2091,6 +2235,20 @@ components:
       required:
       - id
       - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     AppStoreVersion:
       type: object
       title: AppStoreVersion
@@ -2364,164 +2522,6 @@ components:
       required:
       - id
       - type
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    AppClipAppClipDefaultExperiencesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appClipDefaultExperiences
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    AppClipAppStoreReviewDetail:
-      type: object
-      title: AppClipAppStoreReviewDetail
-      properties:
-        type:
-          type: string
-          enum:
-          - appClipAppStoreReviewDetails
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            invocationUrls:
-              type: array
-              items:
-                type: string
-                format: uri
-        relationships:
-          type: object
-          properties:
-            appClipDefaultExperience:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDefaultExperiences
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppClipAppClipAdvancedExperiencesLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appClipAdvancedExperiences
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
   securitySchemes:
     itc-bearer-token:
       type: http

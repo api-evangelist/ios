@@ -70,14 +70,46 @@ paths:
       summary: Create Sandbox Testers Clear Purchase History Request V2
 components:
   schemas:
-    ErrorSourcePointer:
+    DocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
+          format: uri-reference
       required:
-      - pointer
+      - self
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     SandboxTestersClearPurchaseHistoryRequestV2Response:
       type: object
       title: SandboxTestersClearPurchaseHistoryRequestV2Response
@@ -89,6 +121,12 @@ components:
       required:
       - data
       - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
     SandboxTestersClearPurchaseHistoryRequestV2CreateRequest:
       type: object
       title: SandboxTestersClearPurchaseHistoryRequestV2CreateRequest
@@ -129,38 +167,37 @@ components:
           - type
       required:
       - data
-    ErrorResponse:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    SandboxTestersClearPurchaseHistoryRequestV2:
+      type: object
+      title: SandboxTestersClearPurchaseHistoryRequestV2
+      properties:
+        type:
+          type: string
+          enum:
+          - sandboxTestersClearPurchaseHistoryRequest
+        id:
+          type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     ErrorLinks:
       type: object
       properties:
@@ -181,43 +218,6 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    SandboxTestersClearPurchaseHistoryRequestV2:
-      type: object
-      title: SandboxTestersClearPurchaseHistoryRequestV2
-      properties:
-        type:
-          type: string
-          enum:
-          - sandboxTestersClearPurchaseHistoryRequest
-        id:
-          type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
   securitySchemes:
     itc-bearer-token:
       type: http

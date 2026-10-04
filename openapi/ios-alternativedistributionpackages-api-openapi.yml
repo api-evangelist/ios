@@ -389,94 +389,25 @@ paths:
       summary: List Related Alternative Distribution Packages / Versions
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    AlternativeDistributionPackageCreateRequest:
-      type: object
-      title: AlternativeDistributionPackageCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - alternativeDistributionPackages
-            relationships:
-              type: object
-              properties:
-                appStoreVersion:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - appStoreVersions
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - appStoreVersion
-          required:
-          - relationships
-          - type
-      required:
-      - data
-    ResourceLinks:
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        first:
           type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - parameter
-    AlternativeDistributionPackageDelta:
-      type: object
-      title: AlternativeDistributionPackageDelta
-      properties:
-        type:
-          type: string
-          enum:
-          - alternativeDistributionPackageDeltas
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            url:
-              type: string
-              format: uri
-            urlExpirationDate:
-              type: string
-              format: date-time
-            alternativeDistributionKeyBlob:
-              type: string
-            fileChecksum:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
+      - self
     AlternativeDistributionPackageVersionsResponse:
       type: object
       title: AlternativeDistributionPackageVersionsResponse
@@ -505,71 +436,6 @@ components:
       required:
       - data
       - links
-    AlternativeDistributionPackageVersionsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - alternativeDistributionPackageVersions
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
     AlternativeDistributionPackageResponse:
       type: object
       title: AlternativeDistributionPackageResponse
@@ -605,6 +471,162 @@ components:
                 properties:
                   source:
                     type: string
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    Checksums:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    AlternativeDistributionPackageVersionsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - alternativeDistributionPackageVersions
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AlternativeDistributionPackage:
+      type: object
+      title: AlternativeDistributionPackage
+      properties:
+        type:
+          type: string
+          enum:
+          - alternativeDistributionPackages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            sourceFileChecksum:
+              $ref: '#/components/schemas/Checksums'
+        relationships:
+          type: object
+          properties:
+            versions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - alternativeDistributionPackageVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    AlternativeDistributionPackageVariant:
+      type: object
+      title: AlternativeDistributionPackageVariant
+      properties:
+        type:
+          type: string
+          enum:
+          - alternativeDistributionPackageVariants
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            urlExpirationDate:
+              type: string
+              format: date-time
+            alternativeDistributionKeyBlob:
+              type: string
+            fileChecksum:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     AlternativeDistributionPackageVersion:
       type: object
       title: AlternativeDistributionPackageVersion
@@ -698,115 +720,14 @@ components:
       required:
       - id
       - type
-    DocumentLinks:
+    AlternativeDistributionPackageDelta:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AlternativeDistributionPackage:
-      type: object
-      title: AlternativeDistributionPackage
+      title: AlternativeDistributionPackageDelta
       properties:
         type:
           type: string
           enum:
-          - alternativeDistributionPackages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            sourceFileChecksum:
-              $ref: '#/components/schemas/Checksums'
-        relationships:
-          type: object
-          properties:
-            versions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - alternativeDistributionPackageVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    Checksums:
-      type: object
-      properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AlternativeDistributionPackageVariant:
-      type: object
-      title: AlternativeDistributionPackageVariant
-      properties:
-        type:
-          type: string
-          enum:
-          - alternativeDistributionPackageVariants
+          - alternativeDistributionPackageDeltas
         id:
           type: string
         attributes:
@@ -827,11 +748,90 @@ components:
       required:
       - id
       - type
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    AlternativeDistributionPackageCreateRequest:
+      type: object
+      title: AlternativeDistributionPackageCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - alternativeDistributionPackages
+            relationships:
+              type: object
+              properties:
+                appStoreVersion:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - appStoreVersions
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - appStoreVersion
+          required:
+          - relationships
+          - type
+      required:
+      - data
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

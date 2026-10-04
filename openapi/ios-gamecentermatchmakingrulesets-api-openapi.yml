@@ -892,42 +892,6 @@ paths:
       summary: List Related Game Center Matchmaking Rule Sets / Teams
 components:
   schemas:
-    GameCenterMatchmakingRuleSetsResponse:
-      type: object
-      title: GameCenterMatchmakingRuleSetsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterMatchmakingQueue'
-            - $ref: '#/components/schemas/GameCenterMatchmakingRule'
-            - $ref: '#/components/schemas/GameCenterMatchmakingTeam'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterMatchmakingQueues: '#/components/schemas/GameCenterMatchmakingQueue'
-                gameCenterMatchmakingTeams: '#/components/schemas/GameCenterMatchmakingTeam'
-                gameCenterMatchmakingRules: '#/components/schemas/GameCenterMatchmakingRule'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     GameCenterMatchmakingRuleSetMatchmakingQueuesLinkagesResponse:
       type: object
       properties:
@@ -952,14 +916,28 @@ components:
       required:
       - data
       - links
-    GameCenterMatchmakingTeam:
+    PagedDocumentLinks:
       type: object
-      title: GameCenterMatchmakingTeam
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    GameCenterMatchmakingQueue:
+      type: object
+      title: GameCenterMatchmakingQueue
       properties:
         type:
           type: string
           enum:
-          - gameCenterMatchmakingTeams
+          - gameCenterMatchmakingQueues
         id:
           type: string
         attributes:
@@ -967,218 +945,48 @@ components:
           properties:
             referenceName:
               type: string
-            minPlayers:
-              type: integer
-            maxPlayers:
-              type: integer
+            classicMatchmakingBundleIds:
+              type: array
+              items:
+                type: string
+        relationships:
+          type: object
+          properties:
+            ruleSet:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterMatchmakingRuleSets
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            experimentRuleSet:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - gameCenterMatchmakingRuleSets
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
       - id
       - type
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    GameCenterMatchmakingRuleSetTeamsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - gameCenterMatchmakingTeams
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    GameCenterMatchmakingTeamsResponse:
-      type: object
-      title: GameCenterMatchmakingTeamsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterMatchmakingTeam'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    GameCenterMatchmakingRulesResponse:
-      type: object
-      title: GameCenterMatchmakingRulesResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameCenterMatchmakingRule'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    GameCenterMatchmakingRule:
-      type: object
-      title: GameCenterMatchmakingRule
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterMatchmakingRules
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-            description:
-              type: string
-            type:
-              type: string
-              enum:
-              - COMPATIBLE
-              - DISTANCE
-              - MATCH
-              - TEAM
-            expression:
-              type: string
-            weight:
-              type: number
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    GameCenterMatchmakingRuleSetUpdateRequest:
-      type: object
-      title: GameCenterMatchmakingRuleSetUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterMatchmakingRuleSets
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                minPlayers:
-                  type:
-                  - integer
-                  - 'null'
-                maxPlayers:
-                  type:
-                  - integer
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    GameCenterMatchmakingRuleSetCreateRequest:
-      type: object
-      title: GameCenterMatchmakingRuleSetCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterMatchmakingRuleSets
-            attributes:
-              type: object
-              properties:
-                referenceName:
-                  type: string
-                ruleLanguageVersion:
-                  type: integer
-                minPlayers:
-                  type: integer
-                maxPlayers:
-                  type: integer
-              required:
-              - maxPlayers
-              - minPlayers
-              - referenceName
-              - ruleLanguageVersion
-          required:
-          - attributes
-          - type
-      required:
-      - data
     ErrorLinks:
       type: object
       properties:
@@ -1199,38 +1007,34 @@ components:
                 properties:
                   source:
                     type: string
-    DocumentLinks:
+    GameCenterMatchmakingQueuesResponse:
+      type: object
+      title: GameCenterMatchmakingQueuesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterMatchmakingQueue'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-      required:
-      - self
-    GameCenterMatchmakingRuleSetResponse:
-      type: object
-      title: GameCenterMatchmakingRuleSetResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/GameCenterMatchmakingQueue'
-            - $ref: '#/components/schemas/GameCenterMatchmakingRule'
-            - $ref: '#/components/schemas/GameCenterMatchmakingTeam'
-            discriminator:
-              propertyName: type
-              mapping:
-                gameCenterMatchmakingQueues: '#/components/schemas/GameCenterMatchmakingQueue'
-                gameCenterMatchmakingTeams: '#/components/schemas/GameCenterMatchmakingTeam'
-                gameCenterMatchmakingRules: '#/components/schemas/GameCenterMatchmakingRule'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
+        related:
+          type: string
+          format: uri-reference
     GameCenterMatchmakingRuleSet:
       type: object
       title: GameCenterMatchmakingRuleSet
@@ -1323,93 +1127,123 @@ components:
       required:
       - id
       - type
-    GameCenterMatchmakingQueue:
-      type: object
-      title: GameCenterMatchmakingQueue
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterMatchmakingQueues
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            referenceName:
-              type: string
-            classicMatchmakingBundleIds:
-              type: array
-              items:
-                type: string
-        relationships:
-          type: object
-          properties:
-            ruleSet:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterMatchmakingRuleSets
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            experimentRuleSet:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - gameCenterMatchmakingRuleSets
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
+    DocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
       - self
+    GameCenterMatchmakingRuleSetCreateRequest:
+      type: object
+      title: GameCenterMatchmakingRuleSetCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterMatchmakingRuleSets
+            attributes:
+              type: object
+              properties:
+                referenceName:
+                  type: string
+                ruleLanguageVersion:
+                  type: integer
+                minPlayers:
+                  type: integer
+                maxPlayers:
+                  type: integer
+              required:
+              - maxPlayers
+              - minPlayers
+              - referenceName
+              - ruleLanguageVersion
+          required:
+          - attributes
+          - type
+      required:
+      - data
+    GameCenterMatchmakingRuleSetUpdateRequest:
+      type: object
+      title: GameCenterMatchmakingRuleSetUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterMatchmakingRuleSets
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                minPlayers:
+                  type:
+                  - integer
+                  - 'null'
+                maxPlayers:
+                  type:
+                  - integer
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    GameCenterMatchmakingRuleSetResponse:
+      type: object
+      title: GameCenterMatchmakingRuleSetResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterMatchmakingQueue'
+            - $ref: '#/components/schemas/GameCenterMatchmakingRule'
+            - $ref: '#/components/schemas/GameCenterMatchmakingTeam'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterMatchmakingQueues: '#/components/schemas/GameCenterMatchmakingQueue'
+                gameCenterMatchmakingTeams: '#/components/schemas/GameCenterMatchmakingTeam'
+                gameCenterMatchmakingRules: '#/components/schemas/GameCenterMatchmakingRule'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    GameCenterMatchmakingRuleSetTeamsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - gameCenterMatchmakingTeams
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     GameCenterMatchmakingRuleSetRulesLinkagesResponse:
       type: object
       properties:
@@ -1434,18 +1268,76 @@ components:
       required:
       - data
       - links
-    GameCenterMatchmakingQueuesResponse:
+    GameCenterMatchmakingRule:
       type: object
-      title: GameCenterMatchmakingQueuesResponse
+      title: GameCenterMatchmakingRule
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterMatchmakingRules
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            description:
+              type: string
+            type:
+              type: string
+              enum:
+              - COMPATIBLE
+              - DISTANCE
+              - MATCH
+              - TEAM
+            expression:
+              type: string
+            weight:
+              type: number
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    GameCenterMatchmakingRuleSetsResponse:
+      type: object
+      title: GameCenterMatchmakingRuleSetsResponse
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/GameCenterMatchmakingQueue'
+            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
         included:
           type: array
           items:
-            $ref: '#/components/schemas/GameCenterMatchmakingRuleSet'
+            oneOf:
+            - $ref: '#/components/schemas/GameCenterMatchmakingQueue'
+            - $ref: '#/components/schemas/GameCenterMatchmakingRule'
+            - $ref: '#/components/schemas/GameCenterMatchmakingTeam'
+            discriminator:
+              propertyName: type
+              mapping:
+                gameCenterMatchmakingQueues: '#/components/schemas/GameCenterMatchmakingQueue'
+                gameCenterMatchmakingTeams: '#/components/schemas/GameCenterMatchmakingTeam'
+                gameCenterMatchmakingRules: '#/components/schemas/GameCenterMatchmakingRule'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1453,6 +1345,114 @@ components:
       required:
       - data
       - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    GameCenterMatchmakingTeamsResponse:
+      type: object
+      title: GameCenterMatchmakingTeamsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterMatchmakingTeam'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    GameCenterMatchmakingTeam:
+      type: object
+      title: GameCenterMatchmakingTeam
+      properties:
+        type:
+          type: string
+          enum:
+          - gameCenterMatchmakingTeams
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            referenceName:
+              type: string
+            minPlayers:
+              type: integer
+            maxPlayers:
+              type: integer
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    GameCenterMatchmakingRulesResponse:
+      type: object
+      title: GameCenterMatchmakingRulesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCenterMatchmakingRule'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

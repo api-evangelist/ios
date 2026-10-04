@@ -831,19 +831,62 @@ paths:
       summary: List Related Users / Visible Apps
 components:
   schemas:
-    ErrorSourcePointer:
+    PagedDocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - pointer
+      - self
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
     SubscriptionStatusUrlVersion:
       type: string
       enum:
       - V1
       - V2
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     UsersResponse:
       type: object
       title: UsersResponse
@@ -863,102 +906,46 @@ components:
       required:
       - data
       - links
-    ResourceLinks:
+    UserVisibleAppsLinkagesRequest:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppsWithoutIncludesResponse:
-      type: object
-      title: AppsWithoutIncludesResponse
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/App'
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - apps
+              id:
+                type: string
+            required:
+            - id
+            - type
+      required:
+      - data
+    UserVisibleAppsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - apps
+              id:
+                type: string
+            required:
+            - id
+            - type
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
           $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    UserUpdateRequest:
-      type: object
-      title: UserUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - users
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                roles:
-                  type:
-                  - array
-                  - 'null'
-                  items:
-                    $ref: '#/components/schemas/UserRole'
-                allAppsVisible:
-                  type:
-                  - boolean
-                  - 'null'
-                provisioningAllowed:
-                  type:
-                  - boolean
-                  - 'null'
-            relationships:
-              type: object
-              properties:
-                visibleApps:
-                  type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            enum:
-                            - apps
-                          id:
-                            type: string
-                        required:
-                        - id
-                        - type
-          required:
-          - id
-          - type
-      required:
-      - data
-    UserResponse:
-      type: object
-      title: UserResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/User'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
@@ -1599,119 +1586,30 @@ components:
       required:
       - id
       - type
-    RelationshipLinks:
+    PagingInformation:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    UserRole:
-      type: string
-      enum:
-      - ADMIN
-      - FINANCE
-      - ACCOUNT_HOLDER
-      - SALES
-      - MARKETING
-      - APP_MANAGER
-      - DEVELOPER
-      - ACCESS_TO_REPORTS
-      - CUSTOMER_SUPPORT
-      - CREATE_APPS
-      - CLOUD_MANAGED_DEVELOPER_ID
-      - CLOUD_MANAGED_APP_DISTRIBUTION
-      - GENERATE_INDIVIDUAL_KEYS
-    UserVisibleAppsLinkagesRequest:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - apps
-              id:
-                type: string
-            required:
-            - id
-            - type
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
       required:
-      - data
-    ErrorResponse:
+      - paging
+    AppsWithoutIncludesResponse:
       type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    UserVisibleAppsLinkagesResponse:
-      type: object
+      title: AppsWithoutIncludesResponse
       properties:
         data:
           type: array
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - apps
-              id:
-                type: string
-            required:
-            - id
-            - type
+            $ref: '#/components/schemas/App'
         links:
           $ref: '#/components/schemas/PagedDocumentLinks'
         meta:
@@ -1719,14 +1617,69 @@ components:
       required:
       - data
       - links
-    DocumentLinks:
+    ErrorSourcePointer:
       type: object
+      title: JsonPointer
       properties:
-        self:
+        pointer:
           type: string
-          format: uri-reference
       required:
-      - self
+      - pointer
+    UserUpdateRequest:
+      type: object
+      title: UserUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - users
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                roles:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    $ref: '#/components/schemas/UserRole'
+                allAppsVisible:
+                  type:
+                  - boolean
+                  - 'null'
+                provisioningAllowed:
+                  type:
+                  - boolean
+                  - 'null'
+            relationships:
+              type: object
+              properties:
+                visibleApps:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - apps
+                          id:
+                            type: string
+                        required:
+                        - id
+                        - type
+          required:
+          - id
+          - type
+      required:
+      - data
     User:
       type: object
       title: User
@@ -1783,36 +1736,83 @@ components:
       required:
       - id
       - type
-    PagingInformation:
+    ErrorResponse:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    UserResponse:
+      type: object
+      title: UserResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - paging
-    PagedDocumentLinks:
+      - data
+      - links
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
-      - self
+      - parameter
+    UserRole:
+      type: string
+      enum:
+      - ADMIN
+      - FINANCE
+      - ACCOUNT_HOLDER
+      - SALES
+      - MARKETING
+      - APP_MANAGER
+      - DEVELOPER
+      - ACCESS_TO_REPORTS
+      - CUSTOMER_SUPPORT
+      - CREATE_APPS
+      - CLOUD_MANAGED_DEVELOPER_ID
+      - CLOUD_MANAGED_APP_DISTRIBUTION
+      - GENERATE_INDIVIDUAL_KEYS
   securitySchemes:
     itc-bearer-token:
       type: http

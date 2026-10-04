@@ -202,6 +202,262 @@ paths:
       summary: Update Build Upload Files
 components:
   schemas:
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    BuildUploadFile:
+      type: object
+      title: BuildUploadFile
+      properties:
+        type:
+          type: string
+          enum:
+          - buildUploadFiles
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+            assetToken:
+              type: string
+            assetType:
+              type: string
+              enum:
+              - ASSET
+              - ASSET_DESCRIPTION
+              - ASSET_SPI
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+              format: int64
+              maximum: 9007199254740991
+              minimum: 1
+            sourceFileChecksums:
+              $ref: '#/components/schemas/Checksums'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeliveryFileUploadOperation'
+            uti:
+              type: string
+              enum:
+              - com.apple.binary-property-list
+              - com.apple.ipa
+              - com.apple.pkg
+              - com.apple.xml-property-list
+              - com.pkware.zip-archive
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ChecksumAlgorithm:
+      type: string
+      enum:
+      - MD5
+      - SHA_256
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    Checksums:
+      type: object
+      properties:
+        file:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              $ref: '#/components/schemas/ChecksumAlgorithm'
+        composite:
+          type: object
+          properties:
+            hash:
+              type: string
+            algorithm:
+              type: string
+              enum:
+              - MD5
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    DeliveryFileUploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        offset:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 0
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+        expiration:
+          type: string
+          format: date-time
+        partNumber:
+          type: integer
+          format: int64
+          maximum: 9007199254740991
+          minimum: 1
+        entityTag:
+          type: string
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    BuildUploadFileResponse:
+      type: object
+      title: BuildUploadFileResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BuildUploadFile'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    BuildUploadFileUpdateRequest:
+      type: object
+      title: BuildUploadFileUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - buildUploadFiles
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksums:
+                  $ref: '#/components/schemas/Checksums'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     BuildUploadFileCreateRequest:
       type: object
       title: BuildUploadFileCreateRequest
@@ -270,262 +526,6 @@ components:
           - type
       required:
       - data
-    Checksums:
-      type: object
-      properties:
-        file:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              $ref: '#/components/schemas/ChecksumAlgorithm'
-        composite:
-          type: object
-          properties:
-            hash:
-              type: string
-            algorithm:
-              type: string
-              enum:
-              - MD5
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    DeliveryFileUploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        offset:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 0
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-        expiration:
-          type: string
-          format: date-time
-        partNumber:
-          type: integer
-          format: int64
-          maximum: 9007199254740991
-          minimum: 1
-        entityTag:
-          type: string
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    ChecksumAlgorithm:
-      type: string
-      enum:
-      - MD5
-      - SHA_256
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    BuildUploadFile:
-      type: object
-      title: BuildUploadFile
-      properties:
-        type:
-          type: string
-          enum:
-          - buildUploadFiles
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-            assetToken:
-              type: string
-            assetType:
-              type: string
-              enum:
-              - ASSET
-              - ASSET_DESCRIPTION
-              - ASSET_SPI
-            fileName:
-              type: string
-            fileSize:
-              type: integer
-              format: int64
-              maximum: 9007199254740991
-              minimum: 1
-            sourceFileChecksums:
-              $ref: '#/components/schemas/Checksums'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/DeliveryFileUploadOperation'
-            uti:
-              type: string
-              enum:
-              - com.apple.binary-property-list
-              - com.apple.ipa
-              - com.apple.pkg
-              - com.apple.xml-property-list
-              - com.pkware.zip-archive
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BuildUploadFileUpdateRequest:
-      type: object
-      title: BuildUploadFileUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - buildUploadFiles
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksums:
-                  $ref: '#/components/schemas/Checksums'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BuildUploadFileResponse:
-      type: object
-      title: BuildUploadFileResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/BuildUploadFile'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
   securitySchemes:
     itc-bearer-token:
       type: http

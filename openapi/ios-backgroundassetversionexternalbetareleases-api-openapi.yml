@@ -114,28 +114,61 @@ paths:
       summary: Get Background Asset Version External Beta Releases
 components:
   schemas:
-    BackgroundAssetVersionState:
-      type: string
-      enum:
-      - AWAITING_UPLOAD
-      - PROCESSING
-      - FAILED
-      - COMPLETE
-    BackgroundAssetVersionExternalBetaReleaseResponse:
+    RelationshipLinks:
       type: object
-      title: BackgroundAssetVersionExternalBetaReleaseResponse
       properties:
-        data:
-          $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/BackgroundAssetVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
       required:
-      - data
-      - links
+      - self
+    BackgroundAssetVersionExternalBetaRelease:
+      type: object
+      title: BackgroundAssetVersionExternalBetaRelease
+      properties:
+        type:
+          type: string
+          enum:
+          - backgroundAssetVersionExternalBetaReleases
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            state:
+              $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaReleaseState'
+        relationships:
+          type: object
+          properties:
+            backgroundAssetVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - backgroundAssetVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     BackgroundAssetVersionExternalBetaReleaseState:
       type: string
       enum:
@@ -146,23 +179,6 @@ components:
       - PROCESSING_FOR_TESTING
       - READY_FOR_TESTING
       - SUPERSEDED
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     ErrorResponse:
       type: object
       properties:
@@ -195,6 +211,49 @@ components:
             - detail
             - status
             - title
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    StateDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    BackgroundAssetVersionState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     BackgroundAssetVersion:
       type: object
       title: BackgroundAssetVersion
@@ -337,58 +396,6 @@ components:
       required:
       - id
       - type
-    StateDetail:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    BackgroundAssetVersionExternalBetaRelease:
-      type: object
-      title: BackgroundAssetVersionExternalBetaRelease
-      properties:
-        type:
-          type: string
-          enum:
-          - backgroundAssetVersionExternalBetaReleases
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            state:
-              $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaReleaseState'
-        relationships:
-          type: object
-          properties:
-            backgroundAssetVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - backgroundAssetVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
     ErrorLinks:
       type: object
       properties:
@@ -409,28 +416,21 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
+    BackgroundAssetVersionExternalBetaReleaseResponse:
       type: object
+      title: BackgroundAssetVersionExternalBetaReleaseResponse
       properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+        data:
+          $ref: '#/components/schemas/BackgroundAssetVersionExternalBetaRelease'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackgroundAssetVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - self
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
+      - data
+      - links
   securitySchemes:
     itc-bearer-token:
       type: http

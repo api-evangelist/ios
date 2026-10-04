@@ -812,38 +812,285 @@ paths:
       summary: Get Related Build Beta Details / Build
 components:
   schemas:
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    SubscriptionStatusUrlVersion:
+    BuildAudienceType:
       type: string
       enum:
-      - V1
-      - V2
-    BuildBetaDetail:
+      - INTERNAL_ONLY
+      - APP_STORE_ELIGIBLE
+    BetaTester:
       type: object
-      title: BuildBetaDetail
+      title: BetaTester
       properties:
         type:
           type: string
           enum:
-          - buildBetaDetails
+          - betaTesters
         id:
           type: string
         attributes:
           type: object
           properties:
-            autoNotifyEnabled:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+              format: email
+            inviteType:
+              $ref: '#/components/schemas/BetaInviteType'
+            state:
+              $ref: '#/components/schemas/BetaTesterState'
+            appDevices:
+              type: array
+              items:
+                type: object
+                properties:
+                  model:
+                    type: string
+                  platform:
+                    type: string
+                    enum:
+                    - IOS
+                    - MAC_OS
+                    - TV_OS
+                    - WATCH_OS
+                    - VISION_OS
+                  osVersion:
+                    type: string
+                  appBuildVersion:
+                    type: string
+        relationships:
+          type: object
+          properties:
+            apps:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - apps
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaGroups:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - betaGroups
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BetaGroup:
+      type: object
+      title: BetaGroup
+      properties:
+        type:
+          type: string
+          enum:
+          - betaGroups
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            isInternalGroup:
               type: boolean
-            internalBuildState:
-              $ref: '#/components/schemas/InternalBetaState'
-            externalBuildState:
-              $ref: '#/components/schemas/ExternalBetaState'
+            hasAccessToAllBuilds:
+              type: boolean
+            publicLinkEnabled:
+              type: boolean
+            publicLinkId:
+              type: string
+            publicLinkLimitEnabled:
+              type: boolean
+            publicLinkLimit:
+              type: integer
+            publicLink:
+              type: string
+            feedbackEnabled:
+              type: boolean
+            iosBuildsAvailableForAppleSiliconMac:
+              type: boolean
+            iosBuildsAvailableForAppleVision:
+              type: boolean
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaTesters:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - betaTesters
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            betaRecruitmentCriteria:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - betaRecruitmentCriteria
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            betaRecruitmentCriterionCompatibleBuildCheck:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BuildBetaDetailResponse:
+      type: object
+      title: BuildBetaDetailResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/BuildBetaDetail'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Build'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    BetaAppReviewSubmission:
+      type: object
+      title: BetaAppReviewSubmission
+      properties:
+        type:
+          type: string
+          enum:
+          - betaAppReviewSubmissions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            betaReviewState:
+              $ref: '#/components/schemas/BetaReviewState'
+            submittedDate:
+              type: string
+              format: date-time
         relationships:
           type: object
           properties:
@@ -869,119 +1116,34 @@ components:
       required:
       - id
       - type
-    BuildIcon:
-      type: object
-      title: BuildIcon
-      properties:
-        type:
-          type: string
-          enum:
-          - buildIcons
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            iconAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            iconType:
-              $ref: '#/components/schemas/IconAssetType'
-            masked:
-              type: boolean
-            name:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BuildBetaDetailBuildLinkageResponse:
+    StateDetail:
       type: object
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - builds
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ResourceLinks:
+        code:
+          type: string
+        description:
+          type: string
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    BuildBetaDetailsResponse:
-      type: object
-      title: BuildBetaDetailsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BuildBetaDetail'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - data
-      - links
-    BuildBetaDetailUpdateRequest:
-      type: object
-      title: BuildBetaDetailUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - buildBetaDetails
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                autoNotifyEnabled:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    AppEncryptionDeclarationState:
+      - self
+    BetaReviewState:
       type: string
       enum:
-      - CREATED
+      - WAITING_FOR_REVIEW
       - IN_REVIEW
-      - APPROVED
       - REJECTED
-      - INVALID
-      - EXPIRED
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
+      - APPROVED
     ImageAsset:
       type: object
       properties:
@@ -991,164 +1153,6 @@ components:
           type: integer
         height:
           type: integer
-    BuildUploadState:
-      type: string
-      enum:
-      - AWAITING_UPLOAD
-      - PROCESSING
-      - FAILED
-      - COMPLETE
-    BuildAudienceType:
-      type: string
-      enum:
-      - INTERNAL_ONLY
-      - APP_STORE_ELIGIBLE
-    BuildUpload:
-      type: object
-      title: BuildUpload
-      properties:
-        type:
-          type: string
-          enum:
-          - buildUploads
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            cfBundleShortVersionString:
-              type: string
-            cfBundleVersion:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            state:
-              type: object
-              properties:
-                errors:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/StateDetail'
-                warnings:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/StateDetail'
-                infos:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/StateDetail'
-                state:
-                  $ref: '#/components/schemas/BuildUploadState'
-            platform:
-              $ref: '#/components/schemas/Platform'
-            uploadedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            build:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - builds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            assetFile:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - buildUploadFiles
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            assetDescriptionFile:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - buildUploadFiles
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            assetSpiFile:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - buildUploadFiles
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            buildUploadFiles:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppStoreVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REMOVED_FROM_SALE
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_CONTRACT
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PREORDER_READY_FOR_SALE
-      - PROCESSING_FOR_APP_STORE
-      - READY_FOR_REVIEW
-      - READY_FOR_SALE
-      - REJECTED
-      - REMOVED_FROM_SALE
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-      - REPLACED_WITH_NEW_VERSION
-      - NOT_APPLICABLE
-    BetaTesterState:
-      type: string
-      enum:
-      - NOT_INVITED
-      - INVITED
-      - ACCEPTED
-      - INSTALLED
-      - REVOKED
     Build:
       type: object
       title: Build
@@ -1431,6 +1435,129 @@ components:
       required:
       - id
       - type
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AppVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - READY_FOR_REVIEW
+      - REJECTED
+      - REPLACED_WITH_NEW_VERSION
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    PrereleaseVersion:
+      type: object
+      title: PrereleaseVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - preReleaseVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            version:
+              type: string
+            platform:
+              $ref: '#/components/schemas/Platform'
+        relationships:
+          type: object
+          properties:
+            builds:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - builds
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            app:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     InternalBetaState:
       type: string
       enum:
@@ -1441,6 +1568,61 @@ components:
       - IN_BETA_TESTING
       - EXPIRED
       - IN_EXPORT_COMPLIANCE_REVIEW
+    AppStoreVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REMOVED_FROM_SALE
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_CONTRACT
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PREORDER_READY_FOR_SALE
+      - PROCESSING_FOR_APP_STORE
+      - READY_FOR_REVIEW
+      - READY_FOR_SALE
+      - REJECTED
+      - REMOVED_FROM_SALE
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+      - REPLACED_WITH_NEW_VERSION
+      - NOT_APPLICABLE
+    BuildBetaDetailUpdateRequest:
+      type: object
+      title: BuildBetaDetailUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - buildBetaDetails
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                autoNotifyEnabled:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    BuildUploadState:
+      type: string
+      enum:
+      - AWAITING_UPLOAD
+      - PROCESSING
+      - FAILED
+      - COMPLETE
     App:
       type: object
       title: App
@@ -2078,139 +2260,14 @@ components:
       required:
       - id
       - type
-    BetaGroup:
-      type: object
-      title: BetaGroup
-      properties:
-        type:
-          type: string
-          enum:
-          - betaGroups
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            createdDate:
-              type: string
-              format: date-time
-            isInternalGroup:
-              type: boolean
-            hasAccessToAllBuilds:
-              type: boolean
-            publicLinkEnabled:
-              type: boolean
-            publicLinkId:
-              type: string
-            publicLinkLimitEnabled:
-              type: boolean
-            publicLinkLimit:
-              type: integer
-            publicLink:
-              type: string
-            feedbackEnabled:
-              type: boolean
-            iosBuildsAvailableForAppleSiliconMac:
-              type: boolean
-            iosBuildsAvailableForAppleVision:
-              type: boolean
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaTesters:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - betaTesters
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            betaRecruitmentCriteria:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - betaRecruitmentCriteria
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            betaRecruitmentCriterionCompatibleBuildCheck:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BuildBundleType:
+    BetaTesterState:
       type: string
       enum:
-      - APP
-      - APP_CLIP
-      - WATCH_APP
+      - NOT_INVITED
+      - INVITED
+      - ACCEPTED
+      - INSTALLED
+      - REVOKED
     AppEncryptionDeclaration:
       type: object
       title: AppEncryptionDeclaration
@@ -2325,95 +2382,151 @@ components:
       required:
       - id
       - type
-    AppVersionState:
+    ExternalBetaState:
       type: string
       enum:
-      - ACCEPTED
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - READY_FOR_REVIEW
-      - REJECTED
-      - REPLACED_WITH_NEW_VERSION
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-    BuildBetaDetailResponse:
+      - PROCESSING
+      - PROCESSING_EXCEPTION
+      - MISSING_EXPORT_COMPLIANCE
+      - READY_FOR_BETA_TESTING
+      - IN_BETA_TESTING
+      - EXPIRED
+      - READY_FOR_BETA_SUBMISSION
+      - IN_EXPORT_COMPLIANCE_REVIEW
+      - WAITING_FOR_BETA_REVIEW
+      - IN_BETA_REVIEW
+      - BETA_REJECTED
+      - BETA_APPROVED
+      - NOT_APPLICABLE
+    IconAssetType:
+      type: string
+      enum:
+      - APP_STORE
+      - MESSAGES_APP_STORE
+      - WATCH_APP_STORE
+      - TV_OS_HOME_SCREEN
+      - TV_OS_TOP_SHELF
+      - ALTERNATE_EXPERIMENT
+    PagingInformation:
       type: object
-      title: BuildBetaDetailResponse
       properties:
-        data:
-          $ref: '#/components/schemas/BuildBetaDetail'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/Build'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
       required:
-      - data
-      - links
-    RelationshipLinks:
+      - paging
+    BuildBundle:
       type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    BetaTester:
-      type: object
-      title: BetaTester
+      title: BuildBundle
       properties:
         type:
           type: string
           enum:
-          - betaTesters
+          - buildBundles
         id:
           type: string
         attributes:
           type: object
           properties:
-            firstName:
+            bundleId:
               type: string
-            lastName:
+            bundleType:
+              $ref: '#/components/schemas/BuildBundleType'
+            sdkBuild:
               type: string
-            email:
+            platformBuild:
               type: string
-              format: email
-            inviteType:
-              $ref: '#/components/schemas/BetaInviteType'
-            state:
-              $ref: '#/components/schemas/BetaTesterState'
-            appDevices:
+            fileName:
+              type: string
+            hasSirikit:
+              type: boolean
+            hasOnDemandResources:
+              type: boolean
+            hasPrerenderedIcon:
+              type: boolean
+            usesLocationServices:
+              type: boolean
+            isIosBuildMacAppStoreCompatible:
+              type: boolean
+            includesSymbols:
+              type: boolean
+            dSYMUrl:
+              type: string
+              format: uri
+            supportedArchitectures:
               type: array
               items:
+                type: string
+            requiredCapabilities:
+              type: array
+              items:
+                type: string
+            deviceProtocols:
+              type: array
+              items:
+                type: string
+            locales:
+              type: array
+              items:
+                type: string
+            entitlements:
+              type: object
+              additionalProperties:
                 type: object
-                properties:
-                  model:
-                    type: string
-                  platform:
-                    type: string
-                    enum:
-                    - IOS
-                    - MAC_OS
-                    - TV_OS
-                    - WATCH_OS
-                    - VISION_OS
-                  osVersion:
-                    type: string
-                  appBuildVersion:
-                    type: string
+                additionalProperties:
+                  type: string
+            baDownloadAllowance:
+              type: integer
+            baMaxInstallSize:
+              type: integer
+            minimumOsVersion:
+              type: string
         relationships:
           type: object
           properties:
-            apps:
+            appClipDomainCacheStatus:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDomainStatuses
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appClipDomainDebugStatus:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appClipDomainStatuses
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            betaAppClipInvocations:
               type: object
               properties:
                 links:
@@ -2428,13 +2541,13 @@ components:
                       type:
                         type: string
                         enum:
-                        - apps
+                        - betaAppClipInvocations
                       id:
                         type: string
                     required:
                     - id
                     - type
-            betaGroups:
+            buildBundleFileSizes:
               type: object
               properties:
                 links:
@@ -2449,33 +2562,99 @@ components:
                       type:
                         type: string
                         enum:
-                        - betaGroups
+                        - buildBundleFileSizes
                       id:
                         type: string
                     required:
                     - id
                     - type
-            builds:
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AppEncryptionDeclarationState:
+      type: string
+      enum:
+      - CREATED
+      - IN_REVIEW
+      - APPROVED
+      - REJECTED
+      - INVALID
+      - EXPIRED
+    BuildBetaDetailBuildLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - builds
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    BuildBundleType:
+      type: string
+      enum:
+      - APP
+      - APP_CLIP
+      - WATCH_APP
+    BuildBetaDetail:
+      type: object
+      title: BuildBetaDetail
+      properties:
+        type:
+          type: string
+          enum:
+          - buildBetaDetails
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            autoNotifyEnabled:
+              type: boolean
+            internalBuildState:
+              $ref: '#/components/schemas/InternalBetaState'
+            externalBuildState:
+              $ref: '#/components/schemas/ExternalBetaState'
+        relationships:
+          type: object
+          properties:
+            build:
               type: object
               properties:
                 links:
                   $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
                 data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - builds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
         links:
           $ref: '#/components/schemas/ResourceLinks'
       required:
@@ -2513,57 +2692,276 @@ components:
             - detail
             - status
             - title
-    StateDetail:
+    BuildResponse:
       type: object
+      title: BuildResponse
       properties:
-        code:
-          type: string
-        description:
-          type: string
-    ExternalBetaState:
+        data:
+          $ref: '#/components/schemas/Build'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppEncryptionDeclaration'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            - $ref: '#/components/schemas/App'
+            - $ref: '#/components/schemas/BetaAppReviewSubmission'
+            - $ref: '#/components/schemas/BetaBuildLocalization'
+            - $ref: '#/components/schemas/BetaGroup'
+            - $ref: '#/components/schemas/BetaTester'
+            - $ref: '#/components/schemas/BuildBetaDetail'
+            - $ref: '#/components/schemas/BuildBundle'
+            - $ref: '#/components/schemas/BuildIcon'
+            - $ref: '#/components/schemas/BuildUpload'
+            - $ref: '#/components/schemas/PrereleaseVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                betaGroups: '#/components/schemas/BetaGroup'
+                appEncryptionDeclarations: '#/components/schemas/AppEncryptionDeclaration'
+                betaAppReviewSubmissions: '#/components/schemas/BetaAppReviewSubmission'
+                buildBetaDetails: '#/components/schemas/BuildBetaDetail'
+                buildIcons: '#/components/schemas/BuildIcon'
+                buildUploads: '#/components/schemas/BuildUpload'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                preReleaseVersions: '#/components/schemas/PrereleaseVersion'
+                buildBundles: '#/components/schemas/BuildBundle'
+                betaTesters: '#/components/schemas/BetaTester'
+                apps: '#/components/schemas/App'
+                betaBuildLocalizations: '#/components/schemas/BetaBuildLocalization'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    Platform:
       type: string
       enum:
-      - PROCESSING
-      - PROCESSING_EXCEPTION
-      - MISSING_EXPORT_COMPLIANCE
-      - READY_FOR_BETA_TESTING
-      - IN_BETA_TESTING
-      - EXPIRED
-      - READY_FOR_BETA_SUBMISSION
-      - IN_EXPORT_COMPLIANCE_REVIEW
-      - WAITING_FOR_BETA_REVIEW
-      - IN_BETA_REVIEW
-      - BETA_REJECTED
-      - BETA_APPROVED
-      - NOT_APPLICABLE
-    ErrorLinks:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    BuildUpload:
       type: object
+      title: BuildUpload
       properties:
-        about:
+        type:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
+          enum:
+          - buildUploads
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            cfBundleShortVersionString:
+              type: string
+            cfBundleVersion:
+              type: string
+            createdDate:
+              type: string
+              format: date-time
+            state:
+              type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                warnings:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                infos:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StateDetail'
+                state:
+                  $ref: '#/components/schemas/BuildUploadState'
+            platform:
+              $ref: '#/components/schemas/Platform'
+            uploadedDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            build:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - builds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            assetFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - buildUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            assetDescriptionFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - buildUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            assetSpiFile:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - buildUploadFiles
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            buildUploadFiles:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    BuildBetaDetailsResponse:
+      type: object
+      title: BuildBetaDetailsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BuildBetaDetail'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Build'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    BetaBuildLocalization:
+      type: object
+      title: BetaBuildLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - betaBuildLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            whatsNew:
+              type: string
+            locale:
+              type: string
+        relationships:
+          type: object
+          properties:
+            build:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - builds
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
+    BuildIcon:
+      type: object
+      title: BuildIcon
+      properties:
+        type:
+          type: string
+          enum:
+          - buildIcons
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            iconAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            iconType:
+              $ref: '#/components/schemas/IconAssetType'
+            masked:
+              type: boolean
+            name:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - self
+      - id
+      - type
+    BetaInviteType:
+      type: string
+      enum:
+      - EMAIL
+      - PUBLIC_LINK
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     AppStoreVersion:
       type: object
       title: AppStoreVersion
@@ -2837,404 +3235,6 @@ components:
       required:
       - id
       - type
-    BuildBundle:
-      type: object
-      title: BuildBundle
-      properties:
-        type:
-          type: string
-          enum:
-          - buildBundles
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            bundleId:
-              type: string
-            bundleType:
-              $ref: '#/components/schemas/BuildBundleType'
-            sdkBuild:
-              type: string
-            platformBuild:
-              type: string
-            fileName:
-              type: string
-            hasSirikit:
-              type: boolean
-            hasOnDemandResources:
-              type: boolean
-            hasPrerenderedIcon:
-              type: boolean
-            usesLocationServices:
-              type: boolean
-            isIosBuildMacAppStoreCompatible:
-              type: boolean
-            includesSymbols:
-              type: boolean
-            dSYMUrl:
-              type: string
-              format: uri
-            supportedArchitectures:
-              type: array
-              items:
-                type: string
-            requiredCapabilities:
-              type: array
-              items:
-                type: string
-            deviceProtocols:
-              type: array
-              items:
-                type: string
-            locales:
-              type: array
-              items:
-                type: string
-            entitlements:
-              type: object
-              additionalProperties:
-                type: object
-                additionalProperties:
-                  type: string
-            baDownloadAllowance:
-              type: integer
-            baMaxInstallSize:
-              type: integer
-            minimumOsVersion:
-              type: string
-        relationships:
-          type: object
-          properties:
-            appClipDomainCacheStatus:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDomainStatuses
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appClipDomainDebugStatus:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appClipDomainStatuses
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            betaAppClipInvocations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - betaAppClipInvocations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            buildBundleFileSizes:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - buildBundleFileSizes
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BetaBuildLocalization:
-      type: object
-      title: BetaBuildLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - betaBuildLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            whatsNew:
-              type: string
-            locale:
-              type: string
-        relationships:
-          type: object
-          properties:
-            build:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - builds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BetaAppReviewSubmission:
-      type: object
-      title: BetaAppReviewSubmission
-      properties:
-        type:
-          type: string
-          enum:
-          - betaAppReviewSubmissions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            betaReviewState:
-              $ref: '#/components/schemas/BetaReviewState'
-            submittedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            build:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - builds
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BetaReviewState:
-      type: string
-      enum:
-      - WAITING_FOR_REVIEW
-      - IN_REVIEW
-      - REJECTED
-      - APPROVED
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    IconAssetType:
-      type: string
-      enum:
-      - APP_STORE
-      - MESSAGES_APP_STORE
-      - WATCH_APP_STORE
-      - TV_OS_HOME_SCREEN
-      - TV_OS_TOP_SHELF
-      - ALTERNATE_EXPERIMENT
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    BuildResponse:
-      type: object
-      title: BuildResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/Build'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppEncryptionDeclaration'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            - $ref: '#/components/schemas/App'
-            - $ref: '#/components/schemas/BetaAppReviewSubmission'
-            - $ref: '#/components/schemas/BetaBuildLocalization'
-            - $ref: '#/components/schemas/BetaGroup'
-            - $ref: '#/components/schemas/BetaTester'
-            - $ref: '#/components/schemas/BuildBetaDetail'
-            - $ref: '#/components/schemas/BuildBundle'
-            - $ref: '#/components/schemas/BuildIcon'
-            - $ref: '#/components/schemas/BuildUpload'
-            - $ref: '#/components/schemas/PrereleaseVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                betaGroups: '#/components/schemas/BetaGroup'
-                appEncryptionDeclarations: '#/components/schemas/AppEncryptionDeclaration'
-                betaAppReviewSubmissions: '#/components/schemas/BetaAppReviewSubmission'
-                buildBetaDetails: '#/components/schemas/BuildBetaDetail'
-                buildIcons: '#/components/schemas/BuildIcon'
-                buildUploads: '#/components/schemas/BuildUpload'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                preReleaseVersions: '#/components/schemas/PrereleaseVersion'
-                buildBundles: '#/components/schemas/BuildBundle'
-                betaTesters: '#/components/schemas/BetaTester'
-                apps: '#/components/schemas/App'
-                betaBuildLocalizations: '#/components/schemas/BetaBuildLocalization'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    PrereleaseVersion:
-      type: object
-      title: PrereleaseVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - preReleaseVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            version:
-              type: string
-            platform:
-              $ref: '#/components/schemas/Platform'
-        relationships:
-          type: object
-          properties:
-            builds:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - builds
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            app:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    BetaInviteType:
-      type: string
-      enum:
-      - EMAIL
-      - PUBLIC_LINK
   securitySchemes:
     itc-bearer-token:
       type: http

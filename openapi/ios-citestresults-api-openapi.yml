@@ -83,14 +83,6 @@ paths:
       summary: Get Ci Test Results
 components:
   schemas:
-    CiTestStatus:
-      type: string
-      enum:
-      - SUCCESS
-      - FAILURE
-      - MIXED
-      - SKIPPED
-      - EXPECTED_FAILURE
     DocumentLinks:
       type: object
       properties:
@@ -99,21 +91,6 @@ components:
           format: uri-reference
       required:
       - self
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    FileLocation:
-      type: object
-      properties:
-        path:
-          type: string
-        lineNumber:
-          type: integer
     ErrorResponse:
       type: object
       properties:
@@ -146,6 +123,74 @@ components:
             - detail
             - status
             - title
+    CiTestStatus:
+      type: string
+      enum:
+      - SUCCESS
+      - FAILURE
+      - MIXED
+      - SKIPPED
+      - EXPECTED_FAILURE
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    FileLocation:
+      type: object
+      properties:
+        path:
+          type: string
+        lineNumber:
+          type: integer
+    CiTestResultResponse:
+      type: object
+      title: CiTestResultResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/CiTestResult'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     CiTestResult:
       type: object
       title: CiTestResult
@@ -189,51 +234,6 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    CiTestResultResponse:
-      type: object
-      title: CiTestResultResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/CiTestResult'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
   securitySchemes:
     itc-bearer-token:
       type: http

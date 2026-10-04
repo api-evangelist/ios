@@ -1081,19 +1081,251 @@ paths:
       summary: List Related App Store Version Experiments / App Store Version Experiment…
 components:
   schemas:
-    ErrorSourcePointer:
+    AppStoreVersionExperimentV2UpdateRequest:
       type: object
-      title: JsonPointer
+      title: AppStoreVersionExperimentV2UpdateRequest
       properties:
-        pointer:
-          type: string
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersionExperiments
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                name:
+                  type:
+                  - string
+                  - 'null'
+                trafficProportion:
+                  type:
+                  - integer
+                  - 'null'
+                started:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
       required:
-      - pointer
+      - data
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppStoreVersionExperiment:
+      type: object
+      title: AppStoreVersionExperiment
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionExperiments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            trafficProportion:
+              type: integer
+            state:
+              type: string
+              enum:
+              - PREPARE_FOR_SUBMISSION
+              - READY_FOR_REVIEW
+              - WAITING_FOR_REVIEW
+              - IN_REVIEW
+              - ACCEPTED
+              - APPROVED
+              - REJECTED
+              - COMPLETED
+              - STOPPED
+            reviewRequired:
+              type: boolean
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            appStoreVersion:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersions
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperimentTreatments:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionExperimentTreatments
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+      deprecated: true
+    AppStoreVersionExperimentResponse:
+      type: object
+      title: AppStoreVersionExperimentResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreVersionExperiment'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+      deprecated: true
+    ImageAsset:
+      type: object
+      properties:
+        templateUrl:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    AppVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - READY_FOR_REVIEW
+      - REJECTED
+      - REPLACED_WITH_NEW_VERSION
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     SubscriptionStatusUrlVersion:
       type: string
       enum:
       - V1
       - V2
+    AppStoreVersionExperimentV2Response:
+      type: object
+      title: AppStoreVersionExperimentV2Response
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreVersionExperimentV2'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            - $ref: '#/components/schemas/App'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                apps: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppStoreVersionExperimentV2:
       type: object
       title: AppStoreVersionExperimentV2
@@ -1211,76 +1443,6 @@ components:
       required:
       - id
       - type
-    AppStoreVersionExperimentResponse:
-      type: object
-      title: AppStoreVersionExperimentResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersionExperiment'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-      deprecated: true
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    AppStoreVersionExperimentV2Response:
-      type: object
-      title: AppStoreVersionExperimentV2Response
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreVersionExperimentV2'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            - $ref: '#/components/schemas/App'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersionExperimentTreatments: '#/components/schemas/AppStoreVersionExperimentTreatment'
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                apps: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
     AppStoreVersionState:
       type: string
       enum:
@@ -1304,87 +1466,6 @@ components:
       - WAITING_FOR_REVIEW
       - REPLACED_WITH_NEW_VERSION
       - NOT_APPLICABLE
-    AppStoreVersionExperimentTreatment:
-      type: object
-      title: AppStoreVersionExperimentTreatment
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionExperimentTreatments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            appIcon:
-              $ref: '#/components/schemas/ImageAsset'
-            appIconName:
-              type: string
-            promotedDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            appStoreVersionExperiment:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionExperiments
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentV2:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionExperiments
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentTreatmentLocalizations:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperimentTreatmentLocalizations
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
     App:
       type: object
       title: App
@@ -2022,140 +2103,6 @@ components:
       required:
       - id
       - type
-    AppStoreVersionExperimentTreatmentsResponse:
-      type: object
-      title: AppStoreVersionExperimentTreatmentsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
-            - $ref: '#/components/schemas/AppStoreVersionExperiment'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersionExperimentTreatmentLocalizations: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
-                appStoreVersionExperiments: '#/components/schemas/AppStoreVersionExperiment'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppStoreVersionExperimentV2AppStoreVersionExperimentTreatmentsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appStoreVersionExperimentTreatments
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    AppVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - READY_FOR_REVIEW
-      - REJECTED
-      - REPLACED_WITH_NEW_VERSION
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    AppStoreVersionExperimentAppStoreVersionExperimentTreatmentsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appStoreVersionExperimentTreatments
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-      deprecated: true
     AppStoreVersionExperimentCreateRequest:
       type: object
       title: AppStoreVersionExperimentCreateRequest
@@ -2206,34 +2153,252 @@ components:
       required:
       - data
       deprecated: true
-    ErrorLinks:
+    PagingInformation:
       type: object
       properties:
-        about:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
+      required:
+      - pointer
+    AppStoreVersionExperimentAppStoreVersionExperimentTreatmentsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
             properties:
-              href:
+              type:
                 type: string
-                format: uri-reference
+                enum:
+                - appStoreVersionExperimentTreatments
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+      deprecated: true
+    AppStoreVersionExperimentUpdateRequest:
+      type: object
+      title: AppStoreVersionExperimentUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreVersionExperiments
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                name:
+                  type:
+                  - string
+                  - 'null'
+                trafficProportion:
+                  type:
+                  - integer
+                  - 'null'
+                started:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+      deprecated: true
+    AppStoreVersionExperimentTreatmentsResponse:
+      type: object
+      title: AppStoreVersionExperimentTreatmentsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreVersionExperimentTreatment'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
+            - $ref: '#/components/schemas/AppStoreVersionExperiment'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersionExperimentTreatmentLocalizations: '#/components/schemas/AppStoreVersionExperimentTreatmentLocalization'
+                appStoreVersionExperiments: '#/components/schemas/AppStoreVersionExperiment'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppStoreVersionExperimentV2AppStoreVersionExperimentTreatmentsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appStoreVersionExperimentTreatments
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppStoreVersionExperimentTreatment:
+      type: object
+      title: AppStoreVersionExperimentTreatment
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionExperimentTreatments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            name:
+              type: string
+            appIcon:
+              $ref: '#/components/schemas/ImageAsset'
+            appIconName:
+              type: string
+            promotedDate:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+          properties:
+            appStoreVersionExperiment:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionExperiments
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperimentV2:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionExperiments
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appStoreVersionExperimentTreatmentLocalizations:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appStoreVersionExperimentTreatmentLocalizations
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
               meta:
                 type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
     AppStoreVersionExperimentV2CreateRequest:
       type: object
       title: AppStoreVersionExperimentV2CreateRequest
@@ -2286,6 +2451,107 @@ components:
           - type
       required:
       - data
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    AppStoreVersionExperimentTreatmentLocalization:
+      type: object
+      title: AppStoreVersionExperimentTreatmentLocalization
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreVersionExperimentTreatmentLocalizations
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            locale:
+              type: string
+        relationships:
+          type: object
+          properties:
+            appStoreVersionExperimentTreatment:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreVersionExperimentTreatments
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            appScreenshotSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appScreenshotSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+            appPreviewSets:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - appPreviewSets
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     AppStoreVersion:
       type: object
       title: AppStoreVersion
@@ -2559,272 +2825,6 @@ components:
       required:
       - id
       - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    AppStoreVersionExperimentTreatmentLocalization:
-      type: object
-      title: AppStoreVersionExperimentTreatmentLocalization
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionExperimentTreatmentLocalizations
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            locale:
-              type: string
-        relationships:
-          type: object
-          properties:
-            appStoreVersionExperimentTreatment:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersionExperimentTreatments
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appScreenshotSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appScreenshotSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-            appPreviewSets:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appPreviewSets
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppStoreVersionExperimentV2UpdateRequest:
-      type: object
-      title: AppStoreVersionExperimentV2UpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersionExperiments
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                name:
-                  type:
-                  - string
-                  - 'null'
-                trafficProportion:
-                  type:
-                  - integer
-                  - 'null'
-                started:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    AppStoreVersionExperimentUpdateRequest:
-      type: object
-      title: AppStoreVersionExperimentUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreVersionExperiments
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                name:
-                  type:
-                  - string
-                  - 'null'
-                trafficProportion:
-                  type:
-                  - integer
-                  - 'null'
-                started:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-      deprecated: true
-    AppStoreVersionExperiment:
-      type: object
-      title: AppStoreVersionExperiment
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreVersionExperiments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            trafficProportion:
-              type: integer
-            state:
-              type: string
-              enum:
-              - PREPARE_FOR_SUBMISSION
-              - READY_FOR_REVIEW
-              - WAITING_FOR_REVIEW
-              - IN_REVIEW
-              - ACCEPTED
-              - APPROVED
-              - REJECTED
-              - COMPLETED
-              - STOPPED
-            reviewRequired:
-              type: boolean
-            startDate:
-              type: string
-              format: date-time
-            endDate:
-              type: string
-              format: date-time
-        relationships:
-          type: object
-          properties:
-            appStoreVersion:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreVersions
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            appStoreVersionExperimentTreatments:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - appStoreVersionExperimentTreatments
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-      deprecated: true
   securitySchemes:
     itc-bearer-token:
       type: http

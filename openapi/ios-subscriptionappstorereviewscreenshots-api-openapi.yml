@@ -283,45 +283,62 @@ paths:
       summary: Delete Subscription App Store Review Screenshots
 components:
   schemas:
-    ImageAsset:
+    RelationshipLinks:
       type: object
       properties:
-        templateUrl:
+        self:
           type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    HttpHeader:
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    AppMediaAssetState:
       type: object
       properties:
-        name:
-          type: string
-        value:
-          type: string
-    SubscriptionAppStoreReviewScreenshotResponse:
-      type: object
-      title: SubscriptionAppStoreReviewScreenshotResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
-        included:
+        errors:
           type: array
           items:
-            $ref: '#/components/schemas/Subscription'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
+    SubscriptionAppStoreReviewScreenshotUpdateRequest:
+      type: object
+      title: SubscriptionAppStoreReviewScreenshotUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - subscriptionAppStoreReviewScreenshots
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                sourceFileChecksum:
+                  type:
+                  - string
+                  - 'null'
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
       required:
       - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     SubscriptionAppStoreReviewScreenshot:
       type: object
       title: SubscriptionAppStoreReviewScreenshot
@@ -376,49 +393,6 @@ components:
       required:
       - id
       - type
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
     AppMediaStateError:
       type: object
       properties:
@@ -426,6 +400,29 @@ components:
           type: string
         description:
           type: string
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
     ErrorResponse:
       type: object
       properties:
@@ -458,84 +455,37 @@ components:
             - detail
             - status
             - title
-    SubscriptionAppStoreReviewScreenshotUpdateRequest:
-      type: object
-      title: SubscriptionAppStoreReviewScreenshotUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - subscriptionAppStoreReviewScreenshots
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                sourceFileChecksum:
-                  type:
-                  - string
-                  - 'null'
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
-    ErrorLinks:
+    ImageAsset:
       type: object
       properties:
-        about:
+        templateUrl:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
+        width:
           type: integer
-        offset:
+        height:
           type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
     ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    DocumentLinks:
+    PagingInformation:
       type: object
       properties:
-        self:
-          type: string
-          format: uri-reference
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
       required:
-      - self
+      - paging
     SubscriptionAppStoreReviewScreenshotCreateRequest:
       type: object
       title: SubscriptionAppStoreReviewScreenshotCreateRequest
@@ -593,6 +543,56 @@ components:
           type: string
       required:
       - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    SubscriptionAppStoreReviewScreenshotResponse:
+      type: object
+      title: SubscriptionAppStoreReviewScreenshotResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/SubscriptionAppStoreReviewScreenshot'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
     Subscription:
       type: object
       title: Subscription

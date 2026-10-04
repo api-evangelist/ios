@@ -508,34 +508,47 @@ paths:
       summary: List Related Webhooks / Deliveries
 components:
   schemas:
-    WebhookResponse:
+    WebhookEvent:
       type: object
-      title: WebhookResponse
+      title: WebhookEvent
       properties:
-        data:
-          $ref: '#/components/schemas/Webhook'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/App'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
+        type:
           type: string
+          enum:
+          - webhookEvents
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            eventType:
+              $ref: '#/components/schemas/WebhookEventType'
+            payload:
+              type: string
+            ping:
+              type: boolean
+            createdDate:
+              type: string
+              format: date-time
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - pointer
-    SubscriptionStatusUrlVersion:
-      type: string
-      enum:
-      - V1
-      - V2
+      - id
+      - type
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
     WebhookEventType:
       type: string
       enum:
@@ -612,20 +625,134 @@ components:
           - type
       required:
       - data
-    ResourceLinks:
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    RelationshipLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        related:
           type: string
+          format: uri-reference
+    SubscriptionStatusUrlVersion:
+      type: string
+      enum:
+      - V1
+      - V2
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
       required:
-      - parameter
+      - self
+    WebhookResponse:
+      type: object
+      title: WebhookResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/Webhook'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    WebhookDeliveriesResponse:
+      type: object
+      title: WebhookDeliveriesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookDelivery'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookEvent'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    Webhook:
+      type: object
+      title: Webhook
+      properties:
+        type:
+          type: string
+          enum:
+          - webhooks
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            eventTypes:
+              type: array
+              items:
+                $ref: '#/components/schemas/WebhookEventType'
+            name:
+              type: string
+            url:
+              type: string
+              format: uri
+        relationships:
+          type: object
+          properties:
+            app:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - apps
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+            deliveries:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     WebhookDelivery:
       type: object
       title: WebhookDelivery
@@ -1328,94 +1455,30 @@ components:
       required:
       - id
       - type
-    ErrorResponse:
+    PagingInformation:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
       required:
-      - self
-    WebhookDeliveriesResponse:
+      - paging
+    ErrorSourcePointer:
       type: object
-      title: WebhookDeliveriesResponse
+      title: JsonPointer
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/WebhookDelivery'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/WebhookEvent'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        pointer:
+          type: string
       required:
-      - data
-      - links
+      - pointer
     WebhookUpdateRequest:
       type: object
       title: WebhookUpdateRequest
@@ -1460,36 +1523,52 @@ components:
           - type
       required:
       - data
-    PagingInformation:
+    ErrorResponse:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        first:
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
           type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
       required:
-      - self
+      - parameter
     WebhookDeliveriesLinkagesResponse:
       type: object
       properties:
@@ -1514,85 +1593,6 @@ components:
       required:
       - data
       - links
-    Webhook:
-      type: object
-      title: Webhook
-      properties:
-        type:
-          type: string
-          enum:
-          - webhooks
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            enabled:
-              type: boolean
-            eventTypes:
-              type: array
-              items:
-                $ref: '#/components/schemas/WebhookEventType'
-            name:
-              type: string
-            url:
-              type: string
-              format: uri
-        relationships:
-          type: object
-          properties:
-            app:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - apps
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-            deliveries:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    WebhookEvent:
-      type: object
-      title: WebhookEvent
-      properties:
-        type:
-          type: string
-          enum:
-          - webhookEvents
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            eventType:
-              $ref: '#/components/schemas/WebhookEventType'
-            payload:
-              type: string
-            ping:
-              type: boolean
-            createdDate:
-              type: string
-              format: date-time
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -442,14 +442,13 @@ paths:
       summary: List Related App Store Review Details / App Store Review Attachments
 components:
   schemas:
-    ErrorSourcePointer:
+    AppMediaStateError:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        code:
           type: string
-      required:
-      - pointer
+        description:
+          type: string
     UploadOperation:
       type: object
       properties:
@@ -465,20 +464,159 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
-    ResourceLinks:
+    AppStoreReviewDetailUpdateRequest:
+      type: object
+      title: AppStoreReviewDetailUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appStoreReviewDetails
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                contactFirstName:
+                  type:
+                  - string
+                  - 'null'
+                contactLastName:
+                  type:
+                  - string
+                  - 'null'
+                contactPhone:
+                  type:
+                  - string
+                  - 'null'
+                contactEmail:
+                  type:
+                  - string
+                  - 'null'
+                demoAccountName:
+                  type:
+                  - string
+                  - 'null'
+                demoAccountPassword:
+                  type:
+                  - string
+                  - 'null'
+                demoAccountRequired:
+                  type:
+                  - boolean
+                  - 'null'
+                notes:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    PagedDocumentLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
+        first:
           type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
       required:
-      - parameter
+      - self
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    HttpHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    AppVersionState:
+      type: string
+      enum:
+      - ACCEPTED
+      - DEVELOPER_REJECTED
+      - IN_REVIEW
+      - INVALID_BINARY
+      - METADATA_REJECTED
+      - PENDING_APPLE_RELEASE
+      - PENDING_DEVELOPER_RELEASE
+      - PREPARE_FOR_SUBMISSION
+      - PROCESSING_FOR_DISTRIBUTION
+      - READY_FOR_DISTRIBUTION
+      - READY_FOR_REVIEW
+      - REJECTED
+      - REPLACED_WITH_NEW_VERSION
+      - WAITING_FOR_EXPORT_COMPLIANCE
+      - WAITING_FOR_REVIEW
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppStoreReviewDetailAppStoreReviewAttachmentsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - appStoreReviewAttachments
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
     AppStoreVersionState:
       type: string
       enum:
@@ -502,6 +640,137 @@ components:
       - WAITING_FOR_REVIEW
       - REPLACED_WITH_NEW_VERSION
       - NOT_APPLICABLE
+    AppStoreReviewAttachmentsResponse:
+      type: object
+      title: AppStoreReviewAttachmentsResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreReviewAttachment'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreReviewDetail'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    AppStoreReviewDetailResponse:
+      type: object
+      title: AppStoreReviewDetailResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppStoreReviewDetail'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppStoreReviewAttachment'
+            - $ref: '#/components/schemas/AppStoreVersion'
+            discriminator:
+              propertyName: type
+              mapping:
+                appStoreVersions: '#/components/schemas/AppStoreVersion'
+                appStoreReviewAttachments: '#/components/schemas/AppStoreReviewAttachment'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AppStoreReviewAttachment:
+      type: object
+      title: AppStoreReviewAttachment
+      properties:
+        type:
+          type: string
+          enum:
+          - appStoreReviewAttachments
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            sourceFileChecksum:
+              type: string
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        relationships:
+          type: object
+          properties:
+            appStoreReviewDetail:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - appStoreReviewDetails
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
     AppStoreReviewDetailCreateRequest:
       type: object
       title: AppStoreReviewDetailCreateRequest
@@ -575,28 +844,6 @@ components:
           - type
       required:
       - data
-    AppStoreReviewDetailResponse:
-      type: object
-      title: AppStoreReviewDetailResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppStoreReviewDetail'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppStoreReviewAttachment'
-            - $ref: '#/components/schemas/AppStoreVersion'
-            discriminator:
-              propertyName: type
-              mapping:
-                appStoreVersions: '#/components/schemas/AppStoreVersion'
-                appStoreReviewAttachments: '#/components/schemas/AppStoreReviewAttachment'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     AppStoreReviewDetail:
       type: object
       title: AppStoreReviewDetail
@@ -670,52 +917,6 @@ components:
       required:
       - id
       - type
-    AppVersionState:
-      type: string
-      enum:
-      - ACCEPTED
-      - DEVELOPER_REJECTED
-      - IN_REVIEW
-      - INVALID_BINARY
-      - METADATA_REJECTED
-      - PENDING_APPLE_RELEASE
-      - PENDING_DEVELOPER_RELEASE
-      - PREPARE_FOR_SUBMISSION
-      - PROCESSING_FOR_DISTRIBUTION
-      - READY_FOR_DISTRIBUTION
-      - READY_FOR_REVIEW
-      - REJECTED
-      - REPLACED_WITH_NEW_VERSION
-      - WAITING_FOR_EXPORT_COMPLIANCE
-      - WAITING_FOR_REVIEW
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    AppStoreReviewAttachmentsResponse:
-      type: object
-      title: AppStoreReviewAttachmentsResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreReviewAttachment'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppStoreReviewDetail'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
     ErrorResponse:
       type: object
       properties:
@@ -748,34 +949,27 @@ components:
             - detail
             - status
             - title
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    DocumentLinks:
+    Platform:
+      type: string
+      enum:
+      - IOS
+      - MAC_OS
+      - TV_OS
+      - VISION_OS
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
       required:
-      - self
+      - parameter
     AppStoreVersion:
       type: object
       title: AppStoreVersion
@@ -1049,200 +1243,6 @@ components:
       required:
       - id
       - type
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppMediaAssetState:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    AppMediaStateError:
-      type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    AppStoreReviewDetailAppStoreReviewAttachmentsLinkagesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - appStoreReviewAttachments
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    Platform:
-      type: string
-      enum:
-      - IOS
-      - MAC_OS
-      - TV_OS
-      - VISION_OS
-    AppStoreReviewAttachment:
-      type: object
-      title: AppStoreReviewAttachment
-      properties:
-        type:
-          type: string
-          enum:
-          - appStoreReviewAttachments
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            sourceFileChecksum:
-              type: string
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        relationships:
-          type: object
-          properties:
-            appStoreReviewDetail:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - appStoreReviewDetails
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    AppStoreReviewDetailUpdateRequest:
-      type: object
-      title: AppStoreReviewDetailUpdateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appStoreReviewDetails
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                contactFirstName:
-                  type:
-                  - string
-                  - 'null'
-                contactLastName:
-                  type:
-                  - string
-                  - 'null'
-                contactPhone:
-                  type:
-                  - string
-                  - 'null'
-                contactEmail:
-                  type:
-                  - string
-                  - 'null'
-                demoAccountName:
-                  type:
-                  - string
-                  - 'null'
-                demoAccountPassword:
-                  type:
-                  - string
-                  - 'null'
-                demoAccountRequired:
-                  type:
-                  - boolean
-                  - 'null'
-                notes:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
-      required:
-      - data
   securitySchemes:
     itc-bearer-token:
       type: http

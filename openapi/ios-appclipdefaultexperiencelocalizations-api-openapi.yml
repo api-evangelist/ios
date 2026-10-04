@@ -429,14 +429,13 @@ paths:
       summary: Get Related App Clip Default Experience Localizations / App Clip Header Image
 components:
   schemas:
-    ErrorSourcePointer:
+    AppMediaStateError:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        code:
           type: string
-      required:
-      - pointer
+        description:
+          type: string
     UploadOperation:
       type: object
       properties:
@@ -452,29 +451,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HttpHeader'
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
     AppClipDefaultExperience:
       type: object
       title: AppClipDefaultExperience
@@ -631,82 +607,22 @@ components:
       required:
       - id
       - type
-    AppClipDefaultExperienceLocalizationAppClipHeaderImageLinkageResponse:
+    ImageAsset:
       type: object
       properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipHeaderImages
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    AppClipHeaderImageResponse:
-      type: object
-      title: AppClipHeaderImageResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/AppClipHeaderImage'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
+        templateUrl:
           type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
+        width:
+          type: integer
+        height:
+          type: integer
+    HttpHeader:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+        name:
+          type: string
+        value:
+          type: string
     ErrorLinks:
       type: object
       properties:
@@ -727,28 +643,35 @@ components:
                 properties:
                   source:
                     type: string
-    AppClipDefaultExperienceLocalizationResponse:
+    AppClipDefaultExperienceLocalizationAppClipHeaderImageLinkageResponse:
       type: object
-      title: AppClipDefaultExperienceLocalizationResponse
       properties:
         data:
-          $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/AppClipDefaultExperience'
-            - $ref: '#/components/schemas/AppClipHeaderImage'
-            discriminator:
-              propertyName: type
-              mapping:
-                appClipDefaultExperiences: '#/components/schemas/AppClipDefaultExperience'
-                appClipHeaderImages: '#/components/schemas/AppClipHeaderImage'
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipHeaderImages
+            id:
+              type: string
+          required:
+          - id
+          - type
         links:
           $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
       - links
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
     DocumentLinks:
       type: object
       properties:
@@ -757,6 +680,73 @@ components:
           format: uri-reference
       required:
       - self
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    AppClipDefaultExperienceLocalizationUpdateRequest:
+      type: object
+      title: AppClipDefaultExperienceLocalizationUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - appClipDefaultExperienceLocalizations
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                subtitle:
+                  type:
+                  - string
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
+    AppMediaAssetState:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppMediaStateError'
+        state:
+          type: string
+          enum:
+          - AWAITING_UPLOAD
+          - UPLOAD_COMPLETE
+          - COMPLETE
+          - FAILED
     AppClipDefaultExperienceLocalizationCreateRequest:
       type: object
       title: AppClipDefaultExperienceLocalizationCreateRequest
@@ -807,31 +797,53 @@ components:
           - type
       required:
       - data
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    AppMediaAssetState:
+    ErrorResponse:
       type: object
       properties:
         errors:
           type: array
           items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        warnings:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    AppClipHeaderImageResponse:
+      type: object
+      title: AppClipHeaderImageResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/AppClipHeaderImage'
+        included:
           type: array
           items:
-            $ref: '#/components/schemas/AppMediaStateError'
-        state:
-          type: string
-          enum:
-          - AWAITING_UPLOAD
-          - UPLOAD_COMPLETE
-          - COMPLETE
-          - FAILED
+            $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     AppClipHeaderImage:
       type: object
       title: AppClipHeaderImage
@@ -882,54 +894,42 @@ components:
       required:
       - id
       - type
-    PagingInformation:
+    ResourceLinks:
       type: object
       properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
+        self:
+          type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
       required:
-      - paging
-    AppMediaStateError:
+      - parameter
+    AppClipDefaultExperienceLocalizationResponse:
       type: object
-      properties:
-        code:
-          type: string
-        description:
-          type: string
-    AppClipDefaultExperienceLocalizationUpdateRequest:
-      type: object
-      title: AppClipDefaultExperienceLocalizationUpdateRequest
+      title: AppClipDefaultExperienceLocalizationResponse
       properties:
         data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - appClipDefaultExperienceLocalizations
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                subtitle:
-                  type:
-                  - string
-                  - 'null'
-          required:
-          - id
-          - type
+          $ref: '#/components/schemas/AppClipDefaultExperienceLocalization'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AppClipDefaultExperience'
+            - $ref: '#/components/schemas/AppClipHeaderImage'
+            discriminator:
+              propertyName: type
+              mapping:
+                appClipDefaultExperiences: '#/components/schemas/AppClipDefaultExperience'
+                appClipHeaderImages: '#/components/schemas/AppClipHeaderImage'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
+      - links
   securitySchemes:
     itc-bearer-token:
       type: http

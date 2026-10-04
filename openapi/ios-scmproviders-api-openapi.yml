@@ -325,37 +325,39 @@ paths:
       summary: List Related Scm Providers / Repositories
 components:
   schemas:
-    CiGitRefKind:
-      type: string
-      enum:
-      - BRANCH
-      - TAG
-    ScmRepositoriesResponse:
+    RelationshipLinks:
       type: object
-      title: ScmRepositoriesResponse
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScmRepository'
-        included:
-          type: array
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/ScmGitReference'
-            - $ref: '#/components/schemas/ScmProvider'
-            discriminator:
-              propertyName: type
-              mapping:
-                scmProviders: '#/components/schemas/ScmProvider'
-                scmGitReferences: '#/components/schemas/ScmGitReference'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
       required:
-      - data
-      - links
+      - self
+    ScmProviderType:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+          - BITBUCKET_CLOUD
+          - BITBUCKET_SERVER
+          - GITHUB_CLOUD
+          - GITHUB_ENTERPRISE
+          - GITLAB_CLOUD
+          - GITLAB_SELF_MANAGED
+        displayName:
+          type: string
+        isOnPremise:
+          type: boolean
     ScmGitReference:
       type: object
       title: ScmGitReference
@@ -400,111 +402,6 @@ components:
       required:
       - id
       - type
-    ScmProviderType:
-      type: object
-      properties:
-        kind:
-          type: string
-          enum:
-          - BITBUCKET_CLOUD
-          - BITBUCKET_SERVER
-          - GITHUB_CLOUD
-          - GITHUB_ENTERPRISE
-          - GITLAB_CLOUD
-          - GITLAB_SELF_MANAGED
-        displayName:
-          type: string
-        isOnPremise:
-          type: boolean
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    ScmProviderResponse:
-      type: object
-      title: ScmProviderResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/ScmProvider'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ScmProvider:
-      type: object
-      title: ScmProvider
-      properties:
-        type:
-          type: string
-          enum:
-          - scmProviders
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            scmProviderType:
-              $ref: '#/components/schemas/ScmProviderType'
-            url:
-              type: string
-              format: uri
-        relationships:
-          type: object
-          properties:
-            repositories:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
     ErrorResponse:
       type: object
       properties:
@@ -537,6 +434,77 @@ components:
             - detail
             - status
             - title
+    ScmProviderResponse:
+      type: object
+      title: ScmProviderResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/ScmProvider'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ScmProvidersResponse:
+      type: object
+      title: ScmProvidersResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmProvider'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ScmProvider:
+      type: object
+      title: ScmProvider
+      properties:
+        type:
+          type: string
+          enum:
+          - scmProviders
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            scmProviderType:
+              $ref: '#/components/schemas/ScmProviderType'
+            url:
+              type: string
+              format: uri
+        relationships:
+          type: object
+          properties:
+            repositories:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     ScmProviderRepositoriesLinkagesResponse:
       type: object
       properties:
@@ -561,6 +529,95 @@ components:
       required:
       - data
       - links
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ScmRepositoriesResponse:
+      type: object
+      title: ScmRepositoriesResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScmRepository'
+        included:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ScmGitReference'
+            - $ref: '#/components/schemas/ScmProvider'
+            discriminator:
+              propertyName: type
+              mapping:
+                scmProviders: '#/components/schemas/ScmProvider'
+                scmGitReferences: '#/components/schemas/ScmGitReference'
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    CiGitRefKind:
+      type: string
+      enum:
+      - BRANCH
+      - TAG
+    ErrorLinks:
+      type: object
+      properties:
+        about:
+          type: string
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
     ScmRepository:
       type: object
       title: ScmRepository
@@ -635,63 +692,6 @@ components:
       required:
       - id
       - type
-    ErrorLinks:
-      type: object
-      properties:
-        about:
-          type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    ScmProvidersResponse:
-      type: object
-      title: ScmProvidersResponse
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScmProvider'
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
-      required:
-      - data
-      - links
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http

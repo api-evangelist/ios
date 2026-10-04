@@ -70,14 +70,79 @@ paths:
       summary: Create Webhook Deliveries
 components:
   schemas:
-    ErrorSourcePointer:
+    DocumentLinks:
       type: object
-      title: JsonPointer
       properties:
-        pointer:
+        self:
           type: string
+          format: uri-reference
       required:
-      - pointer
+      - self
+    WebhookDeliveryCreateRequest:
+      type: object
+      title: WebhookDeliveryCreateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - webhookDeliveries
+            relationships:
+              type: object
+              properties:
+                template:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - webhookDeliveries
+                        id:
+                          type: string
+                      required:
+                      - id
+                      - type
+                  required:
+                  - data
+              required:
+              - template
+          required:
+          - relationships
+          - type
+      required:
+      - data
+    WebhookEvent:
+      type: object
+      title: WebhookEvent
+      properties:
+        type:
+          type: string
+          enum:
+          - webhookEvents
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            eventType:
+              $ref: '#/components/schemas/WebhookEventType'
+            payload:
+              type: string
+            ping:
+              type: boolean
+            createdDate:
+              type: string
+              format: date-time
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     ErrorResponse:
       type: object
       properties:
@@ -125,6 +190,43 @@ components:
       - BETA_FEEDBACK_SCREENSHOT_SUBMISSION_CREATED
       - BUILD_BETA_DETAIL_EXTERNAL_BUILD_STATE_UPDATED
       - BUILD_UPLOAD_STATE_UPDATED
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    WebhookDeliveryResponse:
+      type: object
+      title: WebhookDeliveryResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/WebhookDelivery'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookEvent'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
     WebhookDelivery:
       type: object
       title: WebhookDelivery
@@ -190,21 +292,6 @@ components:
       required:
       - id
       - type
-    WebhookDeliveryResponse:
-      type: object
-      title: WebhookDeliveryResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/WebhookDelivery'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/WebhookEvent'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     ErrorLinks:
       type: object
       properties:
@@ -225,93 +312,6 @@ components:
                 properties:
                   source:
                     type: string
-    WebhookDeliveryCreateRequest:
-      type: object
-      title: WebhookDeliveryCreateRequest
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - webhookDeliveries
-            relationships:
-              type: object
-              properties:
-                template:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                          - webhookDeliveries
-                        id:
-                          type: string
-                      required:
-                      - id
-                      - type
-                  required:
-                  - data
-              required:
-              - template
-          required:
-          - relationships
-          - type
-      required:
-      - data
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    WebhookEvent:
-      type: object
-      title: WebhookEvent
-      properties:
-        type:
-          type: string
-          enum:
-          - webhookEvents
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            eventType:
-              $ref: '#/components/schemas/WebhookEventType'
-            payload:
-              type: string
-            ping:
-              type: boolean
-            createdDate:
-              type: string
-              format: date-time
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
   securitySchemes:
     itc-bearer-token:
       type: http

@@ -272,6 +272,141 @@ paths:
       summary: Get Related Customer Reviews / Response
 components:
   schemas:
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    CustomerReviewResponseV1:
+      type: object
+      title: CustomerReviewResponseV1
+      properties:
+        type:
+          type: string
+          enum:
+          - customerReviewResponses
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            responseBody:
+              type: string
+            lastModifiedDate:
+              type: string
+              format: date-time
+            state:
+              type: string
+              enum:
+              - PUBLISHED
+              - PENDING_PUBLISH
+        relationships:
+          type: object
+          properties:
+            review:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - customerReviews
+                    id:
+                      type: string
+                  required:
+                  - id
+                  - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CustomerReviewResponseLinkageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - customerReviewResponses
+            id:
+              type: string
+          required:
+          - id
+          - type
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    Territory:
+      type: object
+      title: Territory
+      properties:
+        type:
+          type: string
+          enum:
+          - territories
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            currency:
+              type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
     CustomerReview:
       type: object
       title: CustomerReview
@@ -340,121 +475,27 @@ components:
       required:
       - id
       - type
-    CustomerReviewResponseLinkageResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - customerReviewResponses
-            id:
-              type: string
-          required:
-          - id
-          - type
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
-    RelationshipLinks:
+    ResourceLinks:
       type: object
       properties:
         self:
           type: string
           format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
+    CustomerReviewResponseV1Response:
       type: object
+      title: CustomerReviewResponseV1Response
       properties:
-        errors:
+        data:
+          $ref: '#/components/schemas/CustomerReviewResponseV1'
+        included:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
-    CustomerReviewResponseV1:
-      type: object
-      title: CustomerReviewResponseV1
-      properties:
-        type:
-          type: string
-          enum:
-          - customerReviewResponses
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            responseBody:
-              type: string
-            lastModifiedDate:
-              type: string
-              format: date-time
-            state:
-              type: string
-              enum:
-              - PUBLISHED
-              - PENDING_PUBLISH
-        relationships:
-          type: object
-          properties:
-            review:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                      - customerReviews
-                    id:
-                      type: string
-                  required:
-                  - id
-                  - type
+            $ref: '#/components/schemas/CustomerReview'
         links:
-          $ref: '#/components/schemas/ResourceLinks'
+          $ref: '#/components/schemas/DocumentLinks'
       required:
-      - id
-      - type
+      - data
+      - links
     CustomerReviewResponse:
       type: object
       title: CustomerReviewResponse
@@ -477,6 +518,22 @@ components:
       required:
       - data
       - links
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     TerritoryCode:
       type: string
       enum:
@@ -733,63 +790,6 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    DocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    CustomerReviewResponseV1Response:
-      type: object
-      title: CustomerReviewResponseV1Response
-      properties:
-        data:
-          $ref: '#/components/schemas/CustomerReviewResponseV1'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomerReview'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
-    Territory:
-      type: object
-      title: Territory
-      properties:
-        type:
-          type: string
-          enum:
-          - territories
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            currency:
-              type: string
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
   securitySchemes:
     itc-bearer-token:
       type: http

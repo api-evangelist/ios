@@ -237,71 +237,6 @@ paths:
       summary: Delete Game Center Activity Images
 components:
   schemas:
-    ImageAsset:
-      type: object
-      properties:
-        templateUrl:
-          type: string
-        width:
-          type: integer
-        height:
-          type: integer
-    GameCenterActivityImage:
-      type: object
-      title: GameCenterActivityImage
-      properties:
-        type:
-          type: string
-          enum:
-          - gameCenterActivityImages
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            fileSize:
-              type: integer
-            fileName:
-              type: string
-            imageAsset:
-              $ref: '#/components/schemas/ImageAsset'
-            uploadOperations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UploadOperation'
-            assetDeliveryState:
-              $ref: '#/components/schemas/AppMediaAssetState'
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    HttpHeader:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: string
-    GameCenterActivityImageResponse:
-      type: object
-      title: GameCenterActivityImageResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/GameCenterActivityImage'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
-    ErrorSourcePointer:
-      type: object
-      title: JsonPointer
-      properties:
-        pointer:
-          type: string
-      required:
-      - pointer
     AppMediaAssetState:
       type: object
       properties:
@@ -320,6 +255,61 @@ components:
           - UPLOAD_COMPLETE
           - COMPLETE
           - FAILED
+    DocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    AppMediaStateError:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    UploadOperation:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        length:
+          type: integer
+        offset:
+          type: integer
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+    GameCenterActivityImageUpdateRequest:
+      type: object
+      title: GameCenterActivityImageUpdateRequest
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - gameCenterActivityImages
+            id:
+              type: string
+            attributes:
+              type: object
+              properties:
+                uploaded:
+                  type:
+                  - boolean
+                  - 'null'
+          required:
+          - id
+          - type
+      required:
+      - data
     ErrorResponse:
       type: object
       properties:
@@ -352,13 +342,48 @@ components:
             - detail
             - status
             - title
-    AppMediaStateError:
+    ErrorLinks:
       type: object
       properties:
-        code:
+        about:
           type: string
-        description:
+          format: uri-reference
+        associated:
+          oneOf:
+          - type: string
+            format: uri-reference
+          - type: object
+            properties:
+              href:
+                type: string
+                format: uri-reference
+              meta:
+                type: object
+                properties:
+                  source:
+                    type: string
+    ResourceLinks:
+      type: object
+      properties:
+        self:
           type: string
+          format: uri-reference
+    ErrorSourceParameter:
+      type: object
+      title: Parameter
+      properties:
+        parameter:
+          type: string
+      required:
+      - parameter
+    ErrorSourcePointer:
+      type: object
+      title: JsonPointer
+      properties:
+        pointer:
+          type: string
+      required:
+      - pointer
     GameCenterActivityImageCreateRequest:
       type: object
       title: GameCenterActivityImageCreateRequest
@@ -418,88 +443,63 @@ components:
           - type
       required:
       - data
-    GameCenterActivityImageUpdateRequest:
+    GameCenterActivityImageResponse:
       type: object
-      title: GameCenterActivityImageUpdateRequest
+      title: GameCenterActivityImageResponse
       properties:
         data:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - gameCenterActivityImages
-            id:
-              type: string
-            attributes:
-              type: object
-              properties:
-                uploaded:
-                  type:
-                  - boolean
-                  - 'null'
-          required:
-          - id
-          - type
+          $ref: '#/components/schemas/GameCenterActivityImage'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
       required:
       - data
-    ErrorLinks:
+      - links
+    ImageAsset:
       type: object
       properties:
-        about:
+        templateUrl:
           type: string
-          format: uri-reference
-        associated:
-          oneOf:
-          - type: string
-            format: uri-reference
-          - type: object
-            properties:
-              href:
-                type: string
-                format: uri-reference
-              meta:
-                type: object
-                properties:
-                  source:
-                    type: string
-    UploadOperation:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        length:
+        width:
           type: integer
-        offset:
+        height:
           type: integer
-        requestHeaders:
-          type: array
-          items:
-            $ref: '#/components/schemas/HttpHeader'
-    ResourceLinks:
+    HttpHeader:
       type: object
       properties:
-        self:
+        name:
           type: string
-          format: uri-reference
-    DocumentLinks:
+        value:
+          type: string
+    GameCenterActivityImage:
       type: object
+      title: GameCenterActivityImage
       properties:
-        self:
+        type:
           type: string
-          format: uri-reference
+          enum:
+          - gameCenterActivityImages
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            fileSize:
+              type: integer
+            fileName:
+              type: string
+            imageAsset:
+              $ref: '#/components/schemas/ImageAsset'
+            uploadOperations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UploadOperation'
+            assetDeliveryState:
+              $ref: '#/components/schemas/AppMediaAssetState'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
       required:
-      - self
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
+      - id
+      - type
   securitySchemes:
     itc-bearer-token:
       type: http

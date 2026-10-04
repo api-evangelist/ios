@@ -372,6 +372,76 @@ paths:
       summary: List Related Ci Xcode Versions / Mac OS Versions
 components:
   schemas:
+    RelationshipLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        related:
+          type: string
+          format: uri-reference
+    CiMacOsVersion:
+      type: object
+      title: CiMacOsVersion
+      properties:
+        type:
+          type: string
+          enum:
+          - ciMacOsVersions
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            version:
+              type: string
+            name:
+              type: string
+        relationships:
+          type: object
+          properties:
+            xcodeVersions:
+              type: object
+              properties:
+                links:
+                  $ref: '#/components/schemas/RelationshipLinks'
+                meta:
+                  $ref: '#/components/schemas/PagingInformation'
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - ciXcodeVersions
+                      id:
+                        type: string
+                    required:
+                    - id
+                    - type
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+      required:
+      - id
+      - type
+    CiXcodeVersionResponse:
+      type: object
+      title: CiXcodeVersionResponse
+      properties:
+        data:
+          $ref: '#/components/schemas/CiXcodeVersion'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiMacOsVersion'
+        links:
+          $ref: '#/components/schemas/DocumentLinks'
+      required:
+      - data
+      - links
     DocumentLinks:
       type: object
       properties:
@@ -380,6 +450,98 @@ components:
           format: uri-reference
       required:
       - self
+    CiXcodeVersionMacOsVersionsLinkagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - ciMacOsVersions
+              id:
+                type: string
+            required:
+            - id
+            - type
+        links:
+          $ref: '#/components/schemas/PagedDocumentLinks'
+        meta:
+          $ref: '#/components/schemas/PagingInformation'
+      required:
+      - data
+      - links
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              source:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorSourcePointer'
+                - $ref: '#/components/schemas/ErrorSourceParameter'
+              links:
+                $ref: '#/components/schemas/ErrorLinks'
+              meta:
+                type: object
+                additionalProperties: {}
+            required:
+            - code
+            - detail
+            - status
+            - title
+    PagedDocumentLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+        first:
+          type: string
+          format: uri-reference
+        next:
+          type: string
+          format: uri-reference
+      required:
+      - self
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    PagingInformation:
+      type: object
+      properties:
+        paging:
+          type: object
+          properties:
+            total:
+              type: integer
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+          required:
+          - limit
+      required:
+      - paging
     CiXcodeVersion:
       type: object
       title: CiXcodeVersion
@@ -446,6 +608,11 @@ components:
       required:
       - id
       - type
+    CiTestDestinationKind:
+      type: string
+      enum:
+      - SIMULATOR
+      - MAC
     ErrorSourcePointer:
       type: object
       title: JsonPointer
@@ -454,147 +621,14 @@ components:
           type: string
       required:
       - pointer
-    CiXcodeVersionMacOsVersionsLinkagesResponse:
+    ErrorSourceParameter:
       type: object
+      title: Parameter
       properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                enum:
-                - ciMacOsVersions
-              id:
-                type: string
-            required:
-            - id
-            - type
-        links:
-          $ref: '#/components/schemas/PagedDocumentLinks'
-        meta:
-          $ref: '#/components/schemas/PagingInformation'
+        parameter:
+          type: string
       required:
-      - data
-      - links
-    CiMacOsVersion:
-      type: object
-      title: CiMacOsVersion
-      properties:
-        type:
-          type: string
-          enum:
-          - ciMacOsVersions
-        id:
-          type: string
-        attributes:
-          type: object
-          properties:
-            version:
-              type: string
-            name:
-              type: string
-        relationships:
-          type: object
-          properties:
-            xcodeVersions:
-              type: object
-              properties:
-                links:
-                  $ref: '#/components/schemas/RelationshipLinks'
-                meta:
-                  $ref: '#/components/schemas/PagingInformation'
-                data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                        - ciXcodeVersions
-                      id:
-                        type: string
-                    required:
-                    - id
-                    - type
-        links:
-          $ref: '#/components/schemas/ResourceLinks'
-      required:
-      - id
-      - type
-    PagingInformation:
-      type: object
-      properties:
-        paging:
-          type: object
-          properties:
-            total:
-              type: integer
-            limit:
-              type: integer
-            nextCursor:
-              type: string
-          required:
-          - limit
-      required:
-      - paging
-    PagedDocumentLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        first:
-          type: string
-          format: uri-reference
-        next:
-          type: string
-          format: uri-reference
-      required:
-      - self
-    RelationshipLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-        related:
-          type: string
-          format: uri-reference
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              status:
-                type: string
-              code:
-                type: string
-              title:
-                type: string
-              detail:
-                type: string
-              source:
-                oneOf:
-                - $ref: '#/components/schemas/ErrorSourcePointer'
-                - $ref: '#/components/schemas/ErrorSourceParameter'
-              links:
-                $ref: '#/components/schemas/ErrorLinks'
-              meta:
-                type: object
-                additionalProperties: {}
-            required:
-            - code
-            - detail
-            - status
-            - title
+      - parameter
     CiMacOsVersionsResponse:
       type: object
       title: CiMacOsVersionsResponse
@@ -614,11 +648,6 @@ components:
       required:
       - data
       - links
-    CiTestDestinationKind:
-      type: string
-      enum:
-      - SIMULATOR
-      - MAC
     ErrorLinks:
       type: object
       properties:
@@ -639,27 +668,6 @@ components:
                 properties:
                   source:
                     type: string
-    ResourceLinks:
-      type: object
-      properties:
-        self:
-          type: string
-          format: uri-reference
-    CiXcodeVersionResponse:
-      type: object
-      title: CiXcodeVersionResponse
-      properties:
-        data:
-          $ref: '#/components/schemas/CiXcodeVersion'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/CiMacOsVersion'
-        links:
-          $ref: '#/components/schemas/DocumentLinks'
-      required:
-      - data
-      - links
     CiXcodeVersionsResponse:
       type: object
       title: CiXcodeVersionsResponse
@@ -679,14 +687,6 @@ components:
       required:
       - data
       - links
-    ErrorSourceParameter:
-      type: object
-      title: Parameter
-      properties:
-        parameter:
-          type: string
-      required:
-      - parameter
   securitySchemes:
     itc-bearer-token:
       type: http
